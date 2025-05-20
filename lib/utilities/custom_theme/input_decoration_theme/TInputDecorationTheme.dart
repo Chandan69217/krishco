@@ -11,11 +11,12 @@ class TInputDecorationTheme{
     filled: true,
     fillColor:  Colors.grey[100],
     border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-    focusedBorder: const OutlineInputBorder(
-        borderSide: BorderSide(
-            color: Colors.purple,
-            width: 1.2
-        )),
+    focusedBorder: OutlineInputBorder(
+      borderSide: BorderSide(
+        color:  Colors.grey[300]!,
+      ),
+      borderRadius: BorderRadius.circular(8),
+    ),
     enabledBorder: OutlineInputBorder(
       borderSide: BorderSide(
         color:  Colors.grey[300]!,

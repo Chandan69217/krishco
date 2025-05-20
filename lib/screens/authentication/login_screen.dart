@@ -33,7 +33,7 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _isChecked = true;
   final List<TextEditingController> _otpControllers = List.generate(6, (_) => TextEditingController());
   bool _isLoading = false;
-  final TextEditingController _txtMobileEditingController = TextEditingController(text: "1234567890");
+  final TextEditingController _txtMobileEditingController = TextEditingController(text: "1234567891");
   final TextEditingController _txtPasswordEditingController = TextEditingController(text: "Shivamraj@1950");
   final _formKey = GlobalKey<FormState>();
   bool _passwordVisibility = false;
@@ -277,7 +277,7 @@ class _LoginScreenState extends State<LoginScreen> {
               title: 'Login Success',
               message: "Thank you for login !!",
               contentType: ContentType.success);
-          Navigator.push(context, MaterialPageRoute(builder: (context)=>_getScreenByGroup(group_type!)!));
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>_getScreenByGroup(group_type!)!));
         } else {
           await handleHttpResponse(context, response);
         }

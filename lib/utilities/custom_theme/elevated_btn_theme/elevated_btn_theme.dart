@@ -8,7 +8,7 @@ class ElevatedBtnTheme {
 
   static final ElevatedButtonThemeData light =
       ElevatedButtonThemeData(style: ElevatedButton.styleFrom(
-        padding: const EdgeInsets.symmetric(vertical: 16),
+        padding: const EdgeInsets.symmetric(vertical: 16,horizontal: 16),
         textStyle: TTextTheme.lightTextTheme.bodyMedium,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
@@ -20,7 +20,7 @@ class ElevatedBtnTheme {
       ));
 
   static final ElevatedButtonThemeData dark = ElevatedButtonThemeData(style: ElevatedButton.styleFrom(
-    padding: const EdgeInsets.symmetric(vertical: 16),
+    padding: const EdgeInsets.symmetric(vertical: 16,horizontal: 16),
     textStyle: TTextTheme.lightTextTheme.bodyMedium,
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(12),

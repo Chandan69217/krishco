@@ -20,7 +20,7 @@ class AppTheme{
       fontFamily: 'Inter',
       primaryColor: CustColors.primary,
       brightness: Brightness.light,
-      scaffoldBackgroundColor: CustColors.white,
+      scaffoldBackgroundColor: Colors.grey[100],
       appBarTheme: TAppbarTheme.lightAppbarTheme,
       bottomNavigationBarTheme: TBottomNavigationBarTheme.light,
       navigationBarTheme: TNavigationBarTheme.light,

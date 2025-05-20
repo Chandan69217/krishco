@@ -8,7 +8,7 @@ class TAppbarTheme{
       foregroundColor: Colors.white,
       backgroundColor: CustColors.nile_blue,
       iconTheme: IconThemeData(
-          color: Colors.black
+          color: Colors.white
       )
   );
 
