@@ -3,12 +3,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:krishco/dashboard_type/user_ui/api_service/get_product_details_from_api/get_products_details_from_product_id.dart';
-import 'package:krishco/dashboard_type/user_ui/models/product_category_data.dart';
-import 'package:krishco/dashboard_type/user_ui/models/product_details_data.dart';
 import 'package:krishco/dashboard_type/user_ui/screens/product_details_screen/product_details_screen.dart';
 import 'package:krishco/dashboard_type/user_ui/screens/user_claim_point_screen.dart';
 import 'package:krishco/dashboard_type/user_ui/screens/navigations/user_redemption_screen.dart';
+import 'package:krishco/models/product_related/product_category_data.dart';
+import 'package:krishco/models/product_related/product_details_data.dart';
 import 'package:krishco/screens/splash/splash_screen.dart';
+import 'package:krishco/api_services/api_urls.dart';
 import 'package:krishco/utilities/constant.dart';
 import 'package:krishco/utilities/cust_colors.dart';
 import 'package:krishco/widgets/cust_loader.dart';
@@ -33,7 +34,7 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
   Future<bool> init() async {
     String token = Pref.instance.getString(Consts.user_token) ?? '';
     try {
-      var uri = Uri.https(UserUrls.base_url, UserUrls.product_catagory);
+      var uri = Uri.https(UserUrls.base_url,Urls.product_catagory);
 
       var response = await get(uri, headers: {
         'authorization': 'Bearer $token',

@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import '../screens/authentication/login_screen.dart';
+import '../screens/splash/splash_screen.dart';
 import '../widgets/cust_snack_bar.dart';
 // import 'consts.dart';
 
@@ -36,12 +37,7 @@ Future<Map<String, dynamic>> handleHttpResponse(BuildContext context,Response re
       errorTitle = 'Server Error';
       errorDesc = 'Something went wrong on the server. Please login again.';
       type = ContentType.warning;
-      // Pref.instance.remove(Consts.isLogin);
-      // Pref.instance.remove(Consts.teacherToken);
-      // Pref.instance.remove(Consts.organisationId);
-      // Pref.instance.remove(Consts.organisationCode);
-      // Pref.instance.remove(Consts.teacherCode);
-      // Pref.instance.remove(Consts.userProfile);
+      Pref.instance.clear();
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: (context) => LoginScreen()),
             (route) => false,

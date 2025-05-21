@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-class EditDetailsScreen extends StatefulWidget {
-  const EditDetailsScreen({super.key});
+class ChannelPartnerEditDetailsScreen extends StatefulWidget {
+  const ChannelPartnerEditDetailsScreen({super.key});
 
   @override
-  State<EditDetailsScreen> createState() => _EditDetailsScreenState();
+  State<ChannelPartnerEditDetailsScreen> createState() => _ChannelPartnerEditDetailsScreenState();
 }
 
-class _EditDetailsScreenState extends State<EditDetailsScreen> {
+class _ChannelPartnerEditDetailsScreenState extends State<ChannelPartnerEditDetailsScreen> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _emailTextController = TextEditingController();
   final TextEditingController _customerFirstNameController = TextEditingController();

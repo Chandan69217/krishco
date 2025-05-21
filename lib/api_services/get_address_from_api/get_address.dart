@@ -2,11 +2,11 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart';
-import 'package:krishco/models/city_list.dart';
-import 'package:krishco/models/district_list.dart';
-import 'package:krishco/models/state_list.dart';
-import 'package:krishco/utilities/api_urls.dart';
-import 'package:krishco/utilities/handle_https_response.dart';
+import 'package:krishco/models/address_related/city_list.dart';
+import 'package:krishco/models/address_related/district_list.dart';
+import 'package:krishco/models/address_related/state_list.dart';
+import 'package:krishco/api_services/api_urls.dart';
+import 'package:krishco/api_services/handle_https_response.dart';
 
 class GetAddress {
 

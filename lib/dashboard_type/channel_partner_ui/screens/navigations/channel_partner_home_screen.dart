@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 
 
 
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+class ChannelPartnerHomeScreen extends StatelessWidget {
+  const ChannelPartnerHomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

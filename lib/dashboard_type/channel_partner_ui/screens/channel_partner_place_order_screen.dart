@@ -1,16 +1,17 @@
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
-class PlaceOrderScreen extends StatefulWidget {
-  const PlaceOrderScreen({super.key});
+class ChannelPartnerPlaceOrderScreen extends StatefulWidget {
+  const ChannelPartnerPlaceOrderScreen({super.key});
 
   @override
-  State<PlaceOrderScreen> createState() => _PlaceOrderScreenState();
+  State<ChannelPartnerPlaceOrderScreen> createState() => _ChannelPartnerPlaceOrderScreenState();
 }
 
-class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
+class _ChannelPartnerPlaceOrderScreenState extends State<ChannelPartnerPlaceOrderScreen> {
   String _orderFor = 'self';
   bool _isEnterpriseNotListed = false;
   final _consumerNumberController = TextEditingController();
@@ -19,71 +20,71 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
   final TextEditingController _filePreviewController = TextEditingController(text: 'Choose File');
   List<PlatformFile> _selectedFile = [];
   PlatformFile? _pickedFile;
-  List<ProductItem> _productList = [
-    ProductItem(
+  List<_ProductItem> _productList = [
+    _ProductItem(
       category: 'Electronics',
       name: 'Wireless Mouse',
       qty: 2,
       unit: 'pcs',
       imageUrl: 'https://via.placeholder.com/50',
     ),
-    ProductItem(
+    _ProductItem(
       category: 'Electronics',
       name: 'Bluetooth Keyboard',
       qty: 1,
       unit: 'pcs',
       imageUrl: 'https://via.placeholder.com/50',
     ),
-    ProductItem(
+    _ProductItem(
       category: 'Stationery',
       name: 'A4 Notebook',
       qty: 5,
       unit: 'pcs',
       imageUrl: 'https://via.placeholder.com/50',
     ),
-    ProductItem(
+    _ProductItem(
       category: 'Stationery',
       name: 'Ballpoint Pen',
       qty: 10,
       unit: 'pcs',
       imageUrl: 'https://via.placeholder.com/50',
     ),
-    ProductItem(
+    _ProductItem(
       category: 'Furniture',
       name: 'Office Chair',
       qty: 1,
       unit: 'pcs',
       imageUrl: 'https://via.placeholder.com/50',
     ),
-    ProductItem(
+    _ProductItem(
       category: 'Furniture',
       name: 'Desk Organizer',
       qty: 3,
       unit: 'pcs',
       imageUrl: 'https://via.placeholder.com/50',
     ),
-    ProductItem(
+    _ProductItem(
       category: 'Electronics',
       name: 'Webcam',
       qty: 1,
       unit: 'pcs',
       imageUrl: 'https://via.placeholder.com/50',
     ),
-    ProductItem(
+    _ProductItem(
       category: 'Electronics',
       name: 'HDMI Cable',
       qty: 4,
       unit: 'pcs',
       imageUrl: 'https://via.placeholder.com/50',
     ),
-    ProductItem(
+    _ProductItem(
       category: 'Cleaning',
       name: 'Surface Cleaner',
       qty: 2,
       unit: 'bottles',
       imageUrl: 'https://via.placeholder.com/50',
     ),
-    ProductItem(
+    _ProductItem(
       category: 'Pantry',
       name: 'Coffee Pack',
       qty: 6,
@@ -497,7 +498,7 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
   Widget _buildSelectedItemTable() {
     final int startIndex = _currentPage * _itemsPerPage;
     final int endIndex = (_currentPage + 1) * _itemsPerPage;
-    final List<ProductItem> visibleItems =
+    final List<_ProductItem> visibleItems =
     _productList.sublist(startIndex, endIndex > _productList.length ? _productList.length : endIndex);
 
     return Column(
@@ -539,10 +540,14 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
                         _cell('${startIndex + i + 1}'),
                         Padding(
                           padding: const EdgeInsets.all(4),
-                          child: Image.network(
-                            visibleItems[i].imageUrl,
-                            width: 40,
+                          child: CachedNetworkImage(
+                            imageUrl: visibleItems[i].imageUrl
+                            ,width: 40,
                             height: 40,
+                            placeholder: (context, url) => Center(
+                              child: CircularProgressIndicator(),
+                            ),
+                            errorWidget: (context, url, error) => Image.asset('assets/logo/Placeholder_image.webp'),
                           ),
                         ),
                         _cell(visibleItems[i].category),
@@ -635,14 +640,14 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
 
 }
 
-class ProductItem {
+class _ProductItem {
   final String category;
   final String name;
   final int qty;
   final String unit;
   final String imageUrl;
 
-  ProductItem({
+  _ProductItem({
     required this.category,
     required this.name,
     required this.qty,

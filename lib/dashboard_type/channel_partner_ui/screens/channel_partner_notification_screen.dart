@@ -2,22 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class ChannelPartnerNotificationScreen extends StatelessWidget {
-  final List<NotificationItem> notifications = [
-    NotificationItem(
+  final List<_NotificationItem> notifications = [
+    _NotificationItem(
       title: "New message from John",
       subtitle: "Hey, are we still meeting at 5?",
       icon: Icons.message,
       timestamp: DateTime.now().subtract(Duration(minutes: 10)),
       isRead: false,
     ),
-    NotificationItem(
+    _NotificationItem(
       title: "Task Completed",
       subtitle: "Your PDF conversion is finished.",
       icon: Icons.check_circle,
       timestamp: DateTime.now().subtract(Duration(hours: 2)),
       isRead: true,
     ),
-    NotificationItem(
+    _NotificationItem(
       title: "System Update",
       subtitle: "Version 1.2.3 is available.",
       icon: Icons.system_update,
@@ -39,21 +39,21 @@ class ChannelPartnerNotificationScreen extends StatelessWidget {
         separatorBuilder: (context, index) => SizedBox(height: 8),
         itemBuilder: (context, index) {
           final item = notifications[index];
-          return NotificationTile(item: item);
+          return _NotificationTile(item: item);
         },
       ),
     );
   }
 }
 
-class NotificationItem {
+class _NotificationItem {
   final String title;
   final String subtitle;
   final IconData icon;
   final DateTime timestamp;
   final bool isRead;
 
-  NotificationItem({
+  _NotificationItem({
     required this.title,
     required this.subtitle,
     required this.icon,
@@ -62,10 +62,10 @@ class NotificationItem {
   });
 }
 
-class NotificationTile extends StatelessWidget {
-  final NotificationItem item;
+class _NotificationTile extends StatelessWidget {
+  final _NotificationItem item;
 
-  NotificationTile({required this.item});
+  _NotificationTile({required this.item});
 
   @override
   Widget build(BuildContext context) {

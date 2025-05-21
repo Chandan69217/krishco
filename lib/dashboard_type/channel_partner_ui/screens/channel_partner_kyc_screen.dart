@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-class KycScreen extends StatefulWidget {
+class ChannelPartnerKycScreen extends StatefulWidget {
   @override
-  _KycScreenState createState() => _KycScreenState();
+  _ChannelPartnerKycScreenState createState() => _ChannelPartnerKycScreenState();
 }
 
-class _KycScreenState extends State<KycScreen> {
+class _ChannelPartnerKycScreenState extends State<ChannelPartnerKycScreen> {
   final _formKey = GlobalKey<FormState>();
 
   // Controllers for text fields

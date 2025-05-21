@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:krishco/dashboard_type/user_ui/models/product_details_data.dart';
+import 'package:krishco/models/product_related/product_details_data.dart';
 import 'package:krishco/widgets/custom_network_image/custom_network_image.dart';
 
 class ProductDetailsScreen extends StatefulWidget {

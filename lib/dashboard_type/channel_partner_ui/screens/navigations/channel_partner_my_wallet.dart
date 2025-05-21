@@ -3,7 +3,7 @@ import 'package:krishco/utilities/cust_colors.dart';
 
 
 
-class MyWallet extends StatelessWidget {
+class ChannelPartnerMyWallet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;

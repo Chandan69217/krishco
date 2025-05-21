@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-class ChangePasswordScreen extends StatefulWidget {
-  const ChangePasswordScreen({super.key});
+class ChannelPartnerChangePasswordScreen extends StatefulWidget {
+  const ChannelPartnerChangePasswordScreen({super.key});
 
   @override
-  State<ChangePasswordScreen> createState() => _ChangePasswordScreenState();
+  State<ChannelPartnerChangePasswordScreen> createState() => _ChannelPartnerChangePasswordScreenState();
 }
 
-class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
+class _ChannelPartnerChangePasswordScreenState extends State<ChannelPartnerChangePasswordScreen> {
   final _formKey = GlobalKey<FormState>();
 
   bool _showCurrentPassword = false;
