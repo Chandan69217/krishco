@@ -19,13 +19,11 @@ class ChannelPartnerClaimScreen extends StatefulWidget {
 
 class _ChannelPartnerClaimScreenState extends State<ChannelPartnerClaimScreen> {
   int selectedTabIndex = 0;
-
   ClaimListData?  claimList;
   ClaimReportingListData? claimReportingList;
   Future<Map<String,dynamic>?>? _futureClaims;
   ValueNotifier<List<ClaimData>> _filteredClaimsList = ValueNotifier<List<ClaimData>>([]);
   ValueNotifier<List<ClaimReportingData>> _filteredReportingClaimList = ValueNotifier<List<ClaimReportingData>>([]);
-
   final TextEditingController _searchController = TextEditingController();
 
   @override
@@ -76,7 +74,6 @@ class _ChannelPartnerClaimScreenState extends State<ChannelPartnerClaimScreen> {
       selectedTabIndex = index;
       _searchController.clear();
       _fetchClaimData();
-      // _updateFilteredClaims();
     });
   }
 
@@ -104,10 +101,10 @@ class _ChannelPartnerClaimScreenState extends State<ChannelPartnerClaimScreen> {
     super.dispose();
   }
 
+
   @override
   Widget build(BuildContext context) {
     final tabTitles = ["Claim List", "Reporting Claim"];
-    final invoiceClaimObj = APIService(context: context).invoiceClaim;
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -210,7 +207,6 @@ class _ChannelPartnerClaimScreenState extends State<ChannelPartnerClaimScreen> {
                 },
                 child: FutureBuilder(
                   future: _futureClaims,
-                    // future: selectedTabIndex == 0 ? invoiceClaimObj.getClaimList(): invoiceClaimObj.getClaimReportingList() ,
                     builder: (context,snapshot){
                       if(snapshot.connectionState == ConnectionState.waiting){
                         return Center(

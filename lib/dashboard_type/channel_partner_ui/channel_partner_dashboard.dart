@@ -62,6 +62,8 @@ class _ChannelPartnerDashboardState extends State<ChannelPartnerDashboard> {
 
   AppBar _appBar() {
     return AppBar(
+      shape: _currentIndex == 3 ? const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(bottom: Radius.circular(0))):null,
       title: Text(
         _titles[_currentIndex],
         style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: Colors.white),

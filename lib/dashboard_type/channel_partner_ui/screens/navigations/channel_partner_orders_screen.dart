@@ -1,4 +1,7 @@
+import 'dart:developer';
+
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:custom_refresh_indicator/custom_refresh_indicator.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:krishco/api_services/api_service.dart';
@@ -19,6 +22,7 @@ class _ChannelPartnerOrdersScreenState extends State<ChannelPartnerOrdersScreen>
   int selectedTabIndex = 0;
   OrderListData? orderList;
   OrderReportingListData? orderReportingList;
+  Future<Map<String,dynamic>?>? _futureOrder;
   final ValueNotifier<List<OrderData>> _filteredOrderList = ValueNotifier<List<OrderData>>([]);
   final ValueNotifier<List<OrderReportingData>> _filteredReportingList = ValueNotifier<List<OrderReportingData>>([]);
 
@@ -28,6 +32,9 @@ class _ChannelPartnerOrdersScreenState extends State<ChannelPartnerOrdersScreen>
   void initState() {
     super.initState();
     _searchController.addListener(_filterOrders);
+    WidgetsBinding.instance.addPostFrameCallback((_){
+      _fetchOrderData();
+    });
   }
 
   void _updateFilteredOrders() {
@@ -36,6 +43,13 @@ class _ChannelPartnerOrdersScreenState extends State<ChannelPartnerOrdersScreen>
     } else {
       _filteredReportingList.value = orderReportingList?.data ?? [];
     }
+  }
+
+  void _fetchOrderData()async{
+    final orderRelatedObj = APIService(context: context).orderRelated;
+    setState(() {
+      _futureOrder = selectedTabIndex == 0 ? orderRelatedObj.getOrderList():orderRelatedObj.getOrderReportingList();
+    });
   }
 
 
@@ -58,7 +72,7 @@ class _ChannelPartnerOrdersScreenState extends State<ChannelPartnerOrdersScreen>
     setState(() {
       selectedTabIndex = index;
       _searchController.clear();
-      _updateFilteredOrders();
+      _fetchOrderData();
     });
   }
 
@@ -73,7 +87,6 @@ class _ChannelPartnerOrdersScreenState extends State<ChannelPartnerOrdersScreen>
   @override
   Widget build(BuildContext context) {
     final tabTitles = ["Order List", "Reporting Message"];
-    final orderRelatedObj = APIService(context: context).orderRelated;
 
     return Scaffold(
       body: SafeArea(
@@ -116,7 +129,6 @@ class _ChannelPartnerOrdersScreenState extends State<ChannelPartnerOrdersScreen>
                 ),
               ),
             ),
-
             // Search box
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
@@ -156,72 +168,89 @@ class _ChannelPartnerOrdersScreenState extends State<ChannelPartnerOrdersScreen>
             ),
 
             Expanded(
-              child: FutureBuilder<Map<String, dynamic>?>(
-                future: selectedTabIndex == 0
-                    ? orderRelatedObj.getOrderList()
-                    : orderRelatedObj.getOrderReportingList(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CustLoader());
-                  }
-
-                  if (snapshot.hasError) {
-                    return Center(
-                      child: Text(
-                        'Something went wrong !!',
-                        style: TextStyle(color: Colors.red.shade600),
+              child: CustomRefreshIndicator(
+                onRefresh: _onRefresh,
+                builder: (context, child, controller) {
+                  return Stack(
+                    alignment: Alignment.topCenter,
+                    children: [
+                      if (controller.isLoading)
+                        Padding(
+                          padding: EdgeInsets.only(top: 16.0),
+                          child: CircularProgressIndicator(color: Colors.blue.shade600,),
+                        ),
+                      Transform.translate(
+                        offset: Offset(0, 100 * controller.value),
+                        child: child,
                       ),
-                    );
-                  }
-
-                  final data = snapshot.data;
-                  if (data == null) {
-                    return const Center(child: Text('Empty'));
-                  }
-
-                  if (selectedTabIndex == 0) {
-                    orderList = OrderListData.fromJson(data);
-                    WidgetsBinding.instance.addPostFrameCallback((_) {
-                      _updateFilteredOrders();
-                    });
-                    return ValueListenableBuilder<List<OrderData>>(
-                      valueListenable: _filteredOrderList,
-                      builder: (context, filteredOrders, _) {
-                        if (filteredOrders.isEmpty) {
-                          return const Center(child: Text("Empty", style: TextStyle(color: Colors.grey)));
-                        }
-                        return ListView.builder(
-                          padding: const EdgeInsets.fromLTRB(12, 0, 12, 80),
-                          itemCount: filteredOrders.length,
-                          itemBuilder: (context, index) {
-                            final order = filteredOrders[index];
-                            return _OrderCard(order: order);
-                          },
-                        );
-                      },
-                    );
-                  } else {
-                    orderReportingList = OrderReportingListData.fromJson(data);
-                    WidgetsBinding.instance.addPostFrameCallback((_) {
-                      _updateFilteredOrders();
-                    });
-                    return ValueListenableBuilder<List<dynamic>>(
-                      valueListenable: _filteredReportingList,
-                      builder: (context, filteredReports, _) {
-                        if (filteredReports.isEmpty) {
-                          return const Center(child: Text("Empty", style: TextStyle(color: Colors.grey)));
-                        }
-                        return ListView.builder(
-                          padding: const EdgeInsets.fromLTRB(12, 0, 12, 80),
-                          itemCount: filteredReports.length,
-                          itemBuilder: (context, index) {
-                            return _OrderReportingCard(data: filteredReports[index],);
-                          },
-                        );
-                      },
-                    );
-                  }
+                    ],
+                  );
                 },
+                child: FutureBuilder<Map<String, dynamic>?>(
+                  future: _futureOrder,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Center(child: CustLoader());
+                    }
+
+                    if (snapshot.hasError) {
+                      return Center(
+                        child: Text(
+                          'Something went wrong !!',
+                          style: TextStyle(color: Colors.red.shade600),
+                        ),
+                      );
+                    }
+
+                    final data = snapshot.data;
+                    if (data == null) {
+                      return const Center(child: Text('Empty'));
+                    }
+
+                    if (selectedTabIndex == 0) {
+                      orderList = OrderListData.fromJson(data);
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        _updateFilteredOrders();
+                      });
+                      return ValueListenableBuilder<List<OrderData>>(
+                        valueListenable: _filteredOrderList,
+                        builder: (context, filteredOrders, _) {
+                          if (filteredOrders.isEmpty) {
+                            return const Center(child: Text("Empty", style: TextStyle(color: Colors.grey)));
+                          }
+                          return ListView.builder(
+                            padding: const EdgeInsets.fromLTRB(12, 0, 12, 80),
+                            itemCount: filteredOrders.length,
+                            itemBuilder: (context, index) {
+                              final order = filteredOrders[index];
+                              return _OrderCard(order: order);
+                            },
+                          );
+                        },
+                      );
+                    } else {
+                      orderReportingList = OrderReportingListData.fromJson(data);
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        _updateFilteredOrders();
+                      });
+                      return ValueListenableBuilder<List<dynamic>>(
+                        valueListenable: _filteredReportingList,
+                        builder: (context, filteredReports, _) {
+                          if (filteredReports.isEmpty) {
+                            return const Center(child: Text("Empty", style: TextStyle(color: Colors.grey)));
+                          }
+                          return ListView.builder(
+                            padding: const EdgeInsets.fromLTRB(12, 0, 12, 80),
+                            itemCount: filteredReports.length,
+                            itemBuilder: (context, index) {
+                              return _OrderReportingCard(data: filteredReports[index],);
+                            },
+                          );
+                        },
+                      );
+                    }
+                  },
+                ),
               ),
             ),
           ],
@@ -243,6 +272,22 @@ class _ChannelPartnerOrdersScreenState extends State<ChannelPartnerOrdersScreen>
       label: const Text("Place Order"),
       backgroundColor: Colors.blue,
     );
+  }
+
+
+  Future<void> _onRefresh()async{
+    final orderRelatedObj = APIService(context: context).orderRelated;
+    if(selectedTabIndex == 0){
+      final data = await orderRelatedObj.getOrderList();
+      if(data != null){
+        orderList = OrderListData.fromJson(data);
+      }
+    }else{
+      final data = await orderRelatedObj.getOrderReportingList();
+      if(data!=null){
+        orderReportingList = OrderReportingListData.fromJson(data);
+      }
+    }
   }
 
 }
@@ -377,7 +422,6 @@ class _OrderCard extends StatelessWidget {
     );
   }
 }
-
 
 class _OrderDetailsScreen extends StatelessWidget {
   final OrderData order;
@@ -652,7 +696,6 @@ class _OrderReportingCard extends StatelessWidget {
     );
   }
 }
-
 
 class _OrderReportingDetailsScreen extends StatelessWidget {
   final OrderReportingData data;

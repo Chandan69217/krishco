@@ -36,7 +36,6 @@ class _ChannelPartnerKycScreenState extends State<ChannelPartnerKycScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('KYC Details')),
-      backgroundColor: Colors.grey[200], // subtle background so cards stand out
       body: SingleChildScrollView(
         padding: EdgeInsets.all(16),
         child: Form(

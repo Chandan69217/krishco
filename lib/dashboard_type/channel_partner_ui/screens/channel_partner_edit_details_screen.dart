@@ -34,8 +34,6 @@ class _ChannelPartnerEditDetailsScreenState extends State<ChannelPartnerEditDeta
     return Scaffold(
       appBar: AppBar(
         title: const Text('Update Details'),
-        shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.vertical(bottom: Radius.circular(8))),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),

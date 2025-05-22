@@ -6,8 +6,7 @@ import 'package:krishco/utilities/cust_colors.dart';
 class ChannelPartnerMyWallet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width;
-    double screenHeight = MediaQuery.of(context).size.height;
+
 
     return Scaffold(
       // appBar: AppBar(
@@ -16,7 +15,7 @@ class ChannelPartnerMyWallet extends StatelessWidget {
       //   elevation: 1,
       //   iconTheme: IconThemeData(color: Colors.black),
       // ),
-      backgroundColor: Colors.grey[100],
+
       body: Column(
         children: [
           // Wallet Balance
