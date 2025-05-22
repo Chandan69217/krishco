@@ -1,11 +1,14 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart';
+import 'package:http/http.dart' as http;
 import 'package:krishco/models/product_related/product_category_data.dart';
 import 'package:krishco/models/product_related/product_details_data.dart';
 import 'package:krishco/screens/splash/splash_screen.dart';
 import 'package:krishco/api_services/api_urls.dart';
 import 'package:krishco/utilities/constant.dart';
+import 'package:http_parser/http_parser.dart';
 import 'package:krishco/api_services/handle_https_response.dart';
 
 
@@ -109,38 +112,45 @@ class _TaggedEnterprise{
 
   Future<Map<String,dynamic>?> getTaggedEnterpriseOfLoginCustomer()async{
     final userToken = Pref.instance.getString(Consts.user_token);
-    final url = Uri.https(Urls.base_url,Urls.tagged_enterprise_of_login_customer);
 
-    final response = await get(url,headers: {
-      'Authorization' : 'Bearer ${userToken}'
-    });
+    try{
+      final url = Uri.https(Urls.base_url,Urls.tagged_enterprise_of_login_customer);
+      final response = await get(url,headers: {
+        'Authorization' : 'Bearer ${userToken}'
+      });
 
-    if(response.statusCode == 200){
-      final body = response.body as Map<String,dynamic>;
-      return body;
-    }else{
-      handleHttpResponse(context, response);
+      if(response.statusCode == 200){
+        final body = json.decode(response.body) as Map<String,dynamic>;
+        return body;
+      }else{
+        handleHttpResponse(context, response);
+      }
+    }catch(exception,trace){
+      print('Exception: ${exception}, Trace: ${trace}');
     }
     return null;
   }
 
   Future<Map<String,dynamic>?> getTaggedEnterprisedByNumber(String number)async{
     final userToken = Pref.instance.getString(Consts.user_token);
-    final url = Uri.https(Urls.base_url,Urls.tagged_enterprise_of_login_customer);
+    try{
+      final url = Uri.https(Urls.base_url,Urls.tagged_enterprise_of_login_customer);
+      final response = await post(url,headers: {
+        'Authorization' : 'Bearer ${userToken}'
+      },body: json.encode(
+          {
+            "number": number
+          }
+      ));
 
-    final response = await post(url,headers: {
-      'Authorization' : 'Bearer ${userToken}'
-    },body: json.encode(
-        {
-          "number": number
-        }
-    ));
-
-    if(response.statusCode == 200){
-      final body = response.body as Map<String,dynamic>;
-      return body;
-    }else{
-      handleHttpResponse(context, response);
+      if(response.statusCode == 200){
+        final body = response.body as Map<String,dynamic>;
+        return body;
+      }else{
+        handleHttpResponse(context, response);
+      }
+    }catch(exception,trace){
+      print('Exception: ${exception},Trace: ${trace}');
     }
     return null;
   }
@@ -334,5 +344,56 @@ class _InvoiceClaim{
     }
     return null;
   }
+
+  Future<Map<String, dynamic>?> createInvoiceClaim({
+    String? invoiceNo,
+    required String invoiceData,
+    String? claimFrom,
+    required String amount,
+    required String claimCopy,
+    Map<String, dynamic>? claimFromOthers,
+  }) async {
+    final userToken = Pref.instance.getString(Consts.user_token);
+
+    try {
+      final url = Uri.https(Urls.base_url, Urls.invoice_claim_entry);
+
+      final request = http.MultipartRequest('POST', url)
+        ..headers['Authorization'] = 'Bearer $userToken'
+        ..fields['invoice_id'] = invoiceNo ?? ''
+        ..fields['invoice_date'] = invoiceData
+        ..fields['claimed_from'] = claimFrom ?? ''
+        ..fields['claim_amount'] = amount
+        ..fields['app_name'] = 'mobile'
+        ..fields['claimed_from_others'] = jsonEncode(claimFromOthers);
+
+      final mimeType = claimCopy.endsWith('.png')
+          ? MediaType('image', 'png')
+          : MediaType('image', 'jpeg');
+
+      request.files.add(await http.MultipartFile.fromPath(
+        'claim_copy',
+        claimCopy,
+        contentType: mimeType,
+      ));
+
+      final streamedResponse = await request.send();
+
+      final response = await http.Response.fromStream(streamedResponse);
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body) as Map<String, dynamic>;
+      }else if(response.statusCode == 201){
+        return jsonDecode(response.body) as Map<String,dynamic>;
+      } else {
+        print('Failed: ${response.statusCode} -> ${response.body}');
+      }
+    } catch (exception, trace) {
+      print('Exception: $exception\nTrace: $trace');
+    }
+
+    return null;
+  }
+
 
 }

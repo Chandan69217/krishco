@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:custom_refresh_indicator/custom_refresh_indicator.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -21,7 +22,7 @@ class _ChannelPartnerClaimScreenState extends State<ChannelPartnerClaimScreen> {
 
   ClaimListData?  claimList;
   ClaimReportingListData? claimReportingList;
-
+  Future<Map<String,dynamic>?>? _futureClaims;
   ValueNotifier<List<ClaimData>> _filteredClaimsList = ValueNotifier<List<ClaimData>>([]);
   ValueNotifier<List<ClaimReportingData>> _filteredReportingClaimList = ValueNotifier<List<ClaimReportingData>>([]);
 
@@ -31,7 +32,21 @@ class _ChannelPartnerClaimScreenState extends State<ChannelPartnerClaimScreen> {
   void initState() {
     super.initState();
     _searchController.addListener(_filterClaims);
+    WidgetsBinding.instance.addPostFrameCallback((_){
+      _fetchClaimData();
+    });
   }
+
+  void _fetchClaimData(){
+    final invoiceClaimObj = APIService(context: context).invoiceClaim;
+    setState(() {
+      _futureClaims = selectedTabIndex == 0
+          ? invoiceClaimObj.getClaimList()
+          : invoiceClaimObj.getClaimReportingList();
+    });
+  }
+
+
 
   void _updateFilteredClaims() {
     if(selectedTabIndex == 0){
@@ -60,6 +75,25 @@ class _ChannelPartnerClaimScreenState extends State<ChannelPartnerClaimScreen> {
     setState(() {
       selectedTabIndex = index;
       _searchController.clear();
+      _fetchClaimData();
+      // _updateFilteredClaims();
+    });
+  }
+
+  Future<void> _onRefresh()async{
+    final invoiceClaimObj = APIService(context: context).invoiceClaim;
+    if(selectedTabIndex == 0){
+      final data = await invoiceClaimObj.getClaimList();
+      if(data!=null){
+        claimList = ClaimListData.fromJson(data);
+      }
+    }else{
+      final data = await invoiceClaimObj.getClaimReportingList();
+      if(data!=null){
+        claimReportingList = ClaimReportingListData.fromJson(data);
+      }
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_){
       _updateFilteredClaims();
     });
   }
@@ -156,8 +190,27 @@ class _ChannelPartnerClaimScreenState extends State<ChannelPartnerClaimScreen> {
 
             // List
             Expanded(
+              child: CustomRefreshIndicator(
+                onRefresh: _onRefresh,
+                builder: (context, child, controller) {
+                  return Stack(
+                    alignment: Alignment.topCenter,
+                    children: [
+                      if (controller.isLoading)
+                         Padding(
+                          padding: EdgeInsets.only(top: 16.0),
+                          child: CircularProgressIndicator(color: Colors.blue.shade600,),
+                        ),
+                      Transform.translate(
+                        offset: Offset(0, 100 * controller.value),
+                        child: child,
+                      ),
+                    ],
+                  );
+                },
                 child: FutureBuilder(
-                    future: selectedTabIndex == 0 ? invoiceClaimObj.getClaimList(): invoiceClaimObj.getClaimReportingList() ,
+                  future: _futureClaims,
+                    // future: selectedTabIndex == 0 ? invoiceClaimObj.getClaimList(): invoiceClaimObj.getClaimReportingList() ,
                     builder: (context,snapshot){
                       if(snapshot.connectionState == ConnectionState.waiting){
                         return Center(
@@ -218,7 +271,11 @@ class _ChannelPartnerClaimScreenState extends State<ChannelPartnerClaimScreen> {
                                 padding: EdgeInsets.fromLTRB(12, 0, 12, 80),
                                 itemCount: claimRepo.length,
                                 itemBuilder: (context, index) {
-                                  return _ClaimReportingCard(data: claimRepo[index],);
+                                  return _ClaimReportingCard(data: claimRepo[index],
+                                    onTap: (){
+                                    Navigator.of(context).push(MaterialPageRoute(builder: (_)=>_ClaimReportingDetailsScreen(claimData: claimRepo[index])));
+                                    },
+                                  );
                                 },
                               );
                             }
@@ -226,7 +283,9 @@ class _ChannelPartnerClaimScreenState extends State<ChannelPartnerClaimScreen> {
                         return Container();
                       }
                     }
-                )),
+                ),
+              ),
+            ),
 
           ],
         ),
@@ -579,6 +638,7 @@ class _ClaimReportingCard extends StatelessWidget {
     final claimedFrom = claim?.claimedFrom;
 
     return Card(
+      color: Colors.white,
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       elevation: 3,
@@ -678,3 +738,170 @@ class _ClaimReportingCard extends StatelessWidget {
     return DateFormat('dd MMM yyyy').format(date);
   }
 }
+
+class _ClaimReportingDetailsScreen extends StatelessWidget {
+  final ClaimReportingData claimData;
+
+  const _ClaimReportingDetailsScreen({Key? key, required this.claimData}) : super(key: key);
+
+  String formatDate(DateTime? date) {
+    return date != null ? DateFormat('yyyy-MM-dd').format(date) : '-';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final claim = claimData.claim;
+    if (claim == null) {
+      return Scaffold(
+        appBar: AppBar(title: const Text("Claim Details")),
+        body: const Center(child: Text("Claim data not available")),
+      );
+    }
+
+    final claimedBy = claim.claimedBy;
+    final claimedFrom = claim.claimedFromOthers;
+    final isUnregistered = claim.isRegistered == false;
+
+    return Scaffold(
+      appBar: AppBar(title: const Text("Claim Details")),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            _buildCard(
+              title: "Claim Info",
+              children: [
+                _infoRow("Claim No", claim.claimNumber),
+                _infoRow("Reported Date", formatDate(claimData.addDate)),
+                _infoRow("Claimed Date", formatDate(claim.claimedDate)),
+                _infoRow("Status", claim.claimStatus, highlight: true),
+                _infoRow("Position", claim.claimPosition),
+                _infoRow("App", claim.appName),
+                _infoRow("Claim Amount", "₹${claim.claimAmount ?? 0}"),
+                _infoRow("Final Amount", "₹${claim.finalClaimAmount ?? 0}"),
+                _infoRow("Points", "${claim.claimPoints ?? 0}"),
+                _infoRow("Remarks", claim.claimRemarks, isWarning: true),
+              ],
+            ),
+
+            const SizedBox(height: 12),
+
+            _buildCard(
+              title: "Invoice Details",
+              children: [
+                _infoRow("Invoice ID", claim.invoiceId),
+                _infoRow("Invoice Date", formatDate(claim.invoiceDate)),
+              ],
+            ),
+
+            const SizedBox(height: 12),
+
+            if (claimedBy != null)
+              _buildCard(
+                title: "Claimed By",
+                children: [
+                  _infoRow("Name", claimedBy.custName),
+                  _infoRow("Contact", claimedBy.contNo),
+                  _infoRow("Group", claimedBy.groupCat),
+                  _infoRow("Category", claimedBy.custCategory),
+                  _infoRow("Status", claimedBy.status == true ? "Active" : "Inactive"),
+                ],
+              ),
+
+            if (isUnregistered && claimedFrom != null) ...[
+              const SizedBox(height: 12),
+              _buildCard(
+                title: "Claimed From (Unregistered)",
+                children: [
+                  _infoRow("Name", claimedFrom.name),
+                  _infoRow("Number", claimedFrom.number.toString()),
+                  _infoRow("Address", claimedFrom.address),
+                ],
+              ),
+            ],
+
+            const SizedBox(height: 12),
+
+            _buildCard(
+              title: "Meta Info",
+              children: [
+                _infoRow("Created Date", formatDate(claim.createdDate)),
+                _infoRow("Last Edited", formatDate(claim.editDate)),
+              ],
+            ),
+
+            if ((claim.claimCopy ?? '').isNotEmpty) ...[
+              const SizedBox(height: 12),
+              _buildCard(
+                title: "Claim Copy",
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.of(context).push(MaterialPageRoute(
+                        builder: (_) => _ClaimCopyViewerScreen(imageUrl: claim.claimCopy!),
+                      ));
+                    },
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: CachedNetworkImage(
+                        imageUrl: claim.claimCopy!,
+                        width: double.infinity,
+                        height: 180,
+                        fit: BoxFit.cover,
+                        placeholder: (context, url) =>
+                        const Center(child: CircularProgressIndicator()),
+                        errorWidget: (context, url, error) =>
+                            Image.asset('assets/logo/Placeholder_image.webp'),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCard({required String title, required List<Widget> children}) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.grey.shade100,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)],
+      ),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.blue)),
+          const SizedBox(height: 8),
+          ...children,
+        ],
+      ),
+    );
+  }
+
+  Widget _infoRow(String label, String? value, {bool highlight = false, bool isWarning = false}) {
+    final textStyle = TextStyle(
+      fontSize: 14,
+      fontWeight: highlight ? FontWeight.bold : FontWeight.normal,
+      color: isWarning ? Colors.red : Colors.black87,
+    );
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(width: 130, child: Text("$label:", style: const TextStyle(fontWeight: FontWeight.w500))),
+          Expanded(child: Text(value?.isNotEmpty == true ? value! : '-', style: textStyle)),
+        ],
+      ),
+    );
+  }
+}
+
+

@@ -1,7 +1,12 @@
+import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:krishco/api_services/api_service.dart';
+import 'package:krishco/models/enterprised_related/enterprises_details_list_data.dart';
+import 'package:krishco/utilities/full_screen_loading.dart';
+import 'package:krishco/widgets/cust_snack_bar.dart';
 
 class ChannelPartnerCreateClaimScreen extends StatefulWidget {
   @override
@@ -16,8 +21,8 @@ class _ChannelPartnerCreateClaimScreenState extends State<ChannelPartnerCreateCl
   final TextEditingController _enterpriseNameController = TextEditingController();
   final TextEditingController _enterpriseNumberController = TextEditingController();
   final TextEditingController _enterpriseAddressController = TextEditingController();
-
-
+  bool _isLoading = false;
+  ValueNotifier<EnterpriseDetailsListData?> taggedEnterprise = ValueNotifier<EnterpriseDetailsListData?>(null);
   DateTime? _invoiceDate = DateTime.now();
   String? _enterpriseDetails;
   bool _notInList = false;
@@ -25,7 +30,7 @@ class _ChannelPartnerCreateClaimScreenState extends State<ChannelPartnerCreateCl
 
   Future<void> _pickFile() async {
     final result = await FilePicker.platform.pickFiles(
-      type: FileType.any,
+      type: FileType.image,
     );
     if (result != null && result.files.isNotEmpty) {
       setState(() {
@@ -35,14 +40,31 @@ class _ChannelPartnerCreateClaimScreenState extends State<ChannelPartnerCreateCl
     }
   }
 
+  void _getEnterprises()async{
+    final taggedEnterpriseObj = APIService(context:context).taggedEnterprise;
+    final data = await taggedEnterpriseObj.getTaggedEnterpriseOfLoginCustomer();
+    if(data !=null){
+      taggedEnterprise.value = EnterpriseDetailsListData.fromJson(data);
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_){
+      _getEnterprises();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF5FAFF),
-      appBar: AppBar(
-        title: const Text('Claim Invoice'),
-      ),
-      body: SingleChildScrollView(
+    return Stack(
+      children: [
+        Scaffold(
+        appBar: AppBar(
+          title: const Text('Claim Invoice'),
+        ),
+        body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
@@ -96,11 +118,12 @@ class _ChannelPartnerCreateClaimScreenState extends State<ChannelPartnerCreateCl
                   hintText: 'INVOICE NUMBER',
                 ),
               ),
+
               const SizedBox(height: 16),
               TextFormField(
                 readOnly: true,
                 controller: TextEditingController(
-                  text: _invoiceDate != null ? DateFormat('dd-MM-yyyy').format(_invoiceDate!) : '',
+                  text: _invoiceDate != null ? DateFormat('yyyy-MM-dd').format(_invoiceDate!) : '',
                 ),
                 decoration: InputDecoration(
                   labelText: 'Invoice Date *',
@@ -113,7 +136,7 @@ class _ChannelPartnerCreateClaimScreenState extends State<ChannelPartnerCreateCl
                     context: context,
                     initialDate: _invoiceDate ?? DateTime.now(),
                     firstDate: DateTime(2000),
-                    lastDate: DateTime(2100),
+                    lastDate: DateTime.now(),
                   );
                   if (pickedDate != null) {
                     setState(() {
@@ -130,17 +153,41 @@ class _ChannelPartnerCreateClaimScreenState extends State<ChannelPartnerCreateCl
               ),
 
               const SizedBox(height: 16),
-              DropdownButtonFormField<String>(
-                decoration: InputDecoration(
-                  labelText: 'Enterprise Details *',
-                  border: OutlineInputBorder(),
-                ),
-                value: _enterpriseDetails,
-                items: [
-                  DropdownMenuItem(child: Text("Select Enterprise Details"), value: null),
-                  // Add actual enterprise options here
-                ],
-                onChanged: (value) => setState(() => _enterpriseDetails = value),
+              ValueListenableBuilder<EnterpriseDetailsListData?>(
+                valueListenable: taggedEnterprise,
+                builder: (context,value,child){
+                  return DropdownButtonFormField<String>(
+                    validator:  !_notInList ? (value){
+                      if(value == null || value.isEmpty){
+                        return 'Select Enterprise Details';
+                      }
+                      return null;
+                    }:null,
+                    decoration: InputDecoration(
+                      labelText: 'Enterprise Details *',
+                      border: OutlineInputBorder(),
+                    ),
+                    value: _enterpriseDetails,
+                    items: [
+                      DropdownMenuItem(child: Text("Select Enterprise Details"), value: null),
+                      if(value != null)...[
+                        ...value.data.map((datum) {
+                          final customer = datum.customer;
+                          if (customer == null) return null;
+
+                          final displayText =
+                              '${customer.name ?? 'Unknown'} - ${customer.groupName ?? 'N/A'}';
+
+                          return DropdownMenuItem<String>(
+                            value: customer.id?.toString(),
+                            child: Text(displayText),
+                          );
+                        }).whereType<DropdownMenuItem<String>>().toList(),
+                      ]
+                    ],
+                    onChanged: !_notInList ? (value) => setState(() => _enterpriseDetails = value):null,
+                  );
+                },
               ),
               const SizedBox(height: 8),
               CheckboxListTile(
@@ -170,7 +217,9 @@ class _ChannelPartnerCreateClaimScreenState extends State<ChannelPartnerCreateCl
                 TextFormField(
                   controller: _enterpriseNumberController,
                   keyboardType: TextInputType.phone,
+                  maxLength: 10,
                   decoration: InputDecoration(
+                    counterText: '',
                     labelText: 'Enterprise Number *',
                     border: OutlineInputBorder(),
                   ),
@@ -201,6 +250,12 @@ class _ChannelPartnerCreateClaimScreenState extends State<ChannelPartnerCreateCl
                   border: OutlineInputBorder(),
                   hintText: 'Claim Amount (*)',
                 ),
+                validator: (value){
+                  if(value == null || value.isEmpty){
+                    return 'Enter Claim Amount';
+                  }
+                  return null;
+                },
               ),
 
               const SizedBox(height: 16),
@@ -230,73 +285,140 @@ class _ChannelPartnerCreateClaimScreenState extends State<ChannelPartnerCreateCl
                     },
                   ),
                 ),
+                validator: (value){
+                  if(value == null || value.isEmpty){
+                    return 'Please Upload Claim Copy';
+                  }
+                  return null;
+                },
               ),
 
               const SizedBox(height: 34),
 
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  OutlinedButton.icon(
-                    icon: const Icon(Icons.refresh, color: Color(0xFFE03E4E)),
-                    label: const Text('Reset', style: TextStyle(color: Color(0xFFE03E4E))),
-                    onPressed: () {
-                      _formKey.currentState!.reset();
-                      _invoiceNumberController.clear();
-                      _claimAmountController.clear();
-                      _filePreviewController.text = 'No file uploaded yet.';
-                      _enterpriseNameController.clear();
-                      _enterpriseNumberController.clear();
-                      _enterpriseAddressController.clear();
-                      setState(() {
-                        _enterpriseDetails = null;
-                        _notInList = false;
-                        _invoiceDate = DateTime.now();
-                        _selectedFile = null;
-                      });
-                    },
-                    style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: Color(0xFFE03E4E)),
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  OutlinedButton.icon(
-                    icon: const Icon(Icons.check, color: Color(0xFF2F6F4E)),
-                    label: const Text('Submit', style: TextStyle(color: Color(0xFF2F6F4E))),
-                    onPressed: () {
-                      if (_formKey.currentState!.validate()) {
-                        if (_selectedFile == null) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Please upload the Claim Copy.')),
-                          );
-                          return;
-                        }
-
-                        if (_notInList) {
-                          if (_enterpriseNameController.text.isEmpty || _enterpriseNumberController.text.isEmpty) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Please fill in Enterprise Name and Number.')),
-                            );
-                            return;
-                          }
-                        }
-
-                        // Proceed with submission
-                      }
-
-
-                    },
-                    style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: Color(0xFF2F6F4E)),
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                    ),
-                  ),
-                ],
-              ),
             ],
           ),
         ),
+                ),
+        bottomNavigationBar: _buildBottomBar(),
+      ),
+        if(_isLoading)...[
+          FullScreenLoading()
+        ]
+      ]
+    );
+  }
+
+
+  void _onReset()async{
+    _formKey.currentState!.reset();
+    _invoiceNumberController.clear();
+    _claimAmountController.clear();
+    _filePreviewController.text = 'No file uploaded yet.';
+    _selectedFile = null;
+    _enterpriseNameController.clear();
+    _enterpriseNumberController.clear();
+    _enterpriseAddressController.clear();
+    setState(() {
+      _enterpriseDetails = null;
+      _notInList = false;
+      _invoiceDate = DateTime.now();
+      _selectedFile = null;
+    });
+  }
+
+  void _onSubmit()async {
+    if (_formKey.currentState!.validate()) {
+      if (_selectedFile == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please upload the Claim Copy.')),
+        );
+        return;
+      }
+
+      if (_notInList) {
+        if (_enterpriseNameController.text.isEmpty || _enterpriseNumberController.text.isEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Please fill in Enterprise Name and Number.')),
+          );
+          return;
+        }
+      }
+      setState(() {
+        _isLoading = true;
+      });
+
+      final response = await APIService(context: context).invoiceClaim.createInvoiceClaim(
+          invoiceNo: _invoiceNumberController.text,
+          claimFrom: !_notInList ? _enterpriseDetails :null,
+          invoiceData: _invoiceDate != null ? DateFormat('yyyy-MM-dd').format(_invoiceDate!) : '',
+          amount: _claimAmountController.text,
+          claimCopy: _selectedFile != null ? _selectedFile!.path!: '',
+          claimFromOthers: _notInList ? {
+            "name": _enterpriseNameController.text,
+            "number":_enterpriseNumberController.text,
+            "address":_enterpriseAddressController.text
+          }:null
+      );
+      print("Claim Entery Response: ${response.toString()}");
+
+      if(response == null){
+        showSnackBar(context: context, title: 'Failed', message:'Something went Wrong !!',contentType: ContentType.warning );
+        setState(() {
+          _isLoading = false;
+        });
+        return;
+      }
+
+      if(response['isScuss']){
+        _onReset();
+        showSnackBar(context: context, title: 'Success', message:response['messages'].toString(),contentType: ContentType.success );
+      }else{
+        print('Message: ${response['messages']}');
+        final errorMessage = response.values.last as Map<String,dynamic>;
+        showSnackBar(context: context, title: 'Failed', message:errorMessage.values.toString(),contentType: ContentType.warning );
+      }
+
+      setState(() {
+        _isLoading = false;
+      });
+
+    }
+
+  }
+
+  Widget _buildBottomBar() {
+    return Container(
+      color: Colors.grey[100],
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Expanded(
+            child: ElevatedButton.icon(
+              onPressed: _onReset,
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.red,
+                side: const BorderSide(color: Colors.red),
+                backgroundColor: Colors.white,
+              ),
+              icon: const Icon(Icons.sync,color: Colors.red,),
+              label: const Text('Reset'),
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: ElevatedButton.icon(
+              onPressed: _onSubmit,
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.green,
+                side: const BorderSide(color: Colors.green),
+                backgroundColor: Colors.white,
+              ),
+              icon: const Icon(Icons.check,color: Colors.green,),
+              label: const Text('Submit'),
+            ),
+          ),
+        ],
       ),
     );
   }
