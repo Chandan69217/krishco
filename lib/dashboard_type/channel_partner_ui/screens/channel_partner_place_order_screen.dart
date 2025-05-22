@@ -264,7 +264,7 @@ class _ChannelPartnerPlaceOrderScreenState extends State<ChannelPartnerPlaceOrde
   Widget _buildBottomBar() {
     return Container(
       color: Colors.grey[100],
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
