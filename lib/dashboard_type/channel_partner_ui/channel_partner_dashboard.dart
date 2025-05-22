@@ -4,7 +4,7 @@ import 'package:krishco/dashboard_type/channel_partner_ui/screens/channel_partne
 import 'package:krishco/dashboard_type/channel_partner_ui/screens/channel_partner_notification_screen.dart';
 import 'package:krishco/dashboard_type/channel_partner_ui/screens/channel_partner_edit_details_screen.dart';
 import 'package:krishco/dashboard_type/channel_partner_ui/screens/channel_partner_kyc_screen.dart';
-import 'package:krishco/dashboard_type/channel_partner_ui/screens/navigations/claim_screen.dart';
+import 'package:krishco/dashboard_type/channel_partner_ui/screens/navigations/channel_partner_claim_screen.dart';
 import 'package:krishco/dashboard_type/channel_partner_ui/screens/navigations/channel_partner_home_screen.dart';
 import 'package:krishco/dashboard_type/channel_partner_ui/screens/navigations/channel_partner_my_wallet.dart';
 import 'package:krishco/dashboard_type/channel_partner_ui/screens/navigations/channel_partner_orders_screen.dart';

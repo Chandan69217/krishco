@@ -1,15 +1,39 @@
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+
 
 
 
 class ChannelPartnerHomeScreen extends StatelessWidget {
-  const ChannelPartnerHomeScreen({super.key});
+  ChannelPartnerHomeScreen({super.key});
+
+  final List<FlSpot> loyaltyPoints = [
+    FlSpot(0, 30),
+    FlSpot(1, 38),
+    FlSpot(2, 27),
+    FlSpot(3, 45),
+    FlSpot(4, 42),
+    FlSpot(5, 82),
+    FlSpot(6, 55),
+  ];
+
+  final List<FlSpot> redeemPoints = [
+    FlSpot(0, 12),
+    FlSpot(1, 30),
+    FlSpot(2, 44),
+    FlSpot(3, 29),
+    FlSpot(4, 31),
+    FlSpot(5, 50),
+    FlSpot(6, 40),
+  ];
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F8FF),
+
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
@@ -17,9 +41,9 @@ class ChannelPartnerHomeScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'Home / Dashboard',
-                  style: TextStyle(
+                  style: Theme.of(context).textTheme.bodySmall!.copyWith(
                     fontSize: 14,
                     color: Color(0xFF6B7A99),
                   ),
@@ -40,8 +64,7 @@ class ChannelPartnerHomeScreen extends StatelessWidget {
                       value: '0',
                       percentage: '0%',
                       increase: true,
-                      imageUrl:
-                      'https://storage.googleapis.com/a1aa/image/155f1f5c-aa13-4f53-8fb1-3036eedaf55d.jpg',
+                      icon: Icons.qr_code_2_outlined,
                       bgColor: Color(0xFFE6E9FF),
                     ),
                     SummaryCard(
@@ -50,8 +73,7 @@ class ChannelPartnerHomeScreen extends StatelessWidget {
                       value: '0',
                       percentage: '0%',
                       increase: true,
-                      imageUrl:
-                      'https://storage.googleapis.com/a1aa/image/b1d98490-29ec-4cb8-e4e6-7b01072fdce1.jpg',
+                      icon: Icons.currency_rupee,
                       bgColor: Color(0xFFD9F0D9),
                     ),
                     SummaryCard(
@@ -60,17 +82,17 @@ class ChannelPartnerHomeScreen extends StatelessWidget {
                       value: '5',
                       percentage: '83.87%',
                       increase: false,
-                      imageUrl:
-                      'https://storage.googleapis.com/a1aa/image/ed2d64ec-8011-48d9-279a-12e9b3757cd6.jpg',
+                      icon: Icons.groups_sharp,
                       bgColor: Color(0xFFFFEDD8),
                     ),
                   ],
                 ),
                 const SizedBox(height: 24),
+
                 // Chart Placeholder
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.fromLTRB(16,8,0,16),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(12),
@@ -82,14 +104,14 @@ class ChannelPartnerHomeScreen extends StatelessWidget {
                       )
                     ],
                   ),
-                  child: const Column(
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           Text(
-                            'Redemption Points',
+                            'Redemption Points | ',
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w600,
@@ -97,29 +119,51 @@ class ChannelPartnerHomeScreen extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            '...',
+                            '',
                             style: TextStyle(
                               fontSize: 18,
                               color: Color(0xFF9AA7BF),
                             ),
                           ),
+                          Spacer(),
+                          DateRangeMenu(
+                            onSelected: (option) {
+                              switch (option) {
+                                case DateRangeOption.today:
+                                // handle today
+                                  break;
+                                case DateRangeOption.thisMonth:
+                                // handle this month
+                                  break;
+                                case DateRangeOption.thisYear:
+                                // handle this year
+                                  break;
+                                case DateRangeOption.custom:
+                                // show custom date picker
+                                  break;
+                              }
+                            },
+                          ),
                         ],
                       ),
                       SizedBox(height: 16),
-                      SizedBox(
-                        height: 240,
-                        child: Center(
-                          child: Text('Chart Placeholder'),
+
+                      Padding(
+                        padding: EdgeInsets.only(right: 16.0),
+                        child: LoyaltyRedeemLineChart(
+                          loyaltyPoints: loyaltyPoints,
+                          redeemPoints: redeemPoints,
                         ),
                       ),
                     ],
                   ),
                 ),
                 const SizedBox(height: 24),
+
                 // Top Selling Placeholder
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.fromLTRB(16,8,0,16),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(12),
@@ -131,14 +175,13 @@ class ChannelPartnerHomeScreen extends StatelessWidget {
                       )
                     ],
                   ),
-                  child: const Column(
+                  child:  Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'Top Selling',
+                            'Top Selling | ',
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w600,
@@ -146,11 +189,30 @@ class ChannelPartnerHomeScreen extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            '...',
+                            '',
                             style: TextStyle(
                               fontSize: 18,
                               color: Color(0xFF9AA7BF),
                             ),
+                          ),
+                          Spacer(),
+                          DateRangeMenu(
+                            onSelected: (option) {
+                              switch (option) {
+                                case DateRangeOption.today:
+                                // handle today
+                                  break;
+                                case DateRangeOption.thisMonth:
+                                // handle this month
+                                  break;
+                                case DateRangeOption.thisYear:
+                                // handle this year
+                                  break;
+                                case DateRangeOption.custom:
+                                // show custom date picker
+                                  break;
+                              }
+                            },
                           ),
                         ],
                       ),
@@ -164,6 +226,140 @@ class ChannelPartnerHomeScreen extends StatelessWidget {
                           ),
                         ),
                       ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 24),
+
+                // Recent Activity
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.fromLTRB(16,8,0,16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF0F2F66).withOpacity(0.1),
+                        blurRadius: 15,
+                        offset: const Offset(0, 0),
+                      )
+                    ],
+                  ),
+                  child:  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                            'Recent Activity | ',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF0F2F66),
+                            ),
+                          ),
+                          Text(
+                            '',
+                            style: TextStyle(
+                              fontSize: 18,
+                              color: Color(0xFF9AA7BF),
+                            ),
+                          ),
+                          Spacer(),
+                          DateRangeMenu(
+                            onSelected: (option) {
+                              switch (option) {
+                                case DateRangeOption.today:
+                                // handle today
+                                  break;
+                                case DateRangeOption.thisMonth:
+                                // handle this month
+                                  break;
+                                case DateRangeOption.thisYear:
+                                // handle this year
+                                  break;
+                                case DateRangeOption.custom:
+                                // show custom date picker
+                                  break;
+                              }
+                            },
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 40),
+                      Center(
+                        child: Text(
+                          'No Activity Available',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Color(0xFF0F2F66),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 24),
+                // QR OverView
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.fromLTRB(16,8,0,16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF0F2F66).withOpacity(0.1),
+                        blurRadius: 15,
+                        offset: const Offset(0, 0),
+                      )
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Text(
+                            'QR Overview | ',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF0F2F66),
+                            ),
+                          ),
+                          Text(
+                            '2025',
+                            style: TextStyle(
+                              fontSize: 18,
+                              color: Color(0xFF9AA7BF),
+                            ),
+                          ),
+                          Spacer(),
+                          DateRangeMenu(
+                            onSelected: (option) {
+                              switch (option) {
+                                case DateRangeOption.today:
+                                // handle today
+                                  break;
+                                case DateRangeOption.thisMonth:
+                                // handle this month
+                                  break;
+                                case DateRangeOption.thisYear:
+                                // handle this year
+                                  break;
+                                case DateRangeOption.custom:
+                                // show custom date picker
+                                  break;
+                              }
+                            },
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 16),
+                      Center(child: StatusDonutChart()),
                     ],
                   ),
                 ),
@@ -182,7 +378,7 @@ class SummaryCard extends StatelessWidget {
   final String value;
   final String percentage;
   final bool increase;
-  final String imageUrl;
+  final IconData icon;
   final Color bgColor;
 
   const SummaryCard({
@@ -192,14 +388,15 @@ class SummaryCard extends StatelessWidget {
     required this.value,
     required this.percentage,
     required this.increase,
-    required this.imageUrl,
+    required this.icon,
     required this.bgColor,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(16,8,0,16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
@@ -221,27 +418,51 @@ class SummaryCard extends StatelessWidget {
               shape: BoxShape.circle,
             ),
             child: Center(
-              child: Image.network(imageUrl, width: 24, height: 24),
+              child: Icon(icon,size:24 ,color: Colors.black,),
+              // child: Image.network(imageUrl, width: 24, height: 24),
             ),
           ),
           const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                Text(
-                  '$title $subtitle',
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF0F2F66),
-                  ),
+                Row(
+                  children: [
+                    Text(
+                      '$title $subtitle',
+                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF0F2F66),
+                      ),
+                    ),
+                    Spacer(),
+                    DateRangeMenu(
+                      onSelected: (option) {
+                        switch (option) {
+                          case DateRangeOption.today:
+                          // handle today
+                            break;
+                          case DateRangeOption.thisMonth:
+                          // handle this month
+                            break;
+                          case DateRangeOption.thisYear:
+                          // handle this year
+                            break;
+                          case DateRangeOption.custom:
+                          // show custom date picker
+                            break;
+                        }
+                      },
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 4),
                 Text(
                   value,
-                  style: const TextStyle(
-                    fontSize: 28,
+                  style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                    fontSize: 20,
                     fontWeight: FontWeight.w600,
                     color: Color(0xFF0F2F66),
                   ),
@@ -249,7 +470,7 @@ class SummaryCard extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   '${increase ? '' : '-'}$percentage ${increase ? 'Increase' : 'Decrease'}',
-                  style: TextStyle(
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
                     color: increase ? const Color(0xFF1F6E2E) : const Color(0xFFB91C1C),
@@ -263,3 +484,276 @@ class SummaryCard extends StatelessWidget {
     );
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+class LoyaltyRedeemLineChart extends StatelessWidget {
+  final List<FlSpot> loyaltyPoints;
+  final List<FlSpot> redeemPoints;
+
+  const LoyaltyRedeemLineChart({
+    super.key,
+    required this.loyaltyPoints,
+    required this.redeemPoints,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        SizedBox(
+          height: 220,
+          child: LineChart(
+            LineChartData(
+              minY: 0,
+              titlesData: FlTitlesData(
+                leftTitles: AxisTitles(
+                sideTitles: SideTitles(
+                showTitles: true,
+                reservedSize: 30,
+                interval: 10,
+                maxIncluded: false,
+                minIncluded: false,
+                getTitlesWidget: (value, meta) {
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 6),
+                    child: Text(
+                      value.toInt().toString(),
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        fontSize: 12,
+                        color: Colors.black87,
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+
+            bottomTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: true,
+                    getTitlesWidget: (value, meta) {
+                      const times = ['00:00', '01:00', '02:00', '03:00', '04:00', '05:00', '06:00'];
+                      return Text(times[value.toInt()], style: const TextStyle(fontSize: 10));
+                    },
+                    interval: 1,
+                  ),
+                ),
+                rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+              ),
+              gridData: FlGridData(show: true),
+              borderData: FlBorderData(show: false),
+              lineBarsData: [
+                _buildLine(loyaltyPoints, Colors.blue, const Color(0xFFEBF1FF)),
+                _buildLine(redeemPoints, Colors.green, const Color(0xFFDFF6EB)),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: const [
+            _LegendDot(color: Colors.blue, label: 'Loyalty Points'),
+            SizedBox(width: 16),
+            _LegendDot(color: Colors.green, label: 'Redeem Points'),
+          ],
+        ),
+      ],
+    );
+  }
+
+  LineChartBarData _buildLine(List<FlSpot> points, Color color, Color gradientColor) {
+    return LineChartBarData(
+      spots: points,
+      isCurved: true,
+      color: color,
+      barWidth: 3,
+      belowBarData: BarAreaData(
+        show: true,
+        gradient: LinearGradient(
+          colors: [gradientColor.withOpacity(0.5), gradientColor.withOpacity(0.1)],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+        ),
+      ),
+      dotData: FlDotData(
+        show: true,
+        getDotPainter: (spot, percent, barData, index) => FlDotCirclePainter(
+          radius: 4,
+          color: Colors.white,
+          strokeColor: color,
+          strokeWidth: 2,
+        ),
+      ),
+    );
+  }
+}
+
+class _LegendDot extends StatelessWidget {
+  final Color color;
+  final String label;
+
+  const _LegendDot({required this.color, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Container(width: 12, height: 12, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
+        const SizedBox(width: 4),
+        Text(label, style: TextStyle(fontSize: 12)),
+      ],
+    );
+  }
+}
+
+
+
+class StatusDonutChart extends StatelessWidget {
+  const StatusDonutChart({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Wrap(
+          alignment: WrapAlignment.center,
+          spacing: 16,
+          runSpacing: 8,
+          children: const [
+            _LegendItem(color: Color(0xFF4B67E2), label: 'Scanned'),
+            _LegendItem(color: Color(0xFF88C984), label: 'Available'),
+            _LegendItem(color: Color(0xFFF9CE5C), label: 'Transit'),
+            _LegendItem(color: Color(0xFFEF6C6C), label: 'Dispatch'),
+            _LegendItem(color: Color(0xFF6ACBE0), label: 'Ready To Scan'),
+            _LegendItem(color: Color(0xFF3FAF92), label: 'Expired'),
+            _LegendItem(color: Color(0xFFFFA561), label: 'Scan Completed'),
+          ],
+        ),
+        const SizedBox(height: 12),
+        SizedBox(
+          height: 240,
+          width: 240,
+          child: PieChart(
+            PieChartData(
+              sectionsSpace: 0,
+              centerSpaceRadius: 60,
+              startDegreeOffset: -90,
+              sections: _buildSections(),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  List<PieChartSectionData> _buildSections() {
+    final values = [
+      _Status(color: const Color(0xFF4B67E2), value: 30), // Scanned
+      _Status(color: const Color(0xFF88C984), value: 10), // Available
+      _Status(color: const Color(0xFFF9CE5C), value: 70), // Transit
+      _Status(color: const Color(0xFFEF6C6C), value: 8), // Dispatch
+      _Status(color: const Color(0xFF6ACBE0), value: 42), // Ready To Scan
+      _Status(color: const Color(0xFF3FAF92), value: 12), // Expired
+      _Status(color: const Color(0xFFFFA561), value: 6), // Scan Completed
+    ];
+
+    return values
+        .where((v) => v.value > 0)
+        .map((v) => PieChartSectionData(
+      value: v.value.toDouble(),
+      color: v.color,
+      showTitle: false,
+      radius: 60,
+    ))
+        .toList();
+  }
+}
+
+class _Status {
+  final Color color;
+  final int value;
+
+  _Status({required this.color, required this.value});
+}
+
+class _LegendItem extends StatelessWidget {
+  final Color color;
+  final String label;
+
+  const _LegendItem({required this.color, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(width: 12, height: 12, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
+        const SizedBox(width: 4),
+        Text(label, style: const TextStyle(fontSize: 12)),
+      ],
+    );
+  }
+}
+
+
+
+enum DateRangeOption { today, thisMonth, thisYear, custom }
+
+class DateRangeMenu extends StatelessWidget {
+  final void Function(DateRangeOption) onSelected;
+
+  const DateRangeMenu({super.key, required this.onSelected});
+
+  @override
+  Widget build(BuildContext context) {
+    return Theme(
+      data: Theme.of(context).copyWith(
+        splashColor: Colors.transparent,
+        highlightColor: Colors.transparent,
+      ),
+      child: PopupMenuButton<DateRangeOption>(
+        style: ButtonStyle(
+          foregroundColor: WidgetStatePropertyAll(Colors.grey.shade600),
+          iconSize: const WidgetStatePropertyAll(22),
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+        menuPadding: const EdgeInsets.symmetric(horizontal: 24),
+        color: Colors.white,
+        icon: const Icon(Icons.more_vert),
+        onSelected: onSelected,
+        itemBuilder: (context) => const [
+          PopupMenuItem(
+            value: DateRangeOption.today,
+            child: Text('Today'),
+          ),
+          PopupMenuItem(
+            value: DateRangeOption.thisMonth,
+            child: Text('This Month'),
+          ),
+          PopupMenuItem(
+            value: DateRangeOption.thisYear,
+            child: Text('This Year'),
+          ),
+          PopupMenuItem(
+            value: DateRangeOption.custom,
+            child: Text('Custom'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
