@@ -1,14 +1,21 @@
+import 'dart:io';
+
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:krishco/api_services/api_service.dart';
 import 'package:krishco/models/enterprised_related/enterprises_details_list_data.dart';
 import 'package:krishco/utilities/full_screen_loading.dart';
+import 'package:krishco/utilities/permission_handler.dart';
+import 'package:krishco/widgets/choose_file.dart';
 import 'package:krishco/widgets/cust_snack_bar.dart';
 
 class ChannelPartnerCreateClaimScreen extends StatefulWidget {
+  final VoidCallback? onSuccess;
+  ChannelPartnerCreateClaimScreen({this.onSuccess});
   @override
   _ChannelPartnerCreateClaimScreenState createState() => _ChannelPartnerCreateClaimScreenState();
 }
@@ -26,19 +33,8 @@ class _ChannelPartnerCreateClaimScreenState extends State<ChannelPartnerCreateCl
   DateTime? _invoiceDate = DateTime.now();
   String? _enterpriseDetails;
   bool _notInList = false;
-  PlatformFile? _selectedFile;
+  File? _selectedFile;
 
-  Future<void> _pickFile() async {
-    final result = await FilePicker.platform.pickFiles(
-      type: FileType.image,
-    );
-    if (result != null && result.files.isNotEmpty) {
-      setState(() {
-        _selectedFile = result.files.first;
-        _filePreviewController.text = _selectedFile!.name;
-      });
-    }
-  }
 
   void _getEnterprises()async{
     final taggedEnterpriseObj = APIService(context:context).taggedEnterprise;
@@ -273,7 +269,15 @@ class _ChannelPartnerCreateClaimScreenState extends State<ChannelPartnerCreateCl
                       ? TextButton.icon(
                     icon: const Icon(Icons.attach_file),
                     label: const Text("Upload"),
-                    onPressed: _pickFile,
+                    // onPressed: _pickFile,
+                    onPressed: (){
+                      ChooseFile.showImagePickerBottomSheet(context,(file){
+                        setState(() {
+                          _selectedFile = file;
+                          _filePreviewController.text = _selectedFile!.path.split('/').last;
+                        });
+                      });
+                    },
                   )
                       : IconButton(
                     icon: const Icon(Icons.close),
@@ -347,6 +351,7 @@ class _ChannelPartnerCreateClaimScreenState extends State<ChannelPartnerCreateCl
         _isLoading = true;
       });
 
+
       final response = await APIService(context: context).invoiceClaim.createInvoiceClaim(
           invoiceNo: _invoiceNumberController.text,
           claimFrom: !_notInList ? _enterpriseDetails :null,
@@ -371,6 +376,7 @@ class _ChannelPartnerCreateClaimScreenState extends State<ChannelPartnerCreateCl
 
       if(response['isScuss']){
         _onReset();
+        widget.onSuccess?.call();
         showSnackBar(context: context, title: 'Success', message:response['messages'].toString(),contentType: ContentType.success );
       }else{
         print('Message: ${response['messages']}');
@@ -422,5 +428,13 @@ class _ChannelPartnerCreateClaimScreenState extends State<ChannelPartnerCreateCl
       ),
     );
   }
+
+
+
+
+
+
+
+
 
 }

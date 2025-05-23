@@ -1,16 +1,13 @@
 class ProdDetailsList {
   ProdDetailsList({
     required this.data,
-    this.categoryName,
   });
 
   final List<ProductDetails> data;
-  final String? categoryName;
 
   factory ProdDetailsList.fromJson(Map<String, dynamic> json,
       {String? categoryName}){
     return ProdDetailsList(
-      categoryName: categoryName,
       data: json["data"] == null ? [] : List<ProductDetails>.from(json["data"]!.map((x) => ProductDetails.fromJson(x))),
     );
   }

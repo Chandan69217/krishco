@@ -1,12 +1,18 @@
 import 'dart:io';
-
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:krishco/api_services/api_service.dart';
+import 'package:krishco/models/enterprised_related/enterprises_details_list_data.dart';
+import 'package:krishco/models/product_related/product_category_data.dart';
+import 'package:krishco/models/product_related/product_details_data.dart';
+import 'package:krishco/utilities/full_screen_loading.dart';
+import 'package:krishco/widgets/choose_file.dart';
+
+
 
 class ChannelPartnerPlaceOrderScreen extends StatefulWidget {
-  const ChannelPartnerPlaceOrderScreen({super.key});
-
+  const ChannelPartnerPlaceOrderScreen({super.key,this.onSuccess});
+  final VoidCallback? onSuccess;
   @override
   State<ChannelPartnerPlaceOrderScreen> createState() => _ChannelPartnerPlaceOrderScreenState();
 }
@@ -17,108 +23,69 @@ class _ChannelPartnerPlaceOrderScreenState extends State<ChannelPartnerPlaceOrde
   final _consumerNumberController = TextEditingController();
   final _consumerNameController = TextEditingController();
   final _consumerAddressController = TextEditingController();
+  final _quantityController = TextEditingController();
   final TextEditingController _filePreviewController = TextEditingController(text: 'Choose File');
-  List<PlatformFile> _selectedFile = [];
-  PlatformFile? _pickedFile;
-  List<_ProductItem> _productList = [
-    _ProductItem(
-      category: 'Electronics',
-      name: 'Wireless Mouse',
-      qty: 2,
-      unit: 'pcs',
-      imageUrl: 'https://via.placeholder.com/50',
-    ),
-    _ProductItem(
-      category: 'Electronics',
-      name: 'Bluetooth Keyboard',
-      qty: 1,
-      unit: 'pcs',
-      imageUrl: 'https://via.placeholder.com/50',
-    ),
-    _ProductItem(
-      category: 'Stationery',
-      name: 'A4 Notebook',
-      qty: 5,
-      unit: 'pcs',
-      imageUrl: 'https://via.placeholder.com/50',
-    ),
-    _ProductItem(
-      category: 'Stationery',
-      name: 'Ballpoint Pen',
-      qty: 10,
-      unit: 'pcs',
-      imageUrl: 'https://via.placeholder.com/50',
-    ),
-    _ProductItem(
-      category: 'Furniture',
-      name: 'Office Chair',
-      qty: 1,
-      unit: 'pcs',
-      imageUrl: 'https://via.placeholder.com/50',
-    ),
-    _ProductItem(
-      category: 'Furniture',
-      name: 'Desk Organizer',
-      qty: 3,
-      unit: 'pcs',
-      imageUrl: 'https://via.placeholder.com/50',
-    ),
-    _ProductItem(
-      category: 'Electronics',
-      name: 'Webcam',
-      qty: 1,
-      unit: 'pcs',
-      imageUrl: 'https://via.placeholder.com/50',
-    ),
-    _ProductItem(
-      category: 'Electronics',
-      name: 'HDMI Cable',
-      qty: 4,
-      unit: 'pcs',
-      imageUrl: 'https://via.placeholder.com/50',
-    ),
-    _ProductItem(
-      category: 'Cleaning',
-      name: 'Surface Cleaner',
-      qty: 2,
-      unit: 'bottles',
-      imageUrl: 'https://via.placeholder.com/50',
-    ),
-    _ProductItem(
-      category: 'Pantry',
-      name: 'Coffee Pack',
-      qty: 6,
-      unit: 'packs',
-      imageUrl: 'https://via.placeholder.com/50',
-    ),
-  ];
+  File? _selectedFile;
+  List<_ProductItem> _addedProductList = [];
   int _currentPage = 0;
   final int _itemsPerPage = 5;
+  final ValueNotifier<ProductCategoryListData?> _productCategoryList = ValueNotifier<ProductCategoryListData?>(null);
+  ValueNotifier<EnterpriseDetailsListData?> taggedEnterprise = ValueNotifier<EnterpriseDetailsListData?>(null);
+  String? _enterpriseDetails;
+  final ValueNotifier<ProdDetailsList?> _productList = ValueNotifier<ProdDetailsList?>(null);
+  final ValueNotifier<String?> _selectedProduct = ValueNotifier<String?>(null);
+  final ValueNotifier<String?> _selectedProductCategory = ValueNotifier<String?>(null);
+  final ValueNotifier<String?> _selectedQuantity = ValueNotifier<String?>(null);
+  final _formKey = GlobalKey<FormState>();
+  bool _isLoading = false;
 
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_){
+      _getProductCategoryList();
+      _getEnterprises();
+    });
+  }
 
+  void _getEnterprises()async{
+    final taggedEnterpriseObj = APIService(context:context).taggedEnterprise;
+    final data = await taggedEnterpriseObj.getTaggedEnterpriseOfLoginCustomer();
+    if(data !=null){
+      taggedEnterprise.value = EnterpriseDetailsListData.fromJson(data);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-
-      appBar: AppBar(
-        title: const Text(
-          'Order Details',
+    return Stack(
+      children: [
+        Scaffold(
+        appBar: AppBar(
+          title: const Text(
+            'Order Details',
+          ),
         ),
-      ),
 
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            _buildSection('Basic Details', _buildBasicDetailsSection()),
-            _buildSection('Order By Bill', _buildOrderByUploadBill()),
-            _buildSection('Order By Product Details', _buildOrderByProductDetails()),
-          ],
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                _buildSection('Basic Details', _buildBasicDetailsSection()),
+                _buildSection('Order By Bill', _buildOrderByUploadBill()),
+                _buildSection('Order By Product Details', _buildOrderByProductDetails()),
+              ],
+            ),
+          ),
         ),
+        bottomNavigationBar: _buildBottomBar(),
       ),
-      bottomNavigationBar: _buildBottomBar(),
+      if(_isLoading)
+        FullScreenLoading()
+      ]
     );
   }
 
@@ -151,16 +118,42 @@ class _ChannelPartnerPlaceOrderScreenState extends State<ChannelPartnerPlaceOrde
 
         if(_orderFor == 'self')...[
           const SizedBox(height: 10),
-          DropdownButtonFormField<String>(
-            decoration: const InputDecoration(
-              labelText: 'Enterprise Details *',
-              border: OutlineInputBorder(),
-            ),
-            hint: const Text('Select Enterprise Details'),
-            items: ['Enterprise A', 'Enterprise B']
-                .map((e) => DropdownMenuItem(value: e, child: Text(e)))
-                .toList(),
-            onChanged: (val) {},
+          ValueListenableBuilder<EnterpriseDetailsListData?>(
+            valueListenable: taggedEnterprise,
+            builder: (context,value,child){
+              return DropdownButtonFormField<String>(
+                key: Key('enterprise_dropdown'),
+                validator:  !_isEnterpriseNotListed ? (value){
+                  if(value == null || value.isEmpty){
+                    return 'Select Enterprise Details';
+                  }
+                  return null;
+                }:null,
+                decoration: InputDecoration(
+                  labelText: 'Enterprise Details *',
+                  border: OutlineInputBorder(),
+                ),
+                value: _enterpriseDetails,
+                items: [
+                  DropdownMenuItem(child: Text("Select Enterprise Details"), value: null),
+                  if(value != null)...[
+                    ...value.data.map((datum) {
+                      final customer = datum.customer;
+                      if (customer == null) return null;
+
+                      final displayText =
+                          '${customer.name ?? 'Unknown'} - ${customer.groupName ?? 'N/A'}';
+
+                      return DropdownMenuItem<String>(
+                        value: customer.id?.toString(),
+                        child: Text(displayText),
+                      );
+                    }).whereType<DropdownMenuItem<String>>().toList(),
+                  ]
+                ],
+                onChanged: !_isEnterpriseNotListed ? (value) => setState(() => _enterpriseDetails = value):null,
+              );
+            },
           ),
           Row(
             children: [
@@ -177,6 +170,13 @@ class _ChannelPartnerPlaceOrderScreenState extends State<ChannelPartnerPlaceOrde
           if (_isEnterpriseNotListed) ...[
             const SizedBox(height: 16),
             TextFormField(
+              key: Key('Self_Customer_Number'),
+              validator: (value){
+                if(value == null||value.isEmpty){
+                  return 'Enter Consumer Number';
+                }
+                return null;
+              },
               controller: _consumerNumberController,
               decoration: const InputDecoration(
                 labelText: 'Consumer Number *',
@@ -185,7 +185,14 @@ class _ChannelPartnerPlaceOrderScreenState extends State<ChannelPartnerPlaceOrde
             ),
             const SizedBox(height: 10),
             TextFormField(
+              key: Key('Self Customer Name'),
               controller: _consumerNameController,
+              validator: (value){
+                if(value == null||value.isEmpty){
+                  return 'Enter Consumer Name';
+                }
+                return null;
+              },
               decoration: const InputDecoration(
                 labelText: 'Consumer Name *',
                 border: OutlineInputBorder(),
@@ -193,6 +200,7 @@ class _ChannelPartnerPlaceOrderScreenState extends State<ChannelPartnerPlaceOrde
             ),
             const SizedBox(height: 10),
             TextFormField(
+              key: Key('Self Customer Address'),
               controller: _consumerAddressController,
               decoration: const InputDecoration(
                 labelText: 'Consumer Address (Optional)',
@@ -206,6 +214,13 @@ class _ChannelPartnerPlaceOrderScreenState extends State<ChannelPartnerPlaceOrde
         if (_orderFor == 'others') ...[
           const SizedBox(height: 16),
           TextFormField(
+            key: Key('Other_Customer_Number'),
+            validator: (value){
+              if(value == null||value.isEmpty){
+                return 'Enter Consumer Number';
+              }
+              return null;
+            },
             controller: _consumerNumberController,
             decoration: const InputDecoration(
               labelText: 'Consumer Number *',
@@ -214,6 +229,13 @@ class _ChannelPartnerPlaceOrderScreenState extends State<ChannelPartnerPlaceOrde
           ),
           const SizedBox(height: 10),
           TextFormField(
+            key: Key('Other_Customer_Name'),
+            validator: (value){
+              if(value == null||value.isEmpty){
+                return 'Enter Consumer Name';
+              }
+              return null;
+            },
             controller: _consumerNameController,
             decoration: const InputDecoration(
               labelText: 'Consumer Name *',
@@ -222,6 +244,7 @@ class _ChannelPartnerPlaceOrderScreenState extends State<ChannelPartnerPlaceOrde
           ),
           const SizedBox(height: 10),
           TextFormField(
+            key: Key('Other_Customer_Address'),
             controller: _consumerAddressController,
             decoration: const InputDecoration(
               labelText: 'Consumer Address (Optional)',
@@ -270,7 +293,7 @@ class _ChannelPartnerPlaceOrderScreenState extends State<ChannelPartnerPlaceOrde
         children: [
           Expanded(
             child: ElevatedButton.icon(
-              onPressed: () {},
+              onPressed: _onReset,
               style: ElevatedButton.styleFrom(
                 foregroundColor: Colors.red,
                 side: const BorderSide(color: Colors.red),
@@ -283,7 +306,7 @@ class _ChannelPartnerPlaceOrderScreenState extends State<ChannelPartnerPlaceOrde
           const SizedBox(width: 16),
           Expanded(
             child: ElevatedButton.icon(
-              onPressed: () {},
+              onPressed: _onSubmit,
               style: ElevatedButton.styleFrom(
                 foregroundColor: Colors.green,
                 side: const BorderSide(color: Colors.green),
@@ -304,8 +327,6 @@ class _ChannelPartnerPlaceOrderScreenState extends State<ChannelPartnerPlaceOrde
       children: [
         Row(
           children: [
-            // const Text('Choose File:', style: TextStyle(fontWeight: FontWeight.bold)),
-            // const SizedBox(width: 10),
             Expanded(
               child: TextFormField(
                 controller: _filePreviewController,
@@ -320,13 +341,20 @@ class _ChannelPartnerPlaceOrderScreenState extends State<ChannelPartnerPlaceOrde
                       ? TextButton.icon(
                     icon: const Icon(Icons.attach_file),
                     label: const Text("Upload"),
-                    onPressed: _pickFile,
+                    onPressed: (){
+                      ChooseFile.showImagePickerBottomSheet(context, (file){
+                        setState(() {
+                          _selectedFile = file;
+                          _filePreviewController.text = file.path.split('/').last;
+                        });
+                      });
+                    },
                   )
                       : IconButton(
                     icon: const Icon(Icons.close),
                     onPressed: () {
                       setState(() {
-                        _pickedFile = null;
+                        _selectedFile = null;
                         _filePreviewController.text = 'Choose file';
                       });
                     },
@@ -335,85 +363,61 @@ class _ChannelPartnerPlaceOrderScreenState extends State<ChannelPartnerPlaceOrde
               ),
             ),
             const SizedBox(width: 10),
-            ElevatedButton.icon(
-              onPressed: () {
-                if(_pickedFile != null){
-                  setState(() {
-                    _selectedFile.add(_pickedFile!);
-                    _pickedFile = null;
-                    _filePreviewController.text = 'Choose file';
-                  });
-                }
-              },
-              icon: const Icon(Icons.add_circle,color: Colors.green,),
-              label: const Text('Add'),
-              style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.green,
-                backgroundColor: Colors.white,
-                side: const BorderSide(color: Colors.green),
-              ),
-            ),
           ],
         ),
-        if(_selectedFile.isNotEmpty)...[
+        if(_selectedFile != null)...[
           const SizedBox(height: 10),
           const Text(
-            'Added Bill List',
+            'Added Bill',
             style: TextStyle(
               color: Color(0xFF1E40AF),
               fontWeight: FontWeight.w600,
             ),
           ),
           const SizedBox(height: 10),
-          _buildSelectedImagesGrid()
+          _buildSelectedImagePreview()
         ],
       ],
     );
   }
 
-  Widget _buildSelectedImagesGrid() {
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: NeverScrollableScrollPhysics(),
-      itemCount: _selectedFile.length,
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 3,
-        crossAxisSpacing: 8,
-        mainAxisSpacing: 8,
-      ),
-      itemBuilder: (context, index) {
-        final file = File(_selectedFile[index].path!);
-        return Stack(
-          children: [
-            Positioned.fill(
-              child: Image.file(
-                file,
-                fit: BoxFit.cover,
+  Widget _buildSelectedImagePreview() {
+    if (_selectedFile == null) return const SizedBox();
+    return Stack(
+      children: [
+        ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: Image.file(
+            _selectedFile!,
+            width: double.infinity,
+            height: 200,
+            fit: BoxFit.cover,
+          ),
+        ),
+        Positioned(
+          top: 8,
+          right: 8,
+          child: GestureDetector(
+            onTap: () {
+              setState(() {
+                _selectedFile = null;
+                _filePreviewController.text = 'Choose File';
+              });
+            },
+            child: Container(
+              padding: const EdgeInsets.all(4),
+              decoration: const BoxDecoration(
+                color: Colors.black54,
+                shape: BoxShape.circle,
               ),
+              child: const Icon(Icons.close, size: 20, color: Colors.white),
             ),
-            Positioned(
-              top: 2,
-              right: 2,
-              child: GestureDetector(
-                onTap: () {
-                  setState(() {
-                    _selectedFile.removeAt(index);
-                  });
-                },
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.black54,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(Icons.close, size: 18, color: Colors.white),
-                ),
-              ),
-            ),
-          ],
-        );
-      },
+          ),
+        ),
+      ],
     );
   }
+
 
   Widget _buildOrderByProductDetails() {
     return Column(
@@ -422,36 +426,91 @@ class _ChannelPartnerPlaceOrderScreenState extends State<ChannelPartnerPlaceOrde
         Row(
           children: [
             Expanded(
-              child: DropdownButtonFormField<String>(
-                decoration: const InputDecoration(
-                  labelText: 'Product Category',
-                  border: OutlineInputBorder(),
-                ),
-                items: const [
-                  DropdownMenuItem(
-                    value: null,
-                    child: FittedBox(child: Text('Select Product Category')),
-                  ),
-                ],
-                onChanged: (val) {},
+              child: ValueListenableBuilder<ProductCategoryListData?>(
+                valueListenable: _productCategoryList,
+                builder: (context,value,child) {
+                  return DropdownButtonFormField<String?>(
+                    isExpanded: true,
+                    decoration: const InputDecoration(
+                      labelText: 'Product Category',
+                      border: OutlineInputBorder(),
+                    ),
+                    value: _selectedProductCategory.value,
+                    items: [
+                      DropdownMenuItem<String?>(
+                        value: null,
+                        child: FittedBox(child: Text('Select Product Category')),
+                      ),
+                      if(value!= null)
+                        ...[
+                          ...value.data.map((x){
+                            return DropdownMenuItem<String?>(
+                              value: x.id.toString(),
+                                child: FittedBox(child: Text(x.catName.toString(),
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                                ))
+                            );
+                          }).whereType<DropdownMenuItem<String?>>().toList()
+                        ]
+                    ],
+                    onChanged: (val) async {
+                      _selectedProductCategory.value = val;
+                      _selectedProduct.value = null;
+                      _selectedQuantity.value = null;
+                      _quantityController.text = '';
+                      _productList.value = null;
+                      if (val != null) {
+                        final response = await APIService(context: context)
+                            .productDetails
+                            .getProdDetailsByProductID(val);
+                        if (response != null) {
+                          _productList.value = ProdDetailsList.fromJson(response);
+                        }
+                      }
+                    },
+                  );
+                },
               ),
             ),
             const SizedBox(width: 10),
             Expanded(
-              child: DropdownButtonFormField<String>(
-                decoration: const InputDecoration(
-                  labelText: 'Product Name',
-                  border: OutlineInputBorder(),
-                ),
-                items: const [
-                  DropdownMenuItem(
-                    value: null,
-                    child: FittedBox(child: Text('Select Product Name')),
-                  ),
-                ],
-                onChanged: (val) {},
+              child: ValueListenableBuilder2<ProdDetailsList?, String?>(
+                first: _productList,
+                second: _selectedProduct,
+                builder: (context, productList, selectedProduct, child) {
+                  return DropdownButtonFormField<String?>(
+                    isExpanded: true,
+                    decoration: const InputDecoration(
+                      labelText: 'Product Name',
+                      border: OutlineInputBorder(),
+                    ),
+                    value: selectedProduct,
+                    items: [
+                      const DropdownMenuItem<String?>(
+                        value: null,
+                        child: FittedBox(child: Text('Select Product Name')),
+                      ),
+                      if (productList != null)
+                        ...productList.data.map((x) {
+                          return DropdownMenuItem<String?>(
+                            value: x.prdId,
+                            child: Text(
+                              x.prdName,
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                            ),
+                          );
+                        }).toList()
+                    ],
+                    onChanged: productList == null ? null : (val) {
+                      _selectedProduct.value = val;
+                    },
+                  );
+                },
               ),
             ),
+
           ],
         ),
         const SizedBox(height: 10),
@@ -459,145 +518,227 @@ class _ChannelPartnerPlaceOrderScreenState extends State<ChannelPartnerPlaceOrde
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Expanded(
-              child: TextFormField(
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                  labelText: 'Quantity',
-                  border: OutlineInputBorder(),
-                ),
+              child: ValueListenableBuilder<String?>(
+                valueListenable: _selectedProduct,
+                builder: (context,value,child){
+                  return TextFormField(
+                    controller: _quantityController,
+                    onChanged: (x){
+                      _selectedQuantity.value = x;
+                    },
+                    keyboardType: TextInputType.number,
+                    enabled: value!=null,
+                    decoration: const InputDecoration(
+                      labelText: 'Quantity',
+                      border: OutlineInputBorder(),
+                    ),
+                  );
+                },
               ),
             ),
             const SizedBox(width: 10),
-            ElevatedButton.icon(
-              onPressed: () {},
-              icon: const Icon(Icons.add_circle,color: Colors.green),
-              label: const Text('Add'),
-              style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.green,
-                backgroundColor: Colors.white,
-                side: const BorderSide(color: Colors.green),
-              ),
+            ValueListenableBuilder<String?>(
+              valueListenable: _selectedQuantity,
+              builder: (context,value,child){
+                return ElevatedButton.icon(
+                    onPressed: value == null ? null : () {
+                      final addedProduct = _productList.value!.data
+                          .firstWhere((x) => x.prdId == _selectedProduct.value);
+
+                      final alreadyExists = _addedProductList.any((item) => item.name == addedProduct.prdName);
+
+                      if (alreadyExists) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Center(child: Text('This product is already added.')),
+                            backgroundColor: Colors.red,
+                            behavior: SnackBarBehavior.floating,
+                            duration: const Duration(seconds: 2),
+                          ),
+                        );
+                        return; // prevent adding duplicate
+                      }
+
+                      final add = _ProductItem(
+                        category: _productCategoryList.value!.data
+                            .firstWhere((x) => x.id.toString() == _selectedProductCategory.value).catName!,
+                        name: addedProduct.prdName,
+                        qty: int.tryParse(_selectedQuantity.value!) ?? 0,
+                        unit: addedProduct.unitType,
+                        imageUrl: addedProduct.prodPic,
+                      );
+
+                      setState(() {
+                        _addedProductList.add(add);
+                        _selectedProduct.value = null;
+                        _selectedQuantity.value = null;
+                        _quantityController.text = '';
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Row(
+                              children: [
+                                const Icon(Icons.check_circle, color: Colors.white),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    'Product "${add.name}" added successfully.\nQuantity: ${add.qty}',
+                                    style: const TextStyle(color: Colors.white),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            backgroundColor: Colors.green,
+                            behavior: SnackBarBehavior.floating,
+                            duration: const Duration(seconds: 2),
+                          ),
+                        );
+
+                      });
+                    },
+                    icon: const Icon(Icons.add_circle,color: Colors.green),
+                  label: const Text('Add'),
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: Colors.green,
+                    backgroundColor: Colors.white,
+                    side: const BorderSide(color: Colors.green),
+                  ),
+                );
+              },
             ),
           ],
         ),
-        if(_productList.isNotEmpty)...[
-          const SizedBox(height: 10),
-          const Text(
-            'Added Product List',
-            style: TextStyle(
-              color: Color(0xFF1E40AF),
-              fontWeight: FontWeight.w600,
-            ),
+
+        SizedBox(height: 10),
+        const Text(
+          'Added Product List',
+          style: TextStyle(
+            color: Color(0xFF1E40AF),
+            fontWeight: FontWeight.w600,
           ),
-          _buildSelectedItemTable()
-        ]
+        ),
+        SizedBox(height: 10),
+        _buildSelectedItemTable()
+
       ],
     );
   }
 
   Widget _buildSelectedItemTable() {
+    final int totalItems = _addedProductList.length;
+    final int totalPages = (totalItems / _itemsPerPage).ceil();
+
+    if (_currentPage >= totalPages && totalPages > 0) {
+      _currentPage = totalPages - 1;
+    } else if (totalPages == 0) {
+      _currentPage = 0;
+    }
+
     final int startIndex = _currentPage * _itemsPerPage;
     final int endIndex = (_currentPage + 1) * _itemsPerPage;
-    final List<_ProductItem> visibleItems =
-    _productList.sublist(startIndex, endIndex > _productList.length ? _productList.length : endIndex);
+    final List<_ProductItem> visibleItems = _addedProductList.sublist(
+      startIndex,
+      endIndex > totalItems ? totalItems : endIndex,
+    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(minWidth: 800),
-            child: SingleChildScrollView(
-              scrollDirection: Axis.vertical,
-              child: Table(
-                border: TableBorder.all(color: Colors.grey),
-                columnWidths: const {
-                  0: FixedColumnWidth(40),
-                  1: FixedColumnWidth(60),
-                  2: FlexColumnWidth(),
-                  3: FlexColumnWidth(),
-                  4: FixedColumnWidth(60),
-                  5: FixedColumnWidth(50),
-                  6: FixedColumnWidth(80),
-                },
-                children: [
-                  TableRow(
-                    decoration: BoxDecoration(color: Colors.blue.shade100),
-                    children: [
-                      _cell('S.No'),
-                      _cell('Image'),
-                      _cell('Category'),
-                      _cell('Product Name'),
-                      _cell('Qty'),
-                      _cell('Unit'),
-                      _cell('Action'),
-                    ],
-                  ),
-                  for (int i = 0; i < visibleItems.length; i++)
+        if (_addedProductList.isEmpty)
+          const Center(child: Text("No products added yet."))
+        else
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minWidth: 800),
+              child: SingleChildScrollView(
+                scrollDirection: Axis.vertical,
+                child: Table(
+                  border: TableBorder.all(color: Colors.grey),
+                  columnWidths: const {
+                    0: FixedColumnWidth(40),
+                    1: FixedColumnWidth(60),
+                    2: FlexColumnWidth(),
+                    3: FlexColumnWidth(),
+                    4: FixedColumnWidth(60),
+                    5: FixedColumnWidth(60),
+                    6: FixedColumnWidth(80),
+                  },
+                  children: [
                     TableRow(
+                      decoration: BoxDecoration(color: Colors.blue.shade100),
                       children: [
-                        _cell('${startIndex + i + 1}'),
-                        Padding(
-                          padding: const EdgeInsets.all(4),
-                          child: CachedNetworkImage(
-                            imageUrl: visibleItems[i].imageUrl
-                            ,width: 40,
-                            height: 40,
-                            placeholder: (context, url) => Center(
-                              child: CircularProgressIndicator(),
-                            ),
-                            errorWidget: (context, url, error) => Image.asset('assets/logo/Placeholder_image.webp'),
-                          ),
-                        ),
-                        _cell(visibleItems[i].category),
-                        _cell(visibleItems[i].name),
-                        _cell('${visibleItems[i].qty}'),
-                        _cell(visibleItems[i].unit),
-                        IconButton(
-                          icon: const Icon(Icons.delete, color: Colors.red),
-                          onPressed: () => setState(() {
-                            _productList.removeAt(startIndex + i);
-                            final totalPages = (_productList.length / _itemsPerPage).ceil();
-                            if (_currentPage >= totalPages) {
-                              _currentPage = totalPages - 1;
-                            }
-                          }),
-                        ),
+                        _cell('S.No'),
+                        _cell('Image'),
+                        _cell('Category'),
+                        _cell('Product Name'),
+                        _cell('Qty'),
+                        _cell('Unit'),
+                        _cell('Action'),
                       ],
                     ),
-                ],
+                    for (int i = 0; i < visibleItems.length; i++)
+                      TableRow(
+                        children: [
+                          _cell('${startIndex + i + 1}'),
+                          Padding(
+                            padding: const EdgeInsets.all(4),
+                            child: CachedNetworkImage(
+                              imageUrl: visibleItems[i].imageUrl,
+                              width: 40,
+                              height: 40,
+                              placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
+                              errorWidget: (context, url, error) => Image.asset('assets/logo/Placeholder_image.webp'),
+                            ),
+                          ),
+                          _cell(visibleItems[i].category),
+                          _cell(visibleItems[i].name),
+                          _cell('${visibleItems[i].qty}'),
+                          _cell(visibleItems[i].unit),
+                          IconButton(
+                            icon: const Icon(Icons.delete, color: Colors.red),
+                            onPressed: () => setState(() {
+                              _addedProductList.removeAt(startIndex + i);
+                              final totalPages = (_addedProductList.length / _itemsPerPage).ceil();
+                              if (_currentPage >= totalPages && totalPages > 0) {
+                                _currentPage = totalPages - 1;
+                              } else if (totalPages == 0) {
+                                _currentPage = 0;
+                              }
+                            }),
+                          ),
+                        ],
+                      ),
+                  ],
+                ),
               ),
             ),
           ),
-        ),
         const SizedBox(height: 10),
+        if(_addedProductList.isNotEmpty)
         _buildPaginationControls(),
       ],
     );
   }
 
-
   Widget _buildPaginationControls() {
-    final int totalPages = (_productList.length / _itemsPerPage).ceil();
+    final int totalPages = (_addedProductList.length / _itemsPerPage).ceil();
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        ElevatedButton(
+        IconButton(
           onPressed: _currentPage > 0
               ? () => setState(() => _currentPage--)
               : null,
-          child: const Text('Previous'),
+          icon: Icon(Icons.skip_previous,color: _currentPage > 0? Colors.blue.shade600:null,),
         ),
         const SizedBox(width: 16),
         Text('Page ${_currentPage + 1} of $totalPages'),
         const SizedBox(width: 16),
-        ElevatedButton(
+        IconButton(
           onPressed: _currentPage < totalPages - 1
               ? () => setState(() => _currentPage++)
               : null,
-          child: const Text('Next'),
+          icon: Icon(Icons.skip_next,color:  _currentPage < totalPages - 1 ? Colors.blue.shade600:null,),
         ),
       ],
     );
@@ -626,18 +767,55 @@ class _ChannelPartnerPlaceOrderScreenState extends State<ChannelPartnerPlaceOrde
     super.dispose();
   }
 
-  Future<void> _pickFile() async {
-    final result = await FilePicker.platform.pickFiles(
-      type: FileType.image,
-    );
-    if (result != null && result.files.isNotEmpty) {
-      setState(() {
-        _pickedFile = result.files.first;
-        _filePreviewController.text = _pickedFile!.name;
-      });
+
+  void _getProductCategoryList() async{
+    final response = await APIService(context: context).productDetails.getProductCategory();
+    if(response !=  null){
+      _productCategoryList.value = ProductCategoryListData.fromJson(response);
     }
   }
 
+
+
+  void _onReset()async {
+    setState(() {
+      _enterpriseDetails= null;
+      _selectedProductCategory.value= null;
+      _consumerNumberController.text = '';
+      _consumerAddressController.text = '';
+      _consumerNameController.text = '';
+      _selectedFile = null;
+      _filePreviewController.text = 'Choose File';
+      _addedProductList = [];
+    });
+  }
+
+
+  void _onSubmit()async {
+    if(!_formKey.currentState!.validate()){
+      return;
+    }
+    if(_selectedFile == null && _addedProductList.isEmpty ){
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Center(
+          child: Text('Please add order by Bill or Product Details for place order'),
+        ),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+          duration: Duration(seconds: 3),
+        ),
+      );
+      return;
+    }
+    setState(() {
+      _isLoading = true;
+    });
+    await Future.delayed(Duration(seconds: 5));
+    _onReset();
+    setState(() {
+      _isLoading = false;
+    });
+  }
 }
 
 class _ProductItem {
@@ -657,3 +835,32 @@ class _ProductItem {
 }
 
 
+class ValueListenableBuilder2<A, B> extends StatelessWidget {
+  final ValueNotifier<A> first;
+  final ValueNotifier<B> second;
+  final Widget Function(BuildContext, A, B, Widget?) builder;
+  final Widget? child;
+
+  const ValueListenableBuilder2({
+    Key? key,
+    required this.first,
+    required this.second,
+    required this.builder,
+    this.child,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder<A>(
+      valueListenable: first,
+      builder: (context, a, _) {
+        return ValueListenableBuilder<B>(
+          valueListenable: second,
+          builder: (context, b, __) {
+            return builder(context, a, b, child);
+          },
+        );
+      },
+    );
+  }
+}

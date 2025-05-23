@@ -36,7 +36,7 @@ class _ProductDetails{
   final BuildContext context;
   _ProductDetails({required this.context});
 
-  Future<List<ProductCategoryData>?> getProductCategory() async {
+  Future<Map<String,dynamic>?> getProductCategory() async {
     String token = Pref.instance.getString(Consts.user_token) ?? '';
 
     try {
@@ -51,10 +51,7 @@ class _ProductDetails{
         var rawData = json.decode(response.body);
         bool isSuccess = rawData['isScuss'] ?? false;
         if (isSuccess) {
-          var productData = rawData['data'] as List<dynamic>;
-           return productData
-              .map((e) => ProductCategoryData.fromJson(e as Map<String, dynamic>))
-              .toList();
+           return rawData;
         } else {
           print('API error: ${rawData['messages']}');
         }
@@ -67,35 +64,22 @@ class _ProductDetails{
     return null;
   }
 
-  Future<List<ProdDetailsList?>> getAllProductListByID(List<ProductCategoryData> productCategory) async {
+  Future<Map<String,dynamic>?> getProdDetailsByProductID(String productId,)async{
+    final userToken = Pref.instance.getString(Consts.user_token);
 
-    try {
-      final responses = await Future.wait<ProdDetailsList?>(
-        productCategory.map((product) {
-          return _getProdDetailsByProductID(product.id.toString(),categoryName: product.catName);
-        }).toList(),
-      );
-      return responses;
-    } catch (e) {
-      print("Error fetching all product details: $e");
-      return [];
-    }
-
-  }
-
-
-  Future<ProdDetailsList?> _getProdDetailsByProductID(String productId,
-      {String? categoryName})async{
     try {
       final uri = Uri.https(Urls.base_url, "${Urls.product_details_by_id}/$productId/");
-      final userToken = Pref.instance.getString(Consts.user_token);
       final response = await get(uri, headers: {
         'Authorization': 'Bearer $userToken',
       });
       if (response.statusCode == 200){
         final body = jsonDecode(response.body) as Map<String,dynamic>;
-        return ProdDetailsList.fromJson(body,categoryName: categoryName);
+        final status = body['isScuss'];
+        if(status){
+          return body;
+        }
       } else {
+        handleHttpResponse(context, response);
         print("error while fetching product details: Status Code: ${response.statusCode} , Reason: ${response.reasonPhrase}");
       }
     } catch (e) {
@@ -242,9 +226,47 @@ class _OrderRelated{
 
   }
 
-  Future<Map<String,dynamic>?> orderForSelf()async{
+  Future<Map<String,dynamic>?> orderForSelf({
+    String? orderForm,
+    Map<String,dynamic>? orderFromOther,
+    String? filePath,
+    List<Map<String,dynamic>>? productDetails
+})async{
     final userToken = Pref.instance.getString(Consts.user_token);
-    final url = Uri.https(Urls.base_url,Urls.order_entry_for_self);
+    try{
+      final url = Uri.https(Urls.base_url,Urls.order_entry_for_self);
+      final request = http.MultipartRequest('POST', url)
+      ..headers['Authorization'] = 'Bearer ${userToken}'
+      ..fields['order_type'] = 'self'
+      ..fields['app_name'] = 'mobile'
+      ..fields['order_from'] = ''  // This field will update later
+      ..fields['order_form_others'] = json.encode(orderFromOther) // This field will update later
+      ..fields['product_details'] = json.encode(productDetails);
+
+    if(filePath != null){
+      final mimeType = filePath.endsWith('.png')
+          ? MediaType('image', 'png')
+          : MediaType('image', 'jpeg');
+      request.files.add(
+          await http.MultipartFile.fromPath('order_bill', filePath,contentType: mimeType)
+      );
+    }
+
+    final streamedResponse = await request.send();
+
+    final response = await http.Response.fromStream(streamedResponse);
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body) as Map<String, dynamic>;
+    }else if(response.statusCode == 201){
+      return jsonDecode(response.body) as Map<String,dynamic>;
+    } else {
+      print('Failed: ${response.statusCode} -> ${response.body}');
+    }
+
+    }catch(exception,trace){
+      print('Exception: ${exception}, Trace: ${trace}');
+    }
     return null;
   }
 

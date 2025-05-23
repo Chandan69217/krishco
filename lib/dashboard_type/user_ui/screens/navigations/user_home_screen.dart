@@ -166,7 +166,7 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                       return CategorizedProduct(
                         key: _productKeys[index],
                         productData: product!.data,
-                        label: product.categoryName ?? '',
+                        label: '',
                       );
                     },
                   ),

@@ -266,7 +266,11 @@ class _ChannelPartnerOrdersScreenState extends State<ChannelPartnerOrdersScreen>
       heroTag: 'order_fav_button',
       foregroundColor: Colors.white,
       onPressed: () {
-        Navigator.of(context).push(MaterialPageRoute(builder: (context) => ChannelPartnerPlaceOrderScreen()));
+        Navigator.of(context).push(MaterialPageRoute(builder: (context) => ChannelPartnerPlaceOrderScreen(
+          onSuccess: (){
+            _fetchOrderData();
+          },
+        )));
       },
       icon: const Icon(Icons.shopping_bag),
       label: const Text("Place Order"),

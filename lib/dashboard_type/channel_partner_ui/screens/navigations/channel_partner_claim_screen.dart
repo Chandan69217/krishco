@@ -297,7 +297,11 @@ class _ChannelPartnerClaimScreenState extends State<ChannelPartnerClaimScreen> {
       foregroundColor: Colors.white,
       heroTag: 'claim_fab_button',
       onPressed: () {
-        Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ChannelPartnerCreateClaimScreen()));
+        Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ChannelPartnerCreateClaimScreen(
+          onSuccess: (){
+            _fetchClaimData();
+          },
+        )));
       },
       icon: Icon(Icons.add),
       label: Text("Create Claim"),

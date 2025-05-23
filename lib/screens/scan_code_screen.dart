@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:krishco/utilities/permission_handler.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:qr_code_scanner_plus/qr_code_scanner_plus.dart';
 import 'package:krishco/widgets/custom_button.dart';
@@ -52,7 +53,7 @@ class _ScanCodeScreenState extends State<ScanCodeScreen> {
                 width: screenWidth,
                 child: ElevatedButton(
                   onPressed: ()async {
-                    if(await handleCameraPermission()){
+                    if(await PermissionHandler.handleCameraPermission(context)){
                       Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ScannerScreen()));
                     }
                     // if(!showScanner){
@@ -166,26 +167,7 @@ class _ScanCodeScreenState extends State<ScanCodeScreen> {
     );
   }
 
-  Future<bool> handleCameraPermission() async {
-  
-    PermissionStatus status = await Permission.camera.status;
 
-    if (status.isGranted){
-      return true;
-    } else {
-      PermissionStatus newStatus = await Permission.camera.request();
-      if (newStatus.isGranted) {
-        return true;
-      } else if (newStatus.isDenied) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Center(child: Text('Camera permission denied'))));
-        return false;
-      } else if (newStatus.isPermanentlyDenied) {
-        openAppSettings();
-        return false;
-      }
-      return false;
-    }
-  }
   
 }
 

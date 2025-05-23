@@ -7,22 +7,21 @@ class FullScreenLoading extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Stack(
-      children:[
-        Expanded(
-          child: Container(
-            color: Colors.black12,
-          ),
+      children: [
+        Container(
+          color: Colors.black12,
         ),
         Center(
-        child: Positioned.fill(
           child: Lottie.asset(
             'assets/logo/loading_indicator.json',
-            fit: BoxFit.cover,
+            width: 150, // Optional: set a specific size
+            height: 150,
+            fit: BoxFit.contain,
             repeat: true,
           ),
         ),
-      ),
-      ]
+      ],
     );
   }
 }
+
