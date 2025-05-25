@@ -25,7 +25,8 @@ class _ChannelPartnerPlaceOrderScreenState extends State<ChannelPartnerPlaceOrde
   final _consumerAddressController = TextEditingController();
   final _quantityController = TextEditingController();
   final TextEditingController _filePreviewController = TextEditingController(text: 'Choose File');
-  File? _selectedFile;
+  List<File> _selectedFile = [];
+  File? _pickedFile;
   List<_ProductItem> _addedProductList = [];
   int _currentPage = 0;
   final int _itemsPerPage = 5;
@@ -170,6 +171,7 @@ class _ChannelPartnerPlaceOrderScreenState extends State<ChannelPartnerPlaceOrde
           if (_isEnterpriseNotListed) ...[
             const SizedBox(height: 16),
             TextFormField(
+              keyboardType: TextInputType.number,
               key: Key('Self_Customer_Number'),
               validator: (value){
                 if(value == null||value.isEmpty){
@@ -321,12 +323,112 @@ class _ChannelPartnerPlaceOrderScreenState extends State<ChannelPartnerPlaceOrde
     );
   }
 
+  // Widget _buildOrderByUploadBill() {
+  //   return Column(
+  //     crossAxisAlignment: CrossAxisAlignment.start,
+  //     children: [
+  //       Row(
+  //         children: [
+  //           Expanded(
+  //             child: TextFormField(
+  //               controller: _filePreviewController,
+  //               maxLines: 1,
+  //               readOnly: true,
+  //               textAlignVertical: TextAlignVertical.center,
+  //               decoration: InputDecoration(
+  //                 labelText: 'Choose File',
+  //                 border: const OutlineInputBorder(),
+  //
+  //                 suffixIcon: _filePreviewController.text.toLowerCase().contains('choose file')
+  //                     ? TextButton.icon(
+  //                   icon: const Icon(Icons.attach_file),
+  //                   label: const Text("Upload"),
+  //                   onPressed: (){
+  //                     ChooseFile.showImagePickerBottomSheet(context, (file){
+  //                       setState(() {
+  //                         _selectedFile = file;
+  //                         _filePreviewController.text = file.path.split('/').last;
+  //                       });
+  //                     });
+  //                   },
+  //                 )
+  //                     : IconButton(
+  //                   icon: const Icon(Icons.close),
+  //                   onPressed: () {
+  //                     setState(() {
+  //                       _selectedFile = null;
+  //                       _filePreviewController.text = 'Choose file';
+  //                     });
+  //                   },
+  //                 ),
+  //               ),
+  //             ),
+  //           ),
+  //           const SizedBox(width: 10),
+  //         ],
+  //       ),
+  //       if(_selectedFile != null)...[
+  //         const SizedBox(height: 10),
+  //         const Text(
+  //           'Added Bill',
+  //           style: TextStyle(
+  //             color: Color(0xFF1E40AF),
+  //             fontWeight: FontWeight.w600,
+  //           ),
+  //         ),
+  //         const SizedBox(height: 10),
+  //         _buildSelectedImagePreview()
+  //       ],
+  //     ],
+  //   );
+  // }
+  //
+  // Widget _buildSelectedImagePreview() {
+  //   if (_selectedFile == null) return const SizedBox();
+  //   return Stack(
+  //     children: [
+  //       ClipRRect(
+  //         borderRadius: BorderRadius.circular(8),
+  //         child: Image.file(
+  //           _selectedFile!,
+  //           width: double.infinity,
+  //           height: 200,
+  //           fit: BoxFit.cover,
+  //         ),
+  //       ),
+  //       Positioned(
+  //         top: 8,
+  //         right: 8,
+  //         child: GestureDetector(
+  //           onTap: () {
+  //             setState(() {
+  //               _selectedFile = null;
+  //               _filePreviewController.text = 'Choose File';
+  //             });
+  //           },
+  //           child: Container(
+  //             padding: const EdgeInsets.all(4),
+  //             decoration: const BoxDecoration(
+  //               color: Colors.black54,
+  //               shape: BoxShape.circle,
+  //             ),
+  //             child: const Icon(Icons.close, size: 20, color: Colors.white),
+  //           ),
+  //         ),
+  //       ),
+  //     ],
+  //   );
+  // }
+
+
   Widget _buildOrderByUploadBill() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
+            // const Text('Choose File:', style: TextStyle(fontWeight: FontWeight.bold)),
+            // const SizedBox(width: 10),
             Expanded(
               child: TextFormField(
                 controller: _filePreviewController,
@@ -344,8 +446,8 @@ class _ChannelPartnerPlaceOrderScreenState extends State<ChannelPartnerPlaceOrde
                     onPressed: (){
                       ChooseFile.showImagePickerBottomSheet(context, (file){
                         setState(() {
-                          _selectedFile = file;
-                          _filePreviewController.text = file.path.split('/').last;
+                          _pickedFile = file;
+                          _filePreviewController.text = _pickedFile!.path.split('/').last;
                         });
                       });
                     },
@@ -354,7 +456,7 @@ class _ChannelPartnerPlaceOrderScreenState extends State<ChannelPartnerPlaceOrde
                     icon: const Icon(Icons.close),
                     onPressed: () {
                       setState(() {
-                        _selectedFile = null;
+                        _pickedFile = null;
                         _filePreviewController.text = 'Choose file';
                       });
                     },
@@ -363,61 +465,85 @@ class _ChannelPartnerPlaceOrderScreenState extends State<ChannelPartnerPlaceOrde
               ),
             ),
             const SizedBox(width: 10),
+            ElevatedButton.icon(
+              onPressed: _pickedFile != null ? () {
+                if(_pickedFile != null){
+                  setState(() {
+                    _selectedFile.add(_pickedFile!);
+                    _pickedFile = null;
+                    _filePreviewController.text = 'Choose file';
+                  });
+                }
+              }:null,
+              icon: const Icon(Icons.add_circle,color: Colors.green,),
+              label: const Text('Add'),
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.green,
+                backgroundColor: Colors.white,
+                side: const BorderSide(color: Colors.green),
+              ),
+            ),
           ],
         ),
-        if(_selectedFile != null)...[
+        if(_selectedFile.isNotEmpty)...[
           const SizedBox(height: 10),
           const Text(
-            'Added Bill',
+            'Added Bill List',
             style: TextStyle(
               color: Color(0xFF1E40AF),
               fontWeight: FontWeight.w600,
             ),
           ),
           const SizedBox(height: 10),
-          _buildSelectedImagePreview()
+          _buildSelectedImagesGrid()
         ],
       ],
     );
   }
 
-  Widget _buildSelectedImagePreview() {
-    if (_selectedFile == null) return const SizedBox();
-    return Stack(
-      children: [
-        ClipRRect(
-          borderRadius: BorderRadius.circular(8),
-          child: Image.file(
-            _selectedFile!,
-            width: double.infinity,
-            height: 200,
-            fit: BoxFit.cover,
-          ),
-        ),
-        Positioned(
-          top: 8,
-          right: 8,
-          child: GestureDetector(
-            onTap: () {
-              setState(() {
-                _selectedFile = null;
-                _filePreviewController.text = 'Choose File';
-              });
-            },
-            child: Container(
-              padding: const EdgeInsets.all(4),
-              decoration: const BoxDecoration(
-                color: Colors.black54,
-                shape: BoxShape.circle,
+  Widget _buildSelectedImagesGrid() {
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: NeverScrollableScrollPhysics(),
+      itemCount: _selectedFile.length,
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 3,
+        crossAxisSpacing: 8,
+        mainAxisSpacing: 8,
+      ),
+      itemBuilder: (context, index) {
+        final file = File(_selectedFile[index].path!);
+        return Stack(
+          children: [
+            Positioned.fill(
+              child: Image.file(
+                file,
+                fit: BoxFit.cover,
               ),
-              child: const Icon(Icons.close, size: 20, color: Colors.white),
             ),
-          ),
-        ),
-      ],
+            Positioned(
+              top: 2,
+              right: 2,
+              child: GestureDetector(
+                onTap: () {
+                  setState(() {
+                    _selectedFile.removeAt(index);
+                  });
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.black54,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.close, size: 18, color: Colors.white),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
-
 
   Widget _buildOrderByProductDetails() {
     return Column(
@@ -559,6 +685,7 @@ class _ChannelPartnerPlaceOrderScreenState extends State<ChannelPartnerPlaceOrde
                       }
 
                       final add = _ProductItem(
+                        id: addedProduct.id,
                         category: _productCategoryList.value!.data
                             .firstWhere((x) => x.id.toString() == _selectedProductCategory.value).catName!,
                         name: addedProduct.prdName,
@@ -654,7 +781,7 @@ class _ChannelPartnerPlaceOrderScreenState extends State<ChannelPartnerPlaceOrde
                 child: Table(
                   border: TableBorder.all(color: Colors.grey),
                   columnWidths: const {
-                    0: FixedColumnWidth(40),
+                    0: FixedColumnWidth(60),
                     1: FixedColumnWidth(60),
                     2: FlexColumnWidth(),
                     3: FlexColumnWidth(),
@@ -776,7 +903,6 @@ class _ChannelPartnerPlaceOrderScreenState extends State<ChannelPartnerPlaceOrde
   }
 
 
-
   void _onReset()async {
     setState(() {
       _enterpriseDetails= null;
@@ -784,7 +910,7 @@ class _ChannelPartnerPlaceOrderScreenState extends State<ChannelPartnerPlaceOrde
       _consumerNumberController.text = '';
       _consumerAddressController.text = '';
       _consumerNameController.text = '';
-      _selectedFile = null;
+      _selectedFile = [];
       _filePreviewController.text = 'Choose File';
       _addedProductList = [];
     });
@@ -795,7 +921,7 @@ class _ChannelPartnerPlaceOrderScreenState extends State<ChannelPartnerPlaceOrde
     if(!_formKey.currentState!.validate()){
       return;
     }
-    if(_selectedFile == null && _addedProductList.isEmpty ){
+    if(_selectedFile.isEmpty && _addedProductList.isEmpty ){
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Center(
           child: Text('Please add order by Bill or Product Details for place order'),
@@ -810,11 +936,43 @@ class _ChannelPartnerPlaceOrderScreenState extends State<ChannelPartnerPlaceOrde
     setState(() {
       _isLoading = true;
     });
-    await Future.delayed(Duration(seconds: 5));
-    _onReset();
+
+    final products = _addedProductList.map((x)=>{
+      "id": x.id.toString(),
+      'quantity' : x.qty.toString()
+    }).toList();
+
+    final response = await APIService(context:context).orderRelated.orderForSelf(
+      orderBill: _selectedFile,
+      orderForm: _enterpriseDetails,
+      orderFromOther: _isEnterpriseNotListed?{
+        'name' : _consumerNameController.text,
+        'number' : _consumerNumberController.text,
+        'address':_consumerAddressController.text,
+      }:null,
+      productDetails: products
+    );
+
+    if(response != null){
+      final status = response['isScuss'];
+      if(status){
+        _onReset();
+      }
+      _showSnackBar(message: response['messages'],status: status);
+    }
     setState(() {
       _isLoading = false;
     });
+  }
+
+  void _showSnackBar({required String message,bool? status = true}){
+    ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Center(child: Text(message),),
+          backgroundColor: status! ? Colors.green : Colors.red ,
+          behavior: SnackBarBehavior.floating,
+          duration: Duration(seconds: 3),
+        )
+    );
   }
 }
 
@@ -824,6 +982,7 @@ class _ProductItem {
   final int qty;
   final String unit;
   final String imageUrl;
+  final int id;
 
   _ProductItem({
     required this.category,
@@ -831,6 +990,7 @@ class _ProductItem {
     required this.qty,
     required this.unit,
     required this.imageUrl,
+    required this.id
   });
 }
 

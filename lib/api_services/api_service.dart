@@ -226,49 +226,73 @@ class _OrderRelated{
 
   }
 
-  Future<Map<String,dynamic>?> orderForSelf({
+
+  Future<Map<String, dynamic>?> orderForSelf({
     String? orderForm,
-    Map<String,dynamic>? orderFromOther,
-    String? filePath,
-    List<Map<String,dynamic>>? productDetails
-})async{
+    Map<String, dynamic>? orderFromOther,
+    List<File>? orderBill,
+    List<Map<String, dynamic>>? productDetails,
+  }) async {
     final userToken = Pref.instance.getString(Consts.user_token);
-    try{
-      final url = Uri.https(Urls.base_url,Urls.order_entry_for_self);
+
+    print('Printing all receive data');
+    print('OrderFormOther:${json.encode(orderFromOther)}');
+    print('Order Bill: ${orderBill!.length}');
+    print('OrderFrom: ${orderForm}');
+    print('Product Details: ${json.encode(productDetails)}');
+    try {
+      final url = Uri.https(Urls.base_url, Urls.order_entry_for_self);
       final request = http.MultipartRequest('POST', url)
-      ..headers['Authorization'] = 'Bearer ${userToken}'
-      ..fields['order_type'] = 'self'
-      ..fields['app_name'] = 'mobile'
-      ..fields['order_from'] = ''  // This field will update later
-      ..fields['order_form_others'] = json.encode(orderFromOther) // This field will update later
-      ..fields['product_details'] = json.encode(productDetails);
+        ..headers['Authorization'] = 'Bearer $userToken'
+        ..fields['order_type'] = 'self'
+        ..fields['app_name'] = 'mobile'
 
-    if(filePath != null){
-      final mimeType = filePath.endsWith('.png')
-          ? MediaType('image', 'png')
-          : MediaType('image', 'jpeg');
-      request.files.add(
-          await http.MultipartFile.fromPath('order_bill', filePath,contentType: mimeType)
-      );
+        ..fields['order_from'] = orderForm??'null'
+        ..fields['order_form_others'] = orderFromOther != null ? json.encode(orderFromOther) : 'null'
+        ..fields['product_details'] = (productDetails != null && productDetails.isNotEmpty) ? json.encode(productDetails) : 'null';
+
+      if (orderBill != null && orderBill.isNotEmpty) {
+        for (File file in orderBill) {
+          final mimeType = file.path.endsWith('.png')
+              ? MediaType('image', 'png')
+              : MediaType('image', 'jpeg');
+
+          request.files.add(await http.MultipartFile.fromPath(
+            'order_bill',
+            file.path,
+            contentType: mimeType,
+          ));
+        }
+      }else{
+        request.fields['order_bill'] = 'null';
+      }
+
+      print('Sending request with:');
+      print('  order_form_others: ${request.fields['order_form_others']}');
+      print('  product_details: ${request.fields['product_details']}');
+      print('  order_from: ${request.fields['order_from']}');
+      print('  app_name: ${request.fields['app_name']}');
+      print('  order_bill: ${request.fields['order_bill']}');
+      print('  order_type: ${request.fields['order_type']}');
+
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        print('Request failed: ${response.statusCode} -> ${response.body}');
+        return jsonDecode(response.body) as Map<String, dynamic>;
+      } else {
+        print('Request failed: ${response.statusCode} -> ${response.body}');
+        handleHttpResponse(context, response);
+      }
+    } catch (e, trace) {
+      print('Exception: $e\nTrace: $trace');
     }
 
-    final streamedResponse = await request.send();
-
-    final response = await http.Response.fromStream(streamedResponse);
-
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body) as Map<String, dynamic>;
-    }else if(response.statusCode == 201){
-      return jsonDecode(response.body) as Map<String,dynamic>;
-    } else {
-      print('Failed: ${response.statusCode} -> ${response.body}');
-    }
-
-    }catch(exception,trace){
-      print('Exception: ${exception}, Trace: ${trace}');
-    }
     return null;
   }
+
+
 
   Future<Map<String,dynamic>?> viewOrderById()async{
     final userToken = Pref.instance.getString(Consts.user_token);
@@ -346,9 +370,9 @@ class _InvoiceClaim{
 
   Future<Map<String,dynamic>?> getClaimReportingList()async{
     final userToken = Pref.instance.getString(Consts.user_token);
-    final url = Uri.https(Urls.base_url,Urls.invoice_claim_reporting_list);
 
     try{
+      final url = Uri.https(Urls.base_url,Urls.invoice_claim_reporting_list);
       final response = await get(url,headers: {
         'Authorization' : 'Bearer ${userToken}'
       });
@@ -414,6 +438,64 @@ class _InvoiceClaim{
       print('Exception: $exception\nTrace: $trace');
     }
 
+    return null;
+  }
+
+  Future<Map<String,dynamic>?> cancelClaim({
+    required int claimID,
+    required String claimStatus,
+    required String remakrs,
+})async{
+    final userToken = Pref.instance.getString(Consts.user_token);
+    try{
+      final url = Uri.https(Urls.base_url,'${Urls.invoice_claim_drop_out}${claimID}/drop-out/');
+      final response = await post(url,headers: {
+        'Authorization':'Bearer ${userToken}'
+      },body: json.encode({
+        'claim_status':'${claimStatus}',
+        'claim_remarks' : '${remakrs}'
+      }));
+      if(response.statusCode == 200){
+        final data = json.decode(response.body) as Map<String,dynamic>;
+        return data;
+      }else{
+        handleHttpResponse(context, response);
+      }
+    }catch(exception,trace){
+      print('Exception: ${exception}, Trace: ${trace}');
+    }
+    return null;
+  }
+
+  Future<Map<String,dynamic>?> claimRecall({
+    required int claimID,
+    required int finalClaimAmount,
+    required String status,
+    String? remarks
+})async{
+
+    final userToken = Pref.instance.getString(Consts.user_token);
+    try{
+      final url = Uri.https(Urls.base_url,'${Urls.invoice_claim_recall}${claimID}/recall/');
+      final response = await post(url,headers: {
+        'Authorization' : 'Bearer ${userToken}'
+      },
+        body: json.encode({
+          'claim_status' : status,
+          'claim_remarks' : remarks,
+          'final_claim_amount': '${finalClaimAmount}'
+        })
+      );
+
+      if(response.statusCode == 200){
+        final data = json.decode(response.body) as Map<String,dynamic>;
+        return data;
+      }else{
+        handleHttpResponse(context, response);
+      }
+    }catch(exception,trace){
+      print('Exception: ${exception}, trace: ${trace}');
+    }
     return null;
   }
 

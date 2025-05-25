@@ -29,8 +29,8 @@ class Urls {
   static const String invoice_claim_list = '/api/invoice/claim/list/';
   static const String invoice_claim_entry = '/api/invoice/claim/create/';
   static const String invoice_claim_view = '/api/invoice/claim/2/view/';
-  static const String invoice_claim_drop_out = '/api/invoice/claim/2/drop-out/';
+  static const String invoice_claim_drop_out = '/api/invoice/claim/';
   static const String invoice_claim_reporting_list = '/api/invoice/claim/reporting-message/';
-  static const String invoice_claim_recall = '/api/invoice/claim/2/recall/';
+  static const String invoice_claim_recall = '/api/invoice/claim/';
 
 }

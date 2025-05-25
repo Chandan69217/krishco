@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:krishco/utilities/cust_colors.dart';
 import 'navigations/consumer_aboutus_screen.dart';
-import 'navigations/consumer_contactus_screen.dart';
+import 'navigations/consumer_claim_screen.dart';
 import 'navigations/consumer_home_screen.dart';
 import 'navigations/consumer_new_arrivals_screen.dart';
 import 'navigations/consumer_profile_screen.dart';
@@ -18,7 +18,7 @@ class _ConsumerDashboardState extends State<ConsumerDashboard> {
   int _currentIndex = 0;
   final List<Widget> _screens = [ConsumerHomeScreen(),
     ConsumerNewArrivalsScreen(),
-    ConsumerContactusScreen(),
+    ConsumerClaimScreen(),
     ConsumerAboutusScreen(),
     ConsumerProfileScreen()
   ];
