@@ -956,9 +956,13 @@ class _ChannelPartnerPlaceOrderScreenState extends State<ChannelPartnerPlaceOrde
     if(response != null){
       final status = response['isScuss'];
       if(status){
+        _showSnackBar(message: response['messages'],status: status);
         _onReset();
+      }else{
+        final error = response['error'] as Map<String,dynamic>;
+        _showSnackBar(message: error.values.toString(),status: status);
       }
-      _showSnackBar(message: response['messages'],status: status);
+
     }
     setState(() {
       _isLoading = false;

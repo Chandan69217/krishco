@@ -3,13 +3,12 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart';
 import 'package:http/http.dart' as http;
-import 'package:krishco/models/product_related/product_category_data.dart';
-import 'package:krishco/models/product_related/product_details_data.dart';
 import 'package:krishco/screens/splash/splash_screen.dart';
 import 'package:krishco/api_services/api_urls.dart';
 import 'package:krishco/utilities/constant.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:krishco/api_services/handle_https_response.dart';
+
 
 
 class APIService{
@@ -227,6 +226,71 @@ class _OrderRelated{
   }
 
 
+  // Future<Map<String, dynamic>?> orderForSelf({
+  //   String? orderForm,
+  //   Map<String, dynamic>? orderFromOther,
+  //   List<File>? orderBill,
+  //   List<Map<String, dynamic>>? productDetails,
+  // }) async {
+  //   final userToken = Pref.instance.getString(Consts.user_token);
+  //
+  //   print('Printing all receive data');
+  //   print('OrderFormOther:${json.encode(orderFromOther)}');
+  //   print('Order Bill: ${orderBill!.length}');
+  //   print('OrderFrom: ${orderForm}');
+  //   print('Product Details: ${json.encode(productDetails)}');
+  //   try {
+  //     final url = Uri.https(Urls.base_url, Urls.order_entry_for_self);
+  //     final request = http.MultipartRequest('POST', url)
+  //       ..headers['Authorization'] = 'Bearer $userToken'
+  //       ..fields['order_type'] = 'self'
+  //       ..fields['app_name'] = 'mobile'
+  //
+  //       ..fields['order_from'] = orderForm??'null'
+  //       ..fields['order_form_others'] = orderFromOther != null ? json.encode(orderFromOther) : 'null'
+  //       ..fields['product_details'] = (productDetails != null && productDetails.isNotEmpty) ? json.encode(productDetails) : 'null';
+  //
+  //     if (orderBill != null && orderBill.isNotEmpty) {
+  //       for (File file in orderBill) {
+  //         final mimeType = file.path.endsWith('.png')
+  //             ? MediaType('image', 'png')
+  //             : MediaType('image', 'jpeg');
+  //
+  //         request.files.add(await http.MultipartFile.fromPath(
+  //           'order_bill',
+  //           file.path,
+  //           contentType: mimeType,
+  //         ));
+  //       }
+  //     }else{
+  //       request.fields['order_bill'] = 'null';
+  //     }
+  //
+  //     print('Sending request with:');
+  //     print('  order_form_others: ${request.fields['order_form_others']}');
+  //     print('  product_details: ${request.fields['product_details']}');
+  //     print('  order_from: ${request.fields['order_from']}');
+  //     print('  app_name: ${request.fields['app_name']}');
+  //     print('  order_bill: ${request.fields['order_bill']}');
+  //     print('  order_type: ${request.fields['order_type']}');
+  //
+  //     final streamedResponse = await request.send();
+  //     final response = await http.Response.fromStream(streamedResponse);
+  //
+  //     if (response.statusCode == 200 || response.statusCode == 201) {
+  //       print('Request failed: ${response.statusCode} -> ${response.body}');
+  //       return jsonDecode(response.body) as Map<String, dynamic>;
+  //     } else {
+  //       print('Request failed: ${response.statusCode} -> ${response.body}');
+  //       handleHttpResponse(context, response);
+  //     }
+  //   } catch (e, trace) {
+  //     print('Exception: $e\nTrace: $trace');
+  //   }
+  //
+  //   return null;
+  // }
+
   Future<Map<String, dynamic>?> orderForSelf({
     String? orderForm,
     Map<String, dynamic>? orderFromOther,
@@ -235,62 +299,118 @@ class _OrderRelated{
   }) async {
     final userToken = Pref.instance.getString(Consts.user_token);
 
-    print('Printing all receive data');
-    print('OrderFormOther:${json.encode(orderFromOther)}');
-    print('Order Bill: ${orderBill!.length}');
-    print('OrderFrom: ${orderForm}');
-    print('Product Details: ${json.encode(productDetails)}');
-    try {
+    try{
       final url = Uri.https(Urls.base_url, Urls.order_entry_for_self);
-      final request = http.MultipartRequest('POST', url)
-        ..headers['Authorization'] = 'Bearer $userToken'
-        ..fields['order_type'] = 'self'
-        ..fields['app_name'] = 'mobile'
-
-        ..fields['order_from'] = orderForm??'null'
-        ..fields['order_form_others'] = orderFromOther != null ? json.encode(orderFromOther) : 'null'
-        ..fields['product_details'] = (productDetails != null && productDetails.isNotEmpty) ? json.encode(productDetails) : 'null';
+      final headers = {
+        'Authorization' : 'Bearer ${userToken}',
+        'Content-Type': 'application/json'
+      };
+      final Map<String,dynamic> value = {};
+      value['order_type'] = 'self';
+      value['order_from'] = orderForm;
+      value['order_from_others'] = orderFromOther;
+      value['app_name'] = 'mobile';
+      value['product_details'] = productDetails;
 
       if (orderBill != null && orderBill.isNotEmpty) {
-        for (File file in orderBill) {
-          final mimeType = file.path.endsWith('.png')
-              ? MediaType('image', 'png')
-              : MediaType('image', 'jpeg');
+        List<String> encodedList = [];
 
-          request.files.add(await http.MultipartFile.fromPath(
-            'order_bill',
-            file.path,
-            contentType: mimeType,
-          ));
+        for (File file in orderBill) {
+          final extension = file.path.split('.').last.toLowerCase();
+
+          if (['png', 'jpg', 'jpeg'].contains(extension)) {
+            final bytes = await file.readAsBytes();
+            final mediaType = extension == 'png' ? 'image/png' : 'image/jpeg';
+            final base64String = 'data:$mediaType;base64,${base64Encode(bytes)}';
+            encodedList.add(base64String);
+          } else {
+            // Skip unsupported file types or handle differently
+            print('Unsupported file type: $extension');
+          }
         }
-      }else{
-        request.fields['order_bill'] = 'null';
+
+        value['order_bill'] = encodedList;
+      } else {
+        value['order_bill'] = null;
       }
 
-      print('Sending request with:');
-      print('  order_form_others: ${request.fields['order_form_others']}');
-      print('  product_details: ${request.fields['product_details']}');
-      print('  order_from: ${request.fields['order_from']}');
-      print('  app_name: ${request.fields['app_name']}');
-      print('  order_bill: ${request.fields['order_bill']}');
-      print('  order_type: ${request.fields['order_type']}');
 
-      final streamedResponse = await request.send();
-      final response = await http.Response.fromStream(streamedResponse);
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        print('Request failed: ${response.statusCode} -> ${response.body}');
-        return jsonDecode(response.body) as Map<String, dynamic>;
-      } else {
-        print('Request failed: ${response.statusCode} -> ${response.body}');
+
+      value.forEach((key,value){
+        print('Key: $key, Value: $value, Type: ${value.runtimeType}');
+      });
+      final body = json.encode(value);
+
+      final response = await post(url,headers: headers,body: body);
+      print('Get Response ${response.body}');
+      if(response.statusCode == 200 || response.statusCode == 201){
+        final data = json.decode(response.body) as Map<String,dynamic>;
+        return data;
+      }else{
         handleHttpResponse(context, response);
       }
-    } catch (e, trace) {
-      print('Exception: $e\nTrace: $trace');
+    }catch(exception,trace){
+      print('Exception: ${exception},Trace: ${trace}');
     }
+
+    // try {
+    // final url = Uri.https(Urls.base_url, Urls.order_entry_for_self);
+    //   final request = http.MultipartRequest('POST', url)
+    //     ..headers['Authorization'] = 'Bearer $userToken'
+    //     ..fields['order_type'] = 'self'
+    //     ..fields['app_name'] = 'mobile';
+    //   // Optional fields
+    //   if (orderForm?.isNotEmpty == true) {
+    //     request.fields['order_from'] = orderForm!;
+    //   }
+    //
+    //   if (orderFromOther != null && orderFromOther.isNotEmpty) {
+    //     request.fields['order_form_others'] = jsonEncode(orderFromOther);
+    //   }
+    //
+    //   if (productDetails != null && productDetails.isNotEmpty) {
+    //     request.fields['product_details'] = jsonEncode(productDetails);
+    //   }
+    //
+    //   // Attach order bill images
+    //   if (orderBill != null && orderBill.isNotEmpty) {
+    //     for (final file in orderBill) {
+    //       final mimeType = file.path.toLowerCase().endsWith('.png')
+    //           ? MediaType('image', 'png')
+    //           : MediaType('image', 'jpeg');
+    //
+    //       request.files.add(
+    //         await http.MultipartFile.fromPath(
+    //           'order_bill',
+    //           file.path,
+    //           contentType: mimeType,
+    //         ),
+    //       );
+    //     }
+    //   }
+    //
+    //   // Debug log
+    //   print('Submitting order with fields:');
+    //   request.fields.forEach((key, value) => print('$key: $value'));
+    //   print('Attached files: ${request.files.length}');
+    //
+    //   final streamedResponse = await request.send();
+    //   final response = await http.Response.fromStream(streamedResponse);
+    //
+    //   if (response.statusCode == 200 || response.statusCode == 201) {
+    //     return jsonDecode(response.body) as Map<String, dynamic>;
+    //   } else {
+    //     print('Request failed: ${response.statusCode} -> ${response.body}');
+    //     handleHttpResponse(context, response);
+    //   }
+    // } catch (e, trace) {
+    //   print('Exception: $e\nTrace: $trace');
+    // }
 
     return null;
   }
+
 
 
 

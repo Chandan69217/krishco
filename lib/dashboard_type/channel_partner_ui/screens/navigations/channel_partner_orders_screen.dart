@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:custom_refresh_indicator/custom_refresh_indicator.dart';
 import 'package:flutter/cupertino.dart';
@@ -7,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:krishco/api_services/api_service.dart';
 import 'package:krishco/dashboard_type/channel_partner_ui/screens/channel_partner_place_order_screen.dart';
 import 'package:krishco/models/order_related/order_list.dart';
+import 'package:krishco/models/order_related/order_product_data.dart';
 import 'package:krishco/models/order_related/order_reporting_list_data.dart';
 import 'package:krishco/widgets/cust_loader.dart';
 
@@ -372,42 +371,43 @@ class _OrderCard extends StatelessWidget {
 
                 // Product Details
                 if (product != null)
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Product Image
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: CachedNetworkImage(
-                          imageUrl: product.photo ?? '',
-                          width: 64,
-                          height: 64,
-                          fit: BoxFit.cover,
-                          placeholder: (context, url) =>
-                          SizedBox.square(
-                            dimension: 25.0,
-                              child: const CircularProgressIndicator()),
-                          errorWidget: (context, url, error) =>
-                          Image.asset('assets/logo/Placeholder_image.webp'),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-
-                      // Product Info
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(product.name ?? 'N/A',
-                                style: const TextStyle(fontWeight: FontWeight.bold)),
-                            Text("Category: ${product.catgeory}", style: const TextStyle(fontSize: 12)),
-                            Text("Price: ₹${product.price}", style: const TextStyle(fontSize: 12)),
-                            Text("Quantity: ${orderProducts[0].orderedQuantity}", style: const TextStyle(fontSize: 12)),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
+                  _PaginatedProductList(orderProducts: orderProducts),
+                  // Row(
+                  //   crossAxisAlignment: CrossAxisAlignment.start,
+                  //   children: [
+                  //     // Product Image
+                  //     ClipRRect(
+                  //       borderRadius: BorderRadius.circular(8),
+                  //       child: CachedNetworkImage(
+                  //         imageUrl: product.photo ?? '',
+                  //         width: 64,
+                  //         height: 64,
+                  //         fit: BoxFit.cover,
+                  //         placeholder: (context, url) =>
+                  //         SizedBox.square(
+                  //           dimension: 25.0,
+                  //             child: const CircularProgressIndicator()),
+                  //         errorWidget: (context, url, error) =>
+                  //         Image.asset('assets/logo/Placeholder_image.webp'),
+                  //       ),
+                  //     ),
+                  //     const SizedBox(width: 12),
+                  //
+                  //     // Product Info
+                  //     Expanded(
+                  //       child: Column(
+                  //         crossAxisAlignment: CrossAxisAlignment.start,
+                  //         children: [
+                  //           Text(product.name ?? 'N/A',
+                  //               style: const TextStyle(fontWeight: FontWeight.bold)),
+                  //           Text("Category: ${product.catgeory}", style: const TextStyle(fontSize: 12)),
+                  //           Text("Price: ₹${product.price}", style: const TextStyle(fontSize: 12)),
+                  //           Text("Quantity: ${orderProducts[0].orderedQuantity}", style: const TextStyle(fontSize: 12)),
+                  //         ],
+                  //       ),
+                  //     ),
+                  //   ],
+                  // ),
 
                 if (order.statusMessage != null &&
                     order.statusMessage.toString().isNotEmpty)
@@ -427,6 +427,128 @@ class _OrderCard extends StatelessWidget {
   }
 }
 
+class _PaginatedProductList extends StatefulWidget {
+  final List<OrderProduct> orderProducts;
+
+  const _PaginatedProductList({
+    super.key,
+    required this.orderProducts,
+  });
+
+  @override
+  State<_PaginatedProductList> createState() => _PaginatedProductListState();
+}
+
+class _PaginatedProductListState extends State<_PaginatedProductList> {
+  late PageController _pageController;
+  int _currentPage = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController(viewportFraction: 0.95);
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final orderProducts = widget.orderProducts;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          height: 100,
+          child: PageView.builder(
+            controller: _pageController,
+            itemCount: orderProducts.length,
+            onPageChanged: (index) {
+              setState(() {
+                _currentPage = index;
+              });
+            },
+            itemBuilder: (context, index) {
+              final op = orderProducts[index];
+              final product = op.product;
+              return Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: CachedNetworkImage(
+                        imageUrl: product?.photo ?? '',
+                        width: 64,
+                        height: 64,
+                        fit: BoxFit.cover,
+                        placeholder: (context, url) => const SizedBox(
+                            width: 25,
+                            height: 25,
+                            child: CircularProgressIndicator()),
+                        errorWidget: (context, url, error) => Image.asset(
+                            'assets/logo/Placeholder_image.webp'),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(product?.name ?? 'N/A',
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.bold)),
+                          Text("Category: ${product?.catgeory ?? 'N/A'}",
+                              style: const TextStyle(fontSize: 12)),
+                          Text("Price: ₹${product?.price ?? 0}",
+                              style: const TextStyle(fontSize: 12)),
+                          Text("Quantity: ${op.orderedQuantity}",
+                              style: const TextStyle(fontSize: 12)),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ),
+
+
+        Center(child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 8.0,vertical: 4.0),
+            decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20.0),
+          shape: BoxShape.rectangle,
+          color: Colors.grey.shade200,
+        ),child: Text('${_currentPage +1 } of ${orderProducts.length}',style: Theme.of(context).textTheme.bodySmall!.copyWith(color: Colors.blue.shade600,fontWeight: FontWeight.bold),))),
+        // Indicator (Dots)
+        // Row(
+        //   mainAxisAlignment: MainAxisAlignment.center,
+        //   children: List.generate(orderProducts.length, (index) {
+        //     final isActive = index == _currentPage;
+        //     return AnimatedContainer(
+        //       duration: const Duration(milliseconds: 300),
+        //       margin: const EdgeInsets.symmetric(horizontal: 4),
+        //       width: isActive ? 14 : 8,
+        //       height: 8,
+        //       decoration: BoxDecoration(
+        //         color: isActive ? Colors.blue : Colors.grey[400],
+        //         borderRadius: BorderRadius.circular(4),
+        //       ),
+        //     );
+        //   }),
+        // ),
+      ],
+    );
+  }
+}
+
 class _OrderDetailsScreen extends StatelessWidget {
   final OrderData order;
 
@@ -437,7 +559,6 @@ class _OrderDetailsScreen extends StatelessWidget {
     final addBy = order.addBy;
     final orderedFrom = order.orderedFrom;
     final productList = order.orderProduct ?? [];
-    final product = productList.isNotEmpty ? productList[0] : null;
     final nonRegistered = order.isRegistered == false;
 
     return Scaffold(
@@ -499,48 +620,63 @@ class _OrderDetailsScreen extends StatelessWidget {
               ),
             ],
 
-            if (product != null) ...[
+
+            if (productList.isNotEmpty) ...[
               const SizedBox(height: 12),
               _buildCard(
-                title: "Product",
-                children: [
-                  Row(
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: CachedNetworkImage(
-                          imageUrl: product.product?.photo ?? '',
-                          width: 80,
-                          height: 80,
-                          fit: BoxFit.cover,
-                          placeholder: (context, url) => const CircularProgressIndicator(),
-                          errorWidget: (context, url, error) => Image.asset('assets/logo/Placeholder_image.webp'),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                title: "Products (${productList.length})",
+                children: productList.map((product) {
+                  final prod = product.product;
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
                           children: [
-                            Text(product.product?.name ?? '',
-                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                            const SizedBox(height: 4),
-                            _infoRow("Category", product.product?.catgeory),
-                            _infoRow("Price", "₹${product.product?.price ?? '-'}"),
-                            _infoRow("Unit", product.product?.unit),
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(10),
+                              child: CachedNetworkImage(
+                                imageUrl: prod?.photo ?? '',
+                                width: 80,
+                                height: 80,
+                                fit: BoxFit.cover,
+                                placeholder: (context, url) =>
+                                const CircularProgressIndicator(),
+                                errorWidget: (context, url, error) => Image.asset(
+                                    'assets/logo/Placeholder_image.webp'),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(prod?.name ?? '',
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.bold, fontSize: 16)),
+                                  const SizedBox(height: 4),
+                                  _infoRow("Category", prod?.catgeory),
+                                  _infoRow("Price", "₹${prod?.price ?? '-'}"),
+                                  _infoRow("Unit", prod?.unit),
+                                ],
+                              ),
+                            ),
                           ],
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  _infoRow("Qty per QR", product.product?.quanityPerQr),
-                  _infoRow("Ordered", product.orderedQuantity?.toString()),
-                  _infoRow("Confirmed", product.confirmedQuantity?.toString()),
-                  _infoRow("Dispatched", product.dispatchedQuantity?.toString()),
-                ],
+                        const SizedBox(height: 12),
+                        _infoRow("Qty per QR", prod?.quanityPerQr),
+                        _infoRow("Ordered", product.orderedQuantity?.toString()),
+                        _infoRow("Confirmed", product.confirmedQuantity?.toString()),
+                        _infoRow("Dispatched", product.dispatchedQuantity?.toString()),
+                        const Divider(height: 24),
+                      ],
+                    ),
+                  );
+                }).toList(),
               ),
             ],
+
           ],
         ),
       ),
@@ -614,67 +750,71 @@ class _OrderReportingCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
 
-            Text(
-              data.message??'',
-              style: const TextStyle(fontSize: 14, color: Colors.black87),
-            ),
-
-            const SizedBox(height: 12),
-
-            if (product != null)
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: CachedNetworkImage(
-                      imageUrl: product.photo ?? '',
-                      width: 60,
-                      height: 60,
-                      fit: BoxFit.cover,
-                      placeholder: (context, url) =>
-                      const SizedBox(width: 25, height: 25, child: CircularProgressIndicator()),
-                      errorWidget: (context, url, error) =>
-                          Image.asset('assets/logo/Placeholder_image.webp'),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(product.name ?? 'N/A',
-                            style: const TextStyle(fontWeight: FontWeight.bold)),
-                        Text("Category: ${product.catgeory}", style: const TextStyle(fontSize: 12)),
-                        Text("Price: ₹${product.price}", style: const TextStyle(fontSize: 12)),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: Colors.blue.shade50,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      order.orderStatus ?? 'Unknown',
-                      style: const TextStyle(fontSize: 12, color: Colors.blue),
-                    ),
-                  ),
-                ],
-              ),
-
-            const SizedBox(height: 8),
-
             // Order Meta
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text("Order No: ${order.orderNo}", style: const TextStyle(fontSize: 12)),
+                Text("Order No: ${order.orderNo}", style: Theme.of(context).textTheme.bodyMedium!.copyWith(fontSize: 14,fontWeight: FontWeight.bold)),
+                SizedBox(width: 4,),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.blue.shade50,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    order.orderStatus ?? 'Unknown',
+                    style: const TextStyle(fontSize: 12, color: Colors.blue),
+                  ),
+                ),
               ],
             ),
+            const SizedBox(height: 12),
+            Text(
+              data.message??'',
+              style: Theme.of(context).textTheme.bodySmall!.copyWith(fontSize: 14, color: Colors.black87),
+            ),
+
+            const SizedBox(height: 12),
+
+
+            if (product != null)...[
+              Text('Products Details',style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: Colors.blue.shade600,fontWeight: FontWeight.bold),),
+              _PaginatedProductList(orderProducts: order.orderProduct),
+            ],
+              // Row(
+              //   crossAxisAlignment: CrossAxisAlignment.start,
+              //   children: [
+              //     ClipRRect(
+              //       borderRadius: BorderRadius.circular(8),
+              //       child: CachedNetworkImage(
+              //         imageUrl: product.photo ?? '',
+              //         width: 60,
+              //         height: 60,
+              //         fit: BoxFit.cover,
+              //         placeholder: (context, url) =>
+              //         const SizedBox(width: 25, height: 25, child: CircularProgressIndicator()),
+              //         errorWidget: (context, url, error) =>
+              //             Image.asset('assets/logo/Placeholder_image.webp'),
+              //       ),
+              //     ),
+              //     const SizedBox(width: 12),
+              //     Expanded(
+              //       child: Column(
+              //         crossAxisAlignment: CrossAxisAlignment.start,
+              //         children: [
+              //           Text(product.name ?? 'N/A',
+              //               style: const TextStyle(fontWeight: FontWeight.bold)),
+              //           Text("Category: ${product.catgeory}", style: const TextStyle(fontSize: 12)),
+              //           Text("Price: ₹${product.price}", style: const TextStyle(fontSize: 12)),
+              //         ],
+              //       ),
+              //     ),
+              //   ],
+              // ),
 
             const SizedBox(height: 8),
+
 
             // View Details Button
             Align(
@@ -701,6 +841,7 @@ class _OrderReportingCard extends StatelessWidget {
   }
 }
 
+
 class _OrderReportingDetailsScreen extends StatelessWidget {
   final OrderReportingData data;
 
@@ -708,8 +849,8 @@ class _OrderReportingDetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final order = data.order;
-    final productList = order!.orderProduct;
+    final order = data.order!;
+    final productList = order.orderProduct;
 
     return Scaffold(
       appBar: AppBar(
@@ -720,7 +861,7 @@ class _OrderReportingDetailsScreen extends StatelessWidget {
         children: [
           // Message
           Text(
-            data.message??'',
+            data.message ?? '',
             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 16),
@@ -732,21 +873,25 @@ class _OrderReportingDetailsScreen extends StatelessWidget {
           const SizedBox(height: 16),
 
           // Ordered From
-          const Text("Ordered From", style: TextStyle(fontWeight: FontWeight.bold)),
-          _buildUserCard(),
+          Text("Ordered From", style: Theme.of(context).textTheme.bodyMedium!.copyWith(fontWeight: FontWeight.bold)),
+          _buildOrderedForm(order.orderedFrom),
 
           const SizedBox(height: 12),
 
+          Text("Ordered For", style: Theme.of(context).textTheme.bodyMedium!.copyWith(fontWeight: FontWeight.bold)),
+          _buildOrderedForm(order.orderedFor),
+
+          const SizedBox(height: 12),
           // Ordered By
-          const Text("Ordered By", style: TextStyle(fontWeight: FontWeight.bold)),
-          _buildUserCard(),
+          Text("Ordered By", style: Theme.of(context).textTheme.bodyMedium!.copyWith(fontWeight: FontWeight.bold)),
+          _buildOrderedBy(order.addBy),
 
           const SizedBox(height: 16),
 
           // Product List
-          const Text("Products", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          Text("Products", style: Theme.of(context).textTheme.bodyMedium!.copyWith(fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
-          ...productList.map((item) => _buildProductCard()).toList(),
+          ...productList.map((item) => _buildProductCard(item)).toList(),
         ],
       ),
     );
@@ -764,8 +909,10 @@ class _OrderReportingDetailsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildUserCard() {
-    final user = data.order!.addBy!;
+  Widget _buildOrderedForm(OrderedF? user) {
+
+    if (user == null) return const SizedBox.shrink();
+
     return Card(
       color: Colors.white,
       margin: const EdgeInsets.symmetric(vertical: 6),
@@ -773,15 +920,50 @@ class _OrderReportingDetailsScreen extends StatelessWidget {
       elevation: 1,
       child: ListTile(
         leading: const Icon(Icons.person_outline),
-        title: Text(user.name??'N/A'),
-        subtitle: Text("${user.groupType} - ${user.groupName}"),
-        trailing: Text(user.number??'N/A'),
+        title: Text(user.name ?? 'N/A'),
+        subtitle: Text("${user.groupType ?? '-'} - ${user.groupName ?? '-'}"),
+        trailing: Text(user.number ?? 'N/A'),
       ),
     );
   }
 
-  Widget _buildProductCard() {
-    final item = data.order!.orderProduct[0];
+  Widget _buildOrderedBy(AddBy? user) {
+
+    if (user == null) return const SizedBox.shrink();
+
+    return Card(
+      color: Colors.white,
+      margin: const EdgeInsets.symmetric(vertical: 6),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      elevation: 1,
+      child: ListTile(
+        leading: const Icon(Icons.person_outline),
+        title: Text(user.name ?? 'N/A'),
+        subtitle: Text("${user.groupType ?? '-'} - ${user.groupName ?? '-'}"),
+        trailing: Text(user.number ?? 'N/A'),
+      ),
+    );
+  }
+
+  // Widget _buildOrderedFor(OrderedF? user) {
+  //
+  //   if (user == null) return const SizedBox.shrink();
+  //
+  //   return Card(
+  //     color: Colors.white,
+  //     margin: const EdgeInsets.symmetric(vertical: 6),
+  //     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+  //     elevation: 1,
+  //     child: ListTile(
+  //       leading: const Icon(Icons.person_outline),
+  //       title: Text(user.name ?? 'N/A'),
+  //       subtitle: Text("${user.groupType ?? '-'} - ${user.groupName ?? '-'}"),
+  //       trailing: Text(user.number ?? 'N/A'),
+  //     ),
+  //   );
+  // }
+
+  Widget _buildProductCard(OrderProduct item) {
     final product = item.product;
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8),
@@ -795,7 +977,7 @@ class _OrderReportingDetailsScreen extends StatelessWidget {
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
               child: CachedNetworkImage(
-                imageUrl: product!.photo ?? '',
+                imageUrl: product?.photo ?? '',
                 width: 60,
                 height: 60,
                 fit: BoxFit.cover,
@@ -810,12 +992,16 @@ class _OrderReportingDetailsScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(product.name ?? '',
+                  Text(product?.name ?? '',
                       style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                   const SizedBox(height: 4),
-                  Text("Category: ${product.catgeory}"),
-                  Text("Price: ₹${product.price}"),
-                  Text("Ordered Qty: ${item.orderedQuantity} ${product.unit}"),
+                  Text("Category: ${product?.catgeory ?? '-'}"),
+                  Text("Price: ₹${product?.price ?? '-'}"),
+                  Text("Ordered Qty: ${item.orderedQuantity ?? '-'} ${product?.unit ?? ''}"),
+                  if (item.confirmedQuantity != null)
+                    Text("Confirmed Qty: ${item.confirmedQuantity}"),
+                  if (item.dispatchedQuantity != null)
+                    Text("Dispatched Qty: ${item.dispatchedQuantity}"),
                 ],
               ),
             ),
@@ -826,3 +1012,130 @@ class _OrderReportingDetailsScreen extends StatelessWidget {
   }
 }
 
+
+
+
+// class _OrderReportingDetailsScreen extends StatelessWidget {
+//   final OrderReportingData data;
+//
+//   const _OrderReportingDetailsScreen({super.key, required this.data});
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     final order = data.order;
+//     final productList = order!.orderProduct;
+//
+//     return Scaffold(
+//       appBar: AppBar(
+//         title: const Text('Reporting Message Details'),
+//       ),
+//       body: ListView(
+//         padding: const EdgeInsets.all(16),
+//         children: [
+//           // Message
+//           Text(
+//             data.message??'',
+//             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+//           ),
+//           const SizedBox(height: 16),
+//
+//           // Order Info
+//           _buildInfoRow("Order No", order.orderNo),
+//           _buildInfoRow("Status", order.orderStatus),
+//           _buildInfoRow("Date", order.orderDate.toString()),
+//           const SizedBox(height: 16),
+//
+//           // Ordered From
+//           const Text("Ordered From", style: TextStyle(fontWeight: FontWeight.bold)),
+//           _buildUserCard(),
+//
+//           const SizedBox(height: 12),
+//
+//           // Ordered By
+//           const Text("Ordered By", style: TextStyle(fontWeight: FontWeight.bold)),
+//           _buildUserCard(),
+//
+//           const SizedBox(height: 16),
+//
+//           // Product List
+//           const Text("Products", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+//           const SizedBox(height: 8),
+//           ...productList.map((item) => _buildProductCard()).toList(),
+//         ],
+//       ),
+//     );
+//   }
+//
+//   Widget _buildInfoRow(String label, String? value) {
+//     return Padding(
+//       padding: const EdgeInsets.only(bottom: 6),
+//       child: Row(
+//         children: [
+//           Text("$label: ", style: const TextStyle(fontWeight: FontWeight.bold)),
+//           Expanded(child: Text(value ?? "N/A")),
+//         ],
+//       ),
+//     );
+//   }
+//
+//   Widget _buildUserCard() {
+//     final user = data.order!.addBy!;
+//     return Card(
+//       color: Colors.white,
+//       margin: const EdgeInsets.symmetric(vertical: 6),
+//       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+//       elevation: 1,
+//       child: ListTile(
+//         leading: const Icon(Icons.person_outline),
+//         title: Text(user.name??'N/A'),
+//         subtitle: Text("${user.groupType} - ${user.groupName}"),
+//         trailing: Text(user.number??'N/A'),
+//       ),
+//     );
+//   }
+//
+//   Widget _buildProductCard() {
+//     final item = data.order!.orderProduct[0];
+//     final product = item.product;
+//     return Card(
+//       margin: const EdgeInsets.symmetric(vertical: 8),
+//       color: Colors.white,
+//       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+//       elevation: 2,
+//       child: Padding(
+//         padding: const EdgeInsets.all(12),
+//         child: Row(
+//           children: [
+//             ClipRRect(
+//               borderRadius: BorderRadius.circular(8),
+//               child: CachedNetworkImage(
+//                 imageUrl: product!.photo ?? '',
+//                 width: 60,
+//                 height: 60,
+//                 fit: BoxFit.cover,
+//                 placeholder: (context, url) =>
+//                 const SizedBox(width: 25, height: 25, child: CircularProgressIndicator()),
+//                 errorWidget: (context, url, error) =>
+//                     Image.asset('assets/logo/Placeholder_image.webp'),
+//               ),
+//             ),
+//             const SizedBox(width: 12),
+//             Expanded(
+//               child: Column(
+//                 crossAxisAlignment: CrossAxisAlignment.start,
+//                 children: [
+//                   Text(product.name ?? '',
+//                       style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+//                   const SizedBox(height: 4),
+//                   Text("Category: ${product.catgeory}"),
+//                   Text("Price: ₹${product.price}"),
+//                   Text("Ordered Qty: ${item.orderedQuantity} ${product.unit}"),
+//                 ],
+//               ),
+//             ),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+// }
