@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:krishco/api_services/api_service.dart';
+import 'package:krishco/widgets/cust_dialog_box/cust_dialog_box.dart';
 
 class ChannelPartnerChangePasswordScreen extends StatefulWidget {
   const ChannelPartnerChangePasswordScreen({super.key});
 
   @override
-  State<ChannelPartnerChangePasswordScreen> createState() => _ChannelPartnerChangePasswordScreenState();
+  State<ChannelPartnerChangePasswordScreen> createState() =>
+      _ChannelPartnerChangePasswordScreenState();
 }
 
-class _ChannelPartnerChangePasswordScreenState extends State<ChannelPartnerChangePasswordScreen> {
+class _ChannelPartnerChangePasswordScreenState
+    extends State<ChannelPartnerChangePasswordScreen> {
   final _formKey = GlobalKey<FormState>();
 
   bool _showCurrentPassword = false;
@@ -17,12 +21,13 @@ class _ChannelPartnerChangePasswordScreenState extends State<ChannelPartnerChang
   final _currentController = TextEditingController();
   final _newController = TextEditingController();
   final _confirmController = TextEditingController();
+  bool _isLoading = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Change Password'),
+        title: const Text('Change Password'),
       ),
       body: Center(
         child: Container(
@@ -55,24 +60,51 @@ class _ChannelPartnerChangePasswordScreenState extends State<ChannelPartnerChang
                         controller: _currentController,
                         hint: 'Current Password(*)',
                         showPassword: _showCurrentPassword,
-                        toggleVisibility: () => setState(() => _showCurrentPassword = !_showCurrentPassword),
+                        toggleVisibility: () => setState(() =>
+                        _showCurrentPassword = !_showCurrentPassword),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Current password is required';
+                          }
+                          return null;
+                        },
                       ),
                       const SizedBox(height: 16),
                       _buildPasswordField(
                         controller: _newController,
                         hint: 'New Password(*)',
                         showPassword: _showNewPassword,
-                        toggleVisibility: () => setState(() => _showNewPassword = !_showNewPassword),
+                        toggleVisibility: () =>
+                            setState(() => _showNewPassword = !_showNewPassword),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'New password is required';
+                          }
+                          if (value.length < 6) {
+                            return 'Password must be at least 6 characters';
+                          }
+                          return null;
+                        },
                       ),
                       const SizedBox(height: 16),
                       _buildPasswordField(
                         controller: _confirmController,
                         hint: 'Confirm Password(*)',
                         showPassword: _showConfirmPassword,
-                        toggleVisibility: () => setState(() => _showConfirmPassword = !_showConfirmPassword),
+                        toggleVisibility: () => setState(() =>
+                        _showConfirmPassword = !_showConfirmPassword),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please confirm your password';
+                          }
+                          if (value != _newController.text) {
+                            return 'Passwords do not match';
+                          }
+                          return null;
+                        },
                       ),
                       const SizedBox(height: 24),
-                      Row(
+                      _isLoading ? Center(child: SizedBox.square(dimension: 25, child: CircularProgressIndicator())):Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           _buildButton(
@@ -93,9 +125,38 @@ class _ChannelPartnerChangePasswordScreenState extends State<ChannelPartnerChang
                             iconData: Icons.check,
                             color: const Color(0xff0ac81f),
                             hoverColor: const Color(0xff0a9e1a),
-                            onPressed: () {
+                            onPressed: () async {
                               if (_formKey.currentState!.validate()) {
-                                // Handle change password
+                                setState(() {
+                                  _isLoading = true;
+                                });
+                                final changePasswordObj =
+                                    APIService(context: context).changePassword;
+                                final response = await changePasswordObj
+                                    .changePassword(
+                                  currentPassword: _currentController.text,
+                                  newPassword: _newController.text,
+                                );
+                                if (response != null) {
+                                  final status = response['isScuss'];
+                                  if (status) {
+                                    CustDialog.show(
+                                        context: context,
+                                        message: response['messages'] ??'Password Changed Successfully');
+                                    _formKey.currentState!.reset();
+                                    _currentController.clear();
+                                    _newController.clear();
+                                    _confirmController.clear();
+                                  } else {
+                                    CustDialog.show(
+                                        context: context,
+                                        message: response['messages'] ??
+                                            'Password not changed');
+                                  }
+                                }
+                                setState(() {
+                                  _isLoading = false;
+                                });
                               }
                             },
                           ),
@@ -117,29 +178,29 @@ class _ChannelPartnerChangePasswordScreenState extends State<ChannelPartnerChang
     required String hint,
     required bool showPassword,
     required VoidCallback toggleVisibility,
+    FormFieldValidator<String>? validator,
   }) {
     return TextFormField(
       controller: controller,
       obscureText: !showPassword,
       decoration: InputDecoration(
         hintText: hint,
+        prefixIcon: Icon(Icons.password),
         suffixIcon: IconButton(
-          icon: Icon(showPassword ? Icons.visibility:Icons.visibility_off, color: const Color(0xff00004d)),
+          icon: Icon(
+              showPassword ? Icons.visibility : Icons.visibility_off,
+              color: const Color(0xff00004d)),
           onPressed: toggleVisibility,
         ),
-        contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+        contentPadding:
+        const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
         focusedBorder: OutlineInputBorder(
           borderSide: const BorderSide(color: Color(0xff0a6eff), width: 2),
           borderRadius: BorderRadius.circular(10),
         ),
       ),
-      validator: (value) {
-        if (value == null || value.isEmpty) {
-          return 'This field is required';
-        }
-        return null;
-      },
+      validator: validator,
     );
   }
 
@@ -158,7 +219,9 @@ class _ChannelPartnerChangePasswordScreenState extends State<ChannelPartnerChang
           backgroundColor: color,
           foregroundColor: Colors.white,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
           textStyle: const TextStyle(fontSize: 16),
         ).copyWith(
           overlayColor: MaterialStateProperty.all(hoverColor.withOpacity(0.8)),

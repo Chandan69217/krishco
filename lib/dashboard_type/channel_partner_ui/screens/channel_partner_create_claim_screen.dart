@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
@@ -60,249 +59,251 @@ class _ChannelPartnerCreateClaimScreenState extends State<ChannelPartnerCreateCl
         appBar: AppBar(
           title: const Text('Claim Invoice'),
         ),
-        body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Claim Details *',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Color(0xFF0B6EF6)),
-                  ),
-                  RichText(
-                    text: TextSpan(
-                      style: TextStyle(fontSize: 12, color: Colors.red, fontWeight: FontWeight.w600),
-                      children: [
-                        TextSpan(text: 'Note: '),
-                        TextSpan(
-                          text: 'All ',
-                          style: TextStyle(color: Colors.grey[700], fontWeight: FontWeight.normal),
-                        ),
-                        TextSpan(children: [
-                          TextSpan(
-                            text: '(',
-                            style: TextStyle(color: Colors.grey[700], fontWeight: FontWeight.normal),
-                          ),
-                          TextSpan(
-                            text: '*',
-                          ),
-                          TextSpan(
-                            text: ') ',
-                            style: TextStyle(color: Colors.grey[700], fontWeight: FontWeight.normal),
-                          )
-                        ]),
-                        TextSpan(
-                          text: 'Fields are Mandatory.',
-                          style: TextStyle(color: Colors.grey[700], fontWeight: FontWeight.normal),
-                        ),
-                      ],
+        body: SafeArea(
+          child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16.0),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Claim Details *',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Color(0xFF0B6EF6)),
                     ),
-                  )
-                ],
-              ),
-              const SizedBox(height: 20.0),
-              TextFormField(
-                controller: _invoiceNumberController,
-                decoration: InputDecoration(
-                  labelText: 'Invoice Number (Optional)',
-                  border: OutlineInputBorder(),
-                  hintText: 'INVOICE NUMBER',
+                    RichText(
+                      text: TextSpan(
+                        style: TextStyle(fontSize: 12, color: Colors.red, fontWeight: FontWeight.w600),
+                        children: [
+                          TextSpan(text: 'Note: '),
+                          TextSpan(
+                            text: 'All ',
+                            style: TextStyle(color: Colors.grey[700], fontWeight: FontWeight.normal),
+                          ),
+                          TextSpan(children: [
+                            TextSpan(
+                              text: '(',
+                              style: TextStyle(color: Colors.grey[700], fontWeight: FontWeight.normal),
+                            ),
+                            TextSpan(
+                              text: '*',
+                            ),
+                            TextSpan(
+                              text: ') ',
+                              style: TextStyle(color: Colors.grey[700], fontWeight: FontWeight.normal),
+                            )
+                          ]),
+                          TextSpan(
+                            text: 'Fields are Mandatory.',
+                            style: TextStyle(color: Colors.grey[700], fontWeight: FontWeight.normal),
+                          ),
+                        ],
+                      ),
+                    )
+                  ],
                 ),
-              ),
-
-              const SizedBox(height: 16),
-              TextFormField(
-                readOnly: true,
-                controller: TextEditingController(
-                  text: _invoiceDate != null ? DateFormat('yyyy-MM-dd').format(_invoiceDate!) : '',
+                const SizedBox(height: 20.0),
+                TextFormField(
+                  controller: _invoiceNumberController,
+                  decoration: InputDecoration(
+                    labelText: 'Invoice Number (Optional)',
+                    border: OutlineInputBorder(),
+                    hintText: 'INVOICE NUMBER',
+                  ),
                 ),
-                decoration: InputDecoration(
-                  labelText: 'Invoice Date *',
-                  border: OutlineInputBorder(),
-                  suffixIcon: Icon(Icons.calendar_today),
+          
+                const SizedBox(height: 16),
+                TextFormField(
+                  readOnly: true,
+                  controller: TextEditingController(
+                    text: _invoiceDate != null ? DateFormat('yyyy-MM-dd').format(_invoiceDate!) : '',
+                  ),
+                  decoration: InputDecoration(
+                    labelText: 'Invoice Date *',
+                    border: OutlineInputBorder(),
+                    suffixIcon: Icon(Icons.calendar_today),
+                  ),
+                  onTap: () async {
+                    FocusScope.of(context).requestFocus(FocusNode()); // prevent keyboard
+                    final pickedDate = await showDatePicker(
+                      context: context,
+                      initialDate: _invoiceDate ?? DateTime.now(),
+                      firstDate: DateTime(2000),
+                      lastDate: DateTime.now(),
+                    );
+                    if (pickedDate != null) {
+                      setState(() {
+                        _invoiceDate = pickedDate;
+                      });
+                    }
+                  },
+                  validator: (value) {
+                    if (_invoiceDate == null) {
+                      return 'Please select invoice date';
+                    }
+                    return null;
+                  },
                 ),
-                onTap: () async {
-                  FocusScope.of(context).requestFocus(FocusNode()); // prevent keyboard
-                  final pickedDate = await showDatePicker(
-                    context: context,
-                    initialDate: _invoiceDate ?? DateTime.now(),
-                    firstDate: DateTime(2000),
-                    lastDate: DateTime.now(),
-                  );
-                  if (pickedDate != null) {
-                    setState(() {
-                      _invoiceDate = pickedDate;
-                    });
-                  }
-                },
-                validator: (value) {
-                  if (_invoiceDate == null) {
-                    return 'Please select invoice date';
-                  }
-                  return null;
-                },
-              ),
-
-              const SizedBox(height: 16),
-              ValueListenableBuilder<EnterpriseDetailsListData?>(
-                valueListenable: taggedEnterprise,
-                builder: (context,value,child){
-                  return DropdownButtonFormField<String>(
-                    validator:  !_notInList ? (value){
-                      if(value == null || value.isEmpty){
-                        return 'Select Enterprise Details';
-                      }
-                      return null;
-                    }:null,
+          
+                const SizedBox(height: 16),
+                ValueListenableBuilder<EnterpriseDetailsListData?>(
+                  valueListenable: taggedEnterprise,
+                  builder: (context,value,child){
+                    return DropdownButtonFormField<String>(
+                      validator:  !_notInList ? (value){
+                        if(value == null || value.isEmpty){
+                          return 'Select Enterprise Details';
+                        }
+                        return null;
+                      }:null,
+                      decoration: InputDecoration(
+                        labelText: 'Enterprise Details *',
+                        border: OutlineInputBorder(),
+                      ),
+                      value: _enterpriseDetails,
+                      items: [
+                        DropdownMenuItem(child: Text("Select Enterprise Details"), value: null),
+                        if(value != null)...[
+                          ...value.data.map((datum) {
+                            final customer = datum.customer;
+                            if (customer == null) return null;
+          
+                            final displayText =
+                                '${customer.name ?? 'Unknown'} - ${customer.groupName ?? 'N/A'}';
+          
+                            return DropdownMenuItem<String>(
+                              value: customer.id?.toString(),
+                              child: Text(displayText),
+                            );
+                          }).whereType<DropdownMenuItem<String>>().toList(),
+                        ]
+                      ],
+                      onChanged: !_notInList ? (value) => setState(() => _enterpriseDetails = value):null,
+                    );
+                  },
+                ),
+                const SizedBox(height: 8),
+                CheckboxListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: Text('From where you purchased is not in the enterprise list.', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                  value: _notInList,
+                  onChanged: (value) => setState(() => _notInList = value ?? false),
+                  controlAffinity: ListTileControlAffinity.leading,
+                ),
+          
+                if (_notInList) ...[
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: _enterpriseNameController,
                     decoration: InputDecoration(
-                      labelText: 'Enterprise Details *',
+                      labelText: 'Enterprise Name *',
                       border: OutlineInputBorder(),
                     ),
-                    value: _enterpriseDetails,
-                    items: [
-                      DropdownMenuItem(child: Text("Select Enterprise Details"), value: null),
-                      if(value != null)...[
-                        ...value.data.map((datum) {
-                          final customer = datum.customer;
-                          if (customer == null) return null;
-
-                          final displayText =
-                              '${customer.name ?? 'Unknown'} - ${customer.groupName ?? 'N/A'}';
-
-                          return DropdownMenuItem<String>(
-                            value: customer.id?.toString(),
-                            child: Text(displayText),
-                          );
-                        }).whereType<DropdownMenuItem<String>>().toList(),
-                      ]
-                    ],
-                    onChanged: !_notInList ? (value) => setState(() => _enterpriseDetails = value):null,
-                  );
-                },
-              ),
-              const SizedBox(height: 8),
-              CheckboxListTile(
-                contentPadding: EdgeInsets.zero,
-                title: Text('From where you purchased is not in the enterprise list.', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
-                value: _notInList,
-                onChanged: (value) => setState(() => _notInList = value ?? false),
-                controlAffinity: ListTileControlAffinity.leading,
-              ),
-
-              if (_notInList) ...[
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Enterprise Name is required';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: _enterpriseNumberController,
+                    keyboardType: TextInputType.phone,
+                    maxLength: 10,
+                    decoration: InputDecoration(
+                      counterText: '',
+                      labelText: 'Enterprise Number *',
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Enterprise Number is required';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: _enterpriseAddressController,
+                    maxLines: 2,
+                    decoration: InputDecoration(
+                      labelText: 'Enterprise Address (Optional)',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                ],
+          
                 const SizedBox(height: 16),
                 TextFormField(
-                  controller: _enterpriseNameController,
+                  controller: _claimAmountController,
+                  keyboardType: TextInputType.number,
                   decoration: InputDecoration(
-                    labelText: 'Enterprise Name *',
+                    labelText: 'Claim Amount *',
                     border: OutlineInputBorder(),
+                    hintText: 'Claim Amount (*)',
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Enterprise Name is required';
+                  validator: (value){
+                    if(value == null || value.isEmpty){
+                      return 'Enter Claim Amount';
                     }
                     return null;
                   },
                 ),
+          
                 const SizedBox(height: 16),
+          
                 TextFormField(
-                  controller: _enterpriseNumberController,
-                  keyboardType: TextInputType.phone,
-                  maxLength: 10,
-                  decoration: InputDecoration(
-                    counterText: '',
-                    labelText: 'Enterprise Number *',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Enterprise Number is required';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _enterpriseAddressController,
+                  controller: _filePreviewController,
                   maxLines: 2,
+                  readOnly: true,
+                  textAlignVertical: TextAlignVertical.center,
                   decoration: InputDecoration(
-                    labelText: 'Enterprise Address (Optional)',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-              ],
-
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _claimAmountController,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                  labelText: 'Claim Amount *',
-                  border: OutlineInputBorder(),
-                  hintText: 'Claim Amount (*)',
-                ),
-                validator: (value){
-                  if(value == null || value.isEmpty){
-                    return 'Enter Claim Amount';
-                  }
-                  return null;
-                },
-              ),
-
-              const SizedBox(height: 16),
-
-              TextFormField(
-                controller: _filePreviewController,
-                maxLines: 2,
-                readOnly: true,
-                textAlignVertical: TextAlignVertical.center,
-                decoration: InputDecoration(
-                  labelText: 'Uploaded File Preview',
-                  border: const OutlineInputBorder(),
-
-                  suffixIcon: _selectedFile == null
-                      ? TextButton.icon(
-                    icon: const Icon(Icons.attach_file),
-                    label: const Text("Upload"),
-                    // onPressed: _pickFile,
-                    onPressed: (){
-                      ChooseFile.showImagePickerBottomSheet(context,(file){
-                        setState(() {
-                          _selectedFile = file;
-                          _filePreviewController.text = _selectedFile!.path.split('/').last;
+                    labelText: 'Uploaded File Preview',
+                    border: const OutlineInputBorder(),
+          
+                    suffixIcon: _selectedFile == null
+                        ? TextButton.icon(
+                      icon: const Icon(Icons.attach_file),
+                      label: const Text("Upload"),
+                      // onPressed: _pickFile,
+                      onPressed: (){
+                        ChooseFile.showImagePickerBottomSheet(context,(file){
+                          setState(() {
+                            _selectedFile = file;
+                            _filePreviewController.text = _selectedFile!.path.split('/').last;
+                          });
                         });
-                      });
-                    },
-                  )
-                      : IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () {
-                      setState(() {
-                        _selectedFile = null;
-                        _filePreviewController.text = 'No file uploaded yet.';
-                      });
-                    },
+                      },
+                    )
+                        : IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () {
+                        setState(() {
+                          _selectedFile = null;
+                          _filePreviewController.text = 'No file uploaded yet.';
+                        });
+                      },
+                    ),
                   ),
+                  validator: (value){
+                    if(value == null || value.isEmpty){
+                      return 'Please Upload Claim Copy';
+                    }
+                    return null;
+                  },
                 ),
-                validator: (value){
-                  if(value == null || value.isEmpty){
-                    return 'Please Upload Claim Copy';
-                  }
-                  return null;
-                },
-              ),
-
-              const SizedBox(height: 34),
-
-            ],
+          
+                const SizedBox(height: 34),
+          
+              ],
+            ),
           ),
+                  ),
         ),
-                ),
         bottomNavigationBar: _buildBottomBar(),
       ),
         if(_isLoading)...[

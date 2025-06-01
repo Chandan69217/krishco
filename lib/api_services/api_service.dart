@@ -18,12 +18,14 @@ class APIService{
   late final _GroupDetails groupDetails;
   late final _OrderRelated orderRelated;
   late final _InvoiceClaim invoiceClaim;
+  late final _ChangePassword changePassword;
   APIService({required this.context}){
     productDetails = _ProductDetails(context: context);
     taggedEnterprise = _TaggedEnterprise(context: context);
     groupDetails = _GroupDetails(context: context);
     orderRelated = _OrderRelated(context: context);
     invoiceClaim = _InvoiceClaim(context: context);
+    changePassword = _ChangePassword(context: context);
   }
 
 
@@ -299,114 +301,114 @@ class _OrderRelated{
   }) async {
     final userToken = Pref.instance.getString(Consts.user_token);
 
-    try{
-      final url = Uri.https(Urls.base_url, Urls.order_entry_for_self);
-      final headers = {
-        'Authorization' : 'Bearer ${userToken}',
-        'Content-Type': 'application/json'
-      };
-      final Map<String,dynamic> value = {};
-      value['order_type'] = 'self';
-      value['order_from'] = orderForm;
-      value['order_from_others'] = orderFromOther;
-      value['app_name'] = 'mobile';
-      value['product_details'] = productDetails;
-
-      if (orderBill != null && orderBill.isNotEmpty) {
-        List<String> encodedList = [];
-
-        for (File file in orderBill) {
-          final extension = file.path.split('.').last.toLowerCase();
-
-          if (['png', 'jpg', 'jpeg'].contains(extension)) {
-            final bytes = await file.readAsBytes();
-            final mediaType = extension == 'png' ? 'image/png' : 'image/jpeg';
-            final base64String = 'data:$mediaType;base64,${base64Encode(bytes)}';
-            encodedList.add(base64String);
-          } else {
-            // Skip unsupported file types or handle differently
-            print('Unsupported file type: $extension');
-          }
-        }
-
-        value['order_bill'] = encodedList;
-      } else {
-        value['order_bill'] = null;
-      }
-
-
-
-
-      value.forEach((key,value){
-        print('Key: $key, Value: $value, Type: ${value.runtimeType}');
-      });
-      final body = json.encode(value);
-
-      final response = await post(url,headers: headers,body: body);
-      print('Get Response ${response.body}');
-      if(response.statusCode == 200 || response.statusCode == 201){
-        final data = json.decode(response.body) as Map<String,dynamic>;
-        return data;
-      }else{
-        handleHttpResponse(context, response);
-      }
-    }catch(exception,trace){
-      print('Exception: ${exception},Trace: ${trace}');
-    }
-
-    // try {
-    // final url = Uri.https(Urls.base_url, Urls.order_entry_for_self);
-    //   final request = http.MultipartRequest('POST', url)
-    //     ..headers['Authorization'] = 'Bearer $userToken'
-    //     ..fields['order_type'] = 'self'
-    //     ..fields['app_name'] = 'mobile';
-    //   // Optional fields
-    //   if (orderForm?.isNotEmpty == true) {
-    //     request.fields['order_from'] = orderForm!;
-    //   }
+    // try{
+    //   final url = Uri.https(Urls.base_url, Urls.order_entry_for_self);
+    //   final headers = {
+    //     'Authorization' : 'Bearer ${userToken}',
+    //     'Content-Type': 'application/json'
+    //   };
+    //   final Map<String,dynamic> value = {};
     //
-    //   if (orderFromOther != null && orderFromOther.isNotEmpty) {
-    //     request.fields['order_form_others'] = jsonEncode(orderFromOther);
-    //   }
+    //   value['order_type'] = 'self';
+    //   value['order_from'] = orderForm;
+    //   value['order_from_others'] = orderFromOther;
+    //   value['app_name'] = 'mobile';
+    //   value['product_details'] = productDetails;
     //
-    //   if (productDetails != null && productDetails.isNotEmpty) {
-    //     request.fields['product_details'] = jsonEncode(productDetails);
-    //   }
-    //
-    //   // Attach order bill images
     //   if (orderBill != null && orderBill.isNotEmpty) {
-    //     for (final file in orderBill) {
-    //       final mimeType = file.path.toLowerCase().endsWith('.png')
-    //           ? MediaType('image', 'png')
-    //           : MediaType('image', 'jpeg');
+    //     List<String> encodedList = [];
     //
-    //       request.files.add(
-    //         await http.MultipartFile.fromPath(
-    //           'order_bill',
-    //           file.path,
-    //           contentType: mimeType,
-    //         ),
-    //       );
+    //     for (File file in orderBill) {
+    //       final extension = file.path.split('.').last.toLowerCase();
+    //
+    //       if (['png', 'jpg', 'jpeg'].contains(extension)) {
+    //         final bytes = await file.readAsBytes();
+    //         final mediaType = extension == 'png' ? 'image/png' : 'image/jpeg';
+    //         final base64String = 'data:$mediaType;base64,${base64Encode(bytes)}';
+    //         encodedList.add(base64String);
+    //       } else {
+    //         print('Unsupported file type: $extension');
+    //       }
     //     }
+    //
+    //     value['order_bill'] = encodedList;
+    //   } else {
+    //     value['order_bill'] = null;
     //   }
     //
-    //   // Debug log
-    //   print('Submitting order with fields:');
-    //   request.fields.forEach((key, value) => print('$key: $value'));
-    //   print('Attached files: ${request.files.length}');
     //
-    //   final streamedResponse = await request.send();
-    //   final response = await http.Response.fromStream(streamedResponse);
     //
-    //   if (response.statusCode == 200 || response.statusCode == 201) {
-    //     return jsonDecode(response.body) as Map<String, dynamic>;
-    //   } else {
-    //     print('Request failed: ${response.statusCode} -> ${response.body}');
+    //
+    //   value.forEach((key,value){
+    //     print('Key: $key, Value: $value, Type: ${value.runtimeType}');
+    //   });
+    //   final body = json.encode(value);
+    //
+    //   final response = await post(url,headers: headers,body: body);
+    //   print('Get Response ${response.body}');
+    //   if(response.statusCode == 200 || response.statusCode == 201){
+    //     final data = json.decode(response.body) as Map<String,dynamic>;
+    //     return data;
+    //   }else{
     //     handleHttpResponse(context, response);
     //   }
-    // } catch (e, trace) {
-    //   print('Exception: $e\nTrace: $trace');
+    // }catch(exception,trace){
+    //   print('Exception: ${exception},Trace: ${trace}');
     // }
+
+    try {
+    final url = Uri.https(Urls.base_url, Urls.order_entry_for_self);
+      final request = http.MultipartRequest('POST', url)
+        ..headers['Authorization'] = 'Bearer $userToken'
+        ..fields['order_type'] = 'self'
+        ..fields['app_name'] = 'mobile';
+      // Optional fields
+      if (orderForm?.isNotEmpty == true) {
+        request.fields['order_from'] = orderForm!;
+      }
+
+      if (orderFromOther != null && orderFromOther.isNotEmpty) {
+        request.fields['order_form_others'] = jsonEncode(orderFromOther);
+      }
+
+      if (productDetails != null && productDetails.isNotEmpty) {
+        request.fields['product_details'] = jsonEncode(productDetails);
+      }
+
+      // Attach order bill images
+      if (orderBill != null && orderBill.isNotEmpty) {
+        for (final file in orderBill) {
+          final mimeType = file.path.toLowerCase().endsWith('.png')
+              ? MediaType('image', 'png')
+              : MediaType('image', 'jpeg');
+
+          request.files.add(
+            await http.MultipartFile.fromPath(
+              'order_bill',
+              file.path,
+              contentType: mimeType,
+            ),
+          );
+        }
+      }
+
+      // Debug log
+      print('Submitting order with fields:');
+      request.fields.forEach((key, value) => print('$key: $value'));
+      print('Attached files: ${request.files.length}');
+
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return jsonDecode(response.body) as Map<String, dynamic>;
+      } else {
+        print('Request failed: ${response.statusCode} -> ${response.body}');
+        handleHttpResponse(context, response);
+      }
+    } catch (e, trace) {
+      print('Exception: $e\nTrace: $trace');
+    }
 
     return null;
   }
@@ -620,4 +622,41 @@ class _InvoiceClaim{
   }
 
 
+}
+
+
+class _ChangePassword{
+  final BuildContext context;
+  _ChangePassword({required this.context});
+
+  Future<Map<String, dynamic>?> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    final userToken = Pref.instance.getString(Consts.user_token);
+
+    try {
+      final url = Uri.https(Urls.base_url, Urls.change_password);
+
+      final request = http.MultipartRequest('POST', url)
+        ..headers['Authorization'] = 'Bearer $userToken'
+        ..fields['old_password'] = currentPassword
+        ..fields['new_password'] = newPassword;
+
+
+      final streamedResponse = await request.send();
+
+      final response = await http.Response.fromStream(streamedResponse);
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body) as Map<String, dynamic>;
+      }else {
+        print('Failed: ${response.statusCode} -> ${response.body}');
+      }
+    } catch (exception, trace) {
+      print('Exception: $exception\nTrace: $trace');
+    }
+
+    return null;
+  }
 }

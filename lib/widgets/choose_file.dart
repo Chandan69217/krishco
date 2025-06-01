@@ -60,11 +60,11 @@ class ChooseFile{
                 onTap: () async {
                   Navigator.pop(context);
                   try {
-                    final result = await FilePicker.platform.pickFiles(
-                      type: FileType.image,
+                    final result = await ImagePicker().pickImage(
+                      source: ImageSource.gallery,
                     );
-                    if (result != null && result.files.single.path != null) {
-                      final File imageFile = File(result.files.single.path!);
+                    if (result != null) {
+                      final File imageFile = File(result.path!);
                       onImagePicked(imageFile);
                     }
                   } catch (e) {

@@ -269,9 +269,21 @@ class _LoginScreenState extends State<LoginScreen> {
           var rawData = json.decode(response.body);
           String token = rawData['data']['token'];
           String? group_type = rawData['data']['group_type'];
+          String? approval_status = rawData['data']['approval_status'];
+          String? kyc_status = rawData['data']['kyc_status'];
+          String? group_name = rawData['data']['group_name'];
+          String? name = rawData['data']['name'];
+          String? number = rawData['data']['number'];
+          String? email = rawData['data']['email'];
           Pref.instance.setBool(Consts.isLogin, true);
           Pref.instance.setString(Consts.user_token, token);
           Pref.instance.setString(Consts.group_type,group_type??'');
+          Pref.instance.setString(Consts.group_name,group_name??'');
+          Pref.instance.setString(Consts.approval_status,approval_status??'');
+          Pref.instance.setString(Consts.kyc_status,kyc_status??'');
+          Pref.instance.setString(Consts.name,name??'');
+          Pref.instance.setString(Consts.number,number??'');
+          Pref.instance.setString(Consts.email,email??'');
           showSnackBar(
               context: context,
               title: 'Login Success',

@@ -32,5 +32,7 @@ class Urls {
   static const String invoice_claim_drop_out = '/api/invoice/claim/';
   static const String invoice_claim_reporting_list = '/api/invoice/claim/reporting-message/';
   static const String invoice_claim_recall = '/api/invoice/claim/';
+            // Change Password
+  static const String change_password = '/api/change-password/';
 
 }

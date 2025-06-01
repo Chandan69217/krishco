@@ -68,17 +68,19 @@ class _ChannelPartnerPlaceOrderScreenState extends State<ChannelPartnerPlaceOrde
           ),
         ),
 
-        body: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                _buildSection('Basic Details', _buildBasicDetailsSection()),
-                _buildSection('Order By Bill', _buildOrderByUploadBill()),
-                _buildSection('Order By Product Details', _buildOrderByProductDetails()),
-              ],
+        body: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  _buildSection('Basic Details', _buildBasicDetailsSection()),
+                  _buildSection('Order By Bill', _buildOrderByUploadBill()),
+                  _buildSection('Order By Product Details', _buildOrderByProductDetails()),
+                ],
+              ),
             ),
           ),
         ),
