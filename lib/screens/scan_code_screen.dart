@@ -30,126 +30,127 @@ class _ScanCodeScreenState extends State<ScanCodeScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Scan Code'),
-        backgroundColor:CustColors.yellow, // Yellow color
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05, vertical: screenHeight * 0.02),
-          child: Column(
-            children: [
-              // QR Code
-              showScanner ? ScannerScreen()
-              :Container(
-                margin: EdgeInsets.only(bottom: screenHeight * 0.02),
-                child: Image.asset(
-                  'assets/logo/qr_logo.webp',
-                  width: screenWidth * 0.55,
-                  height: screenWidth * 0.55,
-                ),
-              ),
-
-              // Scan Button
-              SizedBox(
-                width: screenWidth,
-                child: ElevatedButton(
-                  onPressed: ()async {
-                    if(await PermissionHandler.handleCameraPermission(context)){
-                      Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ScannerScreen()));
-                    }
-                    // if(!showScanner){
-                    //   setState(() {
-                    //     showScanner = !showScanner;
-                    //   });
-                    // }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    elevation: 4,
-                    backgroundColor: Colors.black,
-                    padding: EdgeInsets.symmetric(vertical: screenHeight * 0.01),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(screenWidth * 0.01)),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05, vertical: screenHeight * 0.02),
+            child: Column(
+              children: [
+                // QR Code
+                showScanner ? ScannerScreen()
+                :Container(
+                  margin: EdgeInsets.only(bottom: screenHeight * 0.02),
+                  child: Image.asset(
+                    'assets/logo/qr_logo.webp',
+                    width: screenWidth * 0.55,
+                    height: screenWidth * 0.55,
                   ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text('Click here to scan a unique code',
-                        style: TextStyle(
-                          fontSize: screenWidth * 0.04,
-                          height: 1,
-                          fontWeight: FontWeight.w400,
-                          color: Colors.white,
+                ),
+        
+                // Scan Button
+                SizedBox(
+                  width: screenWidth,
+                  child: ElevatedButton(
+                    onPressed: ()async {
+                      if(await PermissionHandler.handleCameraPermission(context)){
+                        Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ScannerScreen()));
+                      }
+                      // if(!showScanner){
+                      //   setState(() {
+                      //     showScanner = !showScanner;
+                      //   });
+                      // }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      elevation: 4,
+                      backgroundColor: Colors.black,
+                      padding: EdgeInsets.symmetric(vertical: screenHeight * 0.01),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(screenWidth * 0.01)),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text('Click here to scan a unique code',
+                          style: TextStyle(
+                            fontSize: screenWidth * 0.04,
+                            height: 1,
+                            fontWeight: FontWeight.w400,
+                            color: Colors.white,
+                          ),
                         ),
-                      ),
-                      SizedBox(width: 20),
-                      CircleAvatar(
-                        radius: 18,
-                        backgroundColor: Colors.white,
-                          child: Icon(Icons.camera_alt,color: Colors.black,)),
-                    ],
+                        SizedBox(width: 20),
+                        CircleAvatar(
+                          radius: 18,
+                          backgroundColor: Colors.white,
+                            child: Icon(Icons.camera_alt,color: Colors.black,)),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-
-              // "or" text
-              Padding(
-                padding: EdgeInsets.symmetric(vertical: screenHeight * 0.02),
-                child: Text(
-                  'or',
-                  style: TextStyle(fontWeight: FontWeight.bold,fontSize: 24,color: Colors.black),
-                ),
-              ),
-
-              // Input Field for Code
-
-              CustomFormTextField(hintText: 'Enter Code', prefixIcon: Icon(Icons.qr_code_scanner),radius: screenWidth * 0.01,),
-              SizedBox(height: screenHeight * 0.08,),
-              // Proceed Button
-              CustomElevatedButton(text: 'Proceed', onPressed: (){}),
-
-              SizedBox(height: screenHeight * 0.02,),
-              // History Link
-              Align(
-                alignment: Alignment.centerRight,
-                child: TextButton(
-                  onPressed: () {
-
-                  },
-                  style: TextButton.styleFrom(
-                    foregroundColor: Colors.black,
-                    splashFactory: NoSplash.splashFactory,
-                    backgroundColor: Colors.transparent,
-                    overlayColor: Colors.transparent
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text('Go to unique code history'),
-                      SizedBox(width: 10),
-                      CircleAvatar(child: Icon(Icons.arrow_forward_rounded,color: Colors.black,),backgroundColor: CustColors.yellow,),
-                    ],
+        
+                // "or" text
+                Padding(
+                  padding: EdgeInsets.symmetric(vertical: screenHeight * 0.02),
+                  child: Text(
+                    'or',
+                    style: TextStyle(fontWeight: FontWeight.bold,fontSize: 24,color: Colors.black),
                   ),
                 ),
-              ),
-
-
-              // Help Section
-              Padding(
-                padding: EdgeInsets.only(top: screenHeight * 0.07),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('Need help?',style: TextStyle(
-                      fontSize: screenWidth * 0.06,
-                      fontWeight: FontWeight.w400
-                    ),),
-                    SizedBox(height: 8.0,),
-                    _buildContactItem(icon: Icons.phone, label: '9717500011'),
-                    _buildContactItem(icon: Icons.email, label: 'info@vguardrishta.com'),
-                    _buildContactItem(icon: FontAwesomeIcons.whatsapp, label: '9818900011'),
-                  ],
+        
+                // Input Field for Code
+        
+                CustomFormTextField(hintText: 'Enter Code', prefixIcon: Icon(Icons.qr_code_scanner),radius: screenWidth * 0.01,),
+                SizedBox(height: screenHeight * 0.08,),
+                // Proceed Button
+                CustomElevatedButton(text: 'Proceed', onPressed: (){}),
+        
+                SizedBox(height: screenHeight * 0.02,),
+                // History Link
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: () {
+        
+                    },
+                    style: TextButton.styleFrom(
+                      foregroundColor: Colors.black,
+                      splashFactory: NoSplash.splashFactory,
+                      backgroundColor: Colors.transparent,
+                      overlayColor: Colors.transparent
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text('Go to unique code history'),
+                        SizedBox(width: 10),
+                        CircleAvatar(child: Icon(Icons.arrow_forward_rounded,color: Colors.black,),backgroundColor: CustColors.yellow,),
+                      ],
+                    ),
+                  ),
                 ),
-              ),
-            ],
+        
+        
+                // // Help Section
+                // Padding(
+                //   padding: EdgeInsets.only(top: screenHeight * 0.07),
+                //   child: Column(
+                //     crossAxisAlignment: CrossAxisAlignment.start,
+                //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                //     children: [
+                //       Text('Need help?',style: TextStyle(
+                //         fontSize: screenWidth * 0.06,
+                //         fontWeight: FontWeight.w400
+                //       ),),
+                //       SizedBox(height: 8.0,),
+                //       _buildContactItem(icon: Icons.phone, label: '9717500011'),
+                //       _buildContactItem(icon: Icons.email, label: 'info@vguardrishta.com'),
+                //       _buildContactItem(icon: FontAwesomeIcons.whatsapp, label: '9818900011'),
+                //     ],
+                //   ),
+                // ),
+              ],
+            ),
           ),
         ),
       ),
@@ -236,7 +237,6 @@ class _HomeDashboardScreenState extends State<ScannerScreen> {
           style: TextStyle(fontSize: titleFontSize),
         ),
         centerTitle: true,
-        backgroundColor: Colors.yellow,
       ),
       body: SafeArea(
         child: Padding(

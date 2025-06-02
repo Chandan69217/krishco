@@ -12,6 +12,7 @@ import 'package:krishco/dashboard_type/channel_partner_ui/screens/navigations/ch
 import 'package:krishco/dashboard_type/channel_partner_ui/screens/navigations/channel_partner_my_wallet.dart';
 import 'package:krishco/dashboard_type/channel_partner_ui/screens/navigations/channel_partner_orders_screen.dart';
 import 'package:krishco/screens/authentication/login_screen.dart';
+import 'package:krishco/screens/scan_code_screen.dart';
 import 'package:krishco/screens/splash/splash_screen.dart';
 import 'package:krishco/utilities/constant.dart';
 import 'package:krishco/utilities/cust_colors.dart';
@@ -80,6 +81,9 @@ class _ChannelPartnerDashboardState extends State<ChannelPartnerDashboard> {
         style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: Colors.white),
       ),
       actions: [
+        IconButton(onPressed: (){
+          Navigator.of(context).push(MaterialPageRoute(builder: (context)=> ScanCodeScreen()));
+        }, icon: Icon(Icons.qr_code_scanner)),
         Stack(
           children: [
             IconButton(
@@ -128,7 +132,7 @@ class _ChannelPartnerDashboardState extends State<ChannelPartnerDashboard> {
                               ? CachedNetworkImageProvider(value.photo )
                               : const AssetImage('assets/logo/dummy_profile.webp') as ImageProvider,
                         ),
-
+      
                         const SizedBox(height: 6,),
                         Text(
                           value != null && value.fname != null && value.fname!.isNotEmpty? '${value.fname} ${value.lname}' :'unknown',
@@ -159,13 +163,13 @@ class _ChannelPartnerDashboardState extends State<ChannelPartnerDashboard> {
                             ],
                           ),
                         )
-
+      
                       ],
                     ),
                   ),
                 ),
               ),
-
+      
               Expanded(
                 flex: 4,
                 child: Container(
@@ -194,7 +198,7 @@ class _ChannelPartnerDashboardState extends State<ChannelPartnerDashboard> {
                         );
                       }),
                       Spacer(),
-                      Text('Version: 1.32.0',style: TextStyle(color: Colors.grey),),
+                      SafeArea(child: Text('Version: 1.32.0',style: TextStyle(color: Colors.grey),)),
                       const SizedBox(height: 12.0,),
                     ],
                   ),

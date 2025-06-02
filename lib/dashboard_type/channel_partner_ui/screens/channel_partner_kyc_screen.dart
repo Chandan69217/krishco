@@ -1,5 +1,8 @@
 import 'dart:io';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:krishco/dashboard_type/channel_partner_ui/api_service/kyc_details_api.dart';
+import 'package:krishco/utilities/cust_colors.dart';
 import 'package:krishco/widgets/choose_file.dart';
 
 class ChannelPartnerKycScreen extends StatefulWidget {
@@ -10,16 +13,23 @@ class ChannelPartnerKycScreen extends StatefulWidget {
 
 class _ChannelPartnerKycScreenState extends State<ChannelPartnerKycScreen> {
   final _formKey = GlobalKey<FormState>();
-  final GlobalKey<_ProofSectionWidgetState> _idProofKey = GlobalKey<_ProofSectionWidgetState>();
-  final GlobalKey<_ProofSectionWidgetState> _addressProofKey = GlobalKey<_ProofSectionWidgetState>();
-
+  final GlobalKey<_ProofSectionWidgetState> _idProofKey =
+      GlobalKey<_ProofSectionWidgetState>();
+  final GlobalKey<_ProofSectionWidgetState> _addressProofKey =
+      GlobalKey<_ProofSectionWidgetState>();
+  late Future<Map<String, dynamic>?> _futureKYCDetails;
+  bool _isInitialized = false;
+  String memberId = 'N/A';
+  String custName = 'unknown';
+  String custNumber = 'N/A';
+  List<ProofModel> _initSavedIDProofs = [];
+  List<ProofModel> _initSavedAddressProofs = [];
   // Controllers for text fields
-  final TextEditingController customerIdController = TextEditingController();
-  final TextEditingController customerNameController = TextEditingController();
-  final TextEditingController contactNumberController = TextEditingController();
   final TextEditingController accHolderNameController = TextEditingController();
-  final TextEditingController accountConfNumberController =
-      TextEditingController();
+  final TextEditingController accountConfNumberController = TextEditingController();
+  final TextEditingController bankNameController = TextEditingController();
+  final TextEditingController accountNumberController = TextEditingController();
+  final TextEditingController ifscController = TextEditingController();
 
   // ID Proof
   String? selectedIdProofType;
@@ -28,17 +38,16 @@ class _ChannelPartnerKycScreenState extends State<ChannelPartnerKycScreen> {
   // Address Proof
   String? selectedAddressProofType;
   String? addressProofFileName;
-
   // Bank Details
-  final TextEditingController bankNameController = TextEditingController();
-  final TextEditingController accountNumberController = TextEditingController();
-  final TextEditingController ifscController = TextEditingController();
-  final List<String> bankProofTypes = ['Cancelled Cheque', 'Bank Passbook', 'Bank Statement'];
+  final List<String> bankProofTypes = [
+    'Cancelled Cheque',
+    'Bank Passbook',
+    'Bank Statement',
+  ];
   String? selectedBankProofType;
   File? bankProofFile;
+  String? bankUploadedDocumentImage;
 
-
-  // Dummy lists for dropdowns
   final List<String> idProofTypes = [
     'Pan Card',
     'Passport',
@@ -49,82 +58,195 @@ class _ChannelPartnerKycScreenState extends State<ChannelPartnerKycScreen> {
   final List<String> addressProofTypes = [
     'Bank Passbook',
     'Aadhaar Card',
-    'Gas Number',
+    'Gas Bill',
     'Electricity Bill',
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _futureKYCDetails = KYCDetailsAPI(context: context).getKYCDetails();
+  }
+
+
+
+  void _init(Map<String, dynamic> data) {
+    ProofModel getOrCreate(List<ProofModel> list, String type) {
+      return list.firstWhere(
+            (p) => p.type == type,
+        orElse: () {
+          final p = ProofModel()..type = type;
+          list.add(p);
+          return p;
+        },
+      );
+    }
+
+    final Map<String, String> idProofTypes = {
+      'pan': 'Pan Card',
+      'aadhar': 'Aadhaar Card',
+      'pass': 'Passport',
+      'voter': 'Voter ID',
+      'dl': 'Driving License',
+    };
+
+    final Map<String, String> addressProofTypes = {
+      'aadhar': 'Aadhaar Card',
+      'pass': 'Bank Passbook',
+      'gas': 'Gas Bill',
+      'electricity': 'Electricity Bill',
+    };
+
+    data.forEach((key, value) {
+      if (value == null || value.toString().trim().isEmpty) return;
+
+      // ID Proofs
+      if (key.startsWith('id_')) {
+        idProofTypes.forEach((shortKey, typeName) {
+          if (key.contains(shortKey)) {
+            final proof = getOrCreate(_initSavedIDProofs, typeName);
+            if (key.endsWith(shortKey)) proof.idNumber = value;
+            if (key.endsWith('${shortKey}_front')) proof.frontImageUrl = value;
+            if (key.endsWith('${shortKey}_back')) proof.backImageUrl = value;
+          }
+        });
+
+        // Address Proofs
+      } else if (key.startsWith('add_')) {
+        addressProofTypes.forEach((shortKey, typeName) {
+          if (key.contains(shortKey)) {
+            final proof = getOrCreate(_initSavedAddressProofs, typeName);
+            if (key.endsWith(shortKey)) proof.idNumber = value;
+            if (key.endsWith('${shortKey}_front')) proof.frontImageUrl = value;
+            if (key.endsWith('${shortKey}_back')) proof.backImageUrl = value;
+          }
+        });
+
+        // Member Info
+      } else {
+        memberId = data['m_id'] ?? '';
+        custName = data['cust_name'] ?? '';
+        custNumber = data['cont_no'] ?? '';
+        bankNameController.text = data['bank_name'] ?? '';
+        accHolderNameController.text = data['account_holder_name'] ?? '';
+        accountNumberController.text = data['acct_no'] ?? '';
+        accountConfNumberController.text = data['acct_no'] ?? '';
+        ifscController.text = data['ifsc'] ?? '';
+
+        // Bank proof
+        bankUploadedDocumentImage = data['bank_cheque'] ?? data['bank_pass'] ?? data['bank_stat'];
+        selectedBankProofType = data['bank_cheque'] != null
+            ? 'Cancelled Cheque'
+            : data['bank_pass'] != null
+            ? 'Bank Passbook'
+            : 'Bank Statement';
+      }
+    });
+  }
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('KYC Details')),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: EdgeInsets.all(16),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              children: [
-                // === Customer Details Group ===
-                _buildGroupSection(
-                  title: 'Customer Details',
-                  subTitle: 'Not editable',
-                  child: _buildCustomerDetails(),
+        child: FutureBuilder(
+          future: _futureKYCDetails,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(
+                child: SizedBox.square(
+                  dimension: 25.0,
+                  child: CircularProgressIndicator(color: CustColors.nile_blue),
                 ),
-        
-                // === ID Proof Group ===
-                // _buildGroupSection(title: 'ID Proof', child: _buildIDProof()),
-                _buildGroupSection(
-                  title: 'ID Proof *',
-                  child: ProofSectionWidget(
-                    key: _idProofKey,
-                    title: 'ID Proof',
-                    allProofTypes: idProofTypes,
-                  ),
-                ),
-        
-                // === Address Proof Group ===
-                _buildGroupSection(
-                  title: 'Address Proof *',
-                  child: ProofSectionWidget(
-                    key: _addressProofKey,
-                    title: 'Address Proof',
-                    allProofTypes: addressProofTypes,
-                  ),
-                ),
-        
-                // === Bank Details Group ===
-                _buildGroupSection(
-                  title: 'Bank Details *',
-                  child: _buildBankDetails(),
-                ),
+              );
+            }
 
-                SizedBox(
-                  width: MediaQuery.of(context).size.width,
-                  child: ElevatedButton(
-                    child: Text('Submit KYC'),
-                    onPressed: () {
-                      if (_formKey.currentState!.validate()) {
-                        if (idProofFileName == null ||
-                            addressProofFileName == null ||
-                            bankProofFile == null) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Please upload required documents')),
-                          );
-                          return;
-                        }
+            if (snapshot.hasData) {
+              if (!_isInitialized) {
+                _init(snapshot.data!);
+                _isInitialized = true;
+              }
 
-                        // Submit logic here
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('KYC Submitted Successfully!')),
-                        );
-                      }
-                    },
+              return SingleChildScrollView(
+                padding: EdgeInsets.all(16),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      // === Customer Details Group ===
+                      _buildGroupSection(
+                        title: 'Customer Details',
+                        subTitle: 'Not editable',
+                        child: _buildCustomerDetails(),
+                      ),
+
+                      // === ID Proof Group ===
+                      // _buildGroupSection(title: 'ID Proof', child: _buildIDProof()),
+                      _buildGroupSection(
+                        title: 'ID Proof *',
+                        child: ProofSectionWidget(
+                          key: _idProofKey,
+                          title: 'ID Proof',
+                          allProofTypes: idProofTypes,
+                          initialProofs: _initSavedIDProofs,
+                        ),
+                      ),
+
+                      // === Address Proof Group ===
+                      _buildGroupSection(
+                        title: 'Address Proof *',
+                        child: ProofSectionWidget(
+                          key: _addressProofKey,
+                          title: 'Address Proof',
+                          allProofTypes: addressProofTypes,
+                          initialProofs: _initSavedAddressProofs,
+                        ),
+                      ),
+
+                      // === Bank Details Group ===
+                      _buildGroupSection(
+                        title: 'Bank Details *',
+                        child: _buildBankDetails(),
+                      ),
+
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width,
+                        child: ElevatedButton(
+                          child: Text(snapshot.data != null ?'Update KYC' :'Submit KYC'),
+                          onPressed: () {
+                            if (_formKey.currentState!.validate()) {
+                              if (idProofFileName == null ||
+                                  addressProofFileName == null ||
+                                  bankProofFile == null) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      'Please upload required documents',
+                                    ),
+                                  ),
+                                );
+                                return;
+                              }
+
+                              // Submit logic here
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('KYC Submitted Successfully!'),
+                                ),
+                              );
+                            }
+                          },
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                
-              ],
-            ),
-          ),
+              );
+            } else {
+              return Center(child: Text('Something went wrong !!'));
+            }
+          },
         ),
       ),
     );
@@ -187,24 +309,23 @@ class _ChannelPartnerKycScreenState extends State<ChannelPartnerKycScreen> {
         _buildReadOnlyField(
           label: 'Customer Id',
           icon: Icons.badge,
-          value: 'KRISHCO/EMP0104',
+          value: memberId,
         ),
 
         _buildReadOnlyField(
           label: 'Customer Name',
           icon: Icons.person,
-          value: 'Channel Partner',
+          value: custName,
         ),
 
         _buildReadOnlyField(
           label: 'Contact Number',
           icon: Icons.phone,
-          value: '1234567891',
+          value: custNumber,
         ),
       ],
     );
   }
-
 
   Widget _buildBankDetails() {
     return Column(
@@ -267,16 +388,18 @@ class _ChannelPartnerKycScreenState extends State<ChannelPartnerKycScreen> {
             ),
           ],
         ),
-        const SizedBox(height: 12.0,),
+        const SizedBox(height: 12.0),
         BankProofUploadSection(
           proofTypes: bankProofTypes,
-          onProofTypeChanged: (value) => setState(() => selectedBankProofType = value),
+          imageUrl: bankUploadedDocumentImage,
+          selectedType: selectedBankProofType,
+          onProofTypeChanged:
+              (value) => setState(() => selectedBankProofType = value),
           onFilePicked: (file) => setState(() => bankProofFile = file),
         ),
       ],
     );
   }
-
 
   Widget _buildReadOnlyField({
     required String label,
@@ -292,7 +415,7 @@ class _ChannelPartnerKycScreenState extends State<ChannelPartnerKycScreen> {
             fontSize: 12.0,
             fontWeight: FontWeight.w600,
             color: Colors.grey,
-          )
+          ),
         ),
         const SizedBox(height: 4),
         Container(
@@ -324,7 +447,6 @@ class _ChannelPartnerKycScreenState extends State<ChannelPartnerKycScreen> {
     );
   }
 
-
   Widget _buildTextFormField({
     required TextEditingController controller,
     required String label,
@@ -336,6 +458,10 @@ class _ChannelPartnerKycScreenState extends State<ChannelPartnerKycScreen> {
     return TextFormField(
       controller: controller,
       keyboardType: textInputType,
+      style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+        fontSize: 14,
+        color: Colors.black87,
+      ),
       decoration: InputDecoration(
         labelText: label,
         border: const OutlineInputBorder(),
@@ -345,16 +471,14 @@ class _ChannelPartnerKycScreenState extends State<ChannelPartnerKycScreen> {
           padding: const EdgeInsets.only(left: 8, right: 4), // Adjust as needed
           child: Icon(iconData, size: 20),
         ),
-        prefixIconConstraints: const BoxConstraints(
-          minWidth: 0,
-          minHeight: 0,
-        ),
+        prefixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
 
         // Remove extra vertical/horizontal padding
         contentPadding: const EdgeInsets.symmetric(vertical: 12),
       ),
-      validator: validator ??
-              (value) {
+      validator:
+          validator ??
+          (value) {
             if (isRequired && (value == null || value.trim().isEmpty)) {
               return 'Enter $label';
             }
@@ -369,12 +493,13 @@ class _ChannelPartnerKycScreenState extends State<ChannelPartnerKycScreen> {
 class ProofSectionWidget extends StatefulWidget {
   final String title;
   final List<String> allProofTypes;
+  final List<ProofModel>? initialProofs;
 
-
-  const ProofSectionWidget({
+  ProofSectionWidget({
     super.key,
     required this.title,
     required this.allProofTypes,
+    this.initialProofs,
   });
 
   @override
@@ -393,6 +518,18 @@ class _ProofSectionWidgetState extends State<ProofSectionWidget> {
   final TextEditingController backFileController = TextEditingController(
     text: 'Choose file',
   );
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.initialProofs != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        setState(() {
+          savedProofs = widget.initialProofs ?? [];
+        });
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -493,9 +630,14 @@ class _ProofSectionWidgetState extends State<ProofSectionWidget> {
   void _handleAddOrUpdate() {
     if (currentProof.type == null ||
         currentProof.idNumber.isEmpty ||
-        currentProof.frontImage == null) {
+       ( currentProof.frontImage == null && currentProof.frontImageUrl == null)) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Please fill all required fields"),backgroundColor: Colors.red,behavior: SnackBarBehavior.floating,padding: EdgeInsets.all(20.0),),
+        SnackBar(
+          content: Text("Please fill all required fields"),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+          padding: EdgeInsets.all(20.0),
+        ),
       );
       return;
     }
@@ -509,7 +651,12 @@ class _ProofSectionWidgetState extends State<ProofSectionWidget> {
 
     if (alreadyExists) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("${currentProof.type} already added"),backgroundColor: Colors.red,behavior: SnackBarBehavior.floating,padding: EdgeInsets.all(20.0),),
+        SnackBar(
+          content: Text("${currentProof.type} already added"),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+          padding: EdgeInsets.all(20.0),
+        ),
       );
       return;
     }
@@ -530,32 +677,38 @@ class _ProofSectionWidgetState extends State<ProofSectionWidget> {
   }
 
   Widget _buildProofForm(ProofModel proof, List<String> availableTypes) {
-    final bool isNumericProof = proof.type != null &&
+    final bool isNumericProof =
+        proof.type != null &&
         (proof.type!.toLowerCase().contains("aadhaar card"));
-            // || proof.type!.toLowerCase().contains("") ||
-            // proof.type!.toLowerCase().contains("number") ||
-            // proof.type!.toLowerCase().contains("no"));
+    // || proof.type!.toLowerCase().contains("") ||
+    // proof.type!.toLowerCase().contains("number") ||
+    // proof.type!.toLowerCase().contains("no"));
 
     final int minLength = 4;
     final int maxLength = 20;
-    WidgetsBinding.instance.addPostFrameCallback((_){
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       idController.text = proof.idNumber;
     });
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         DropdownButtonFormField<String>(
+          style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+            fontSize: 14,
+            color: Colors.black87,
+          ),
           decoration: InputDecoration(
             labelText: '${widget.title} Type *',
             border: OutlineInputBorder(),
           ),
-          items: availableTypes
-              .map((e) => DropdownMenuItem(value: e, child: Text(e)))
-              .toList(),
+          items:
+              availableTypes
+                  .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+                  .toList(),
           value: proof.type,
           onChanged: (val) => setState(() => proof.type = val),
-          validator: (t){
-            if((t == null || t.trim().isEmpty) && savedProofs.isEmpty){
+          validator: (t) {
+            if ((t == null || t.trim().isEmpty) && savedProofs.isEmpty) {
               return 'Select ${widget.title}';
             }
             return null;
@@ -564,17 +717,22 @@ class _ProofSectionWidgetState extends State<ProofSectionWidget> {
         SizedBox(height: 12),
         TextFormField(
           controller: idController,
+          style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+            fontSize: 14,
+            color: Colors.black87,
+          ),
           decoration: InputDecoration(
-            labelText: proof.type == null
-                ? '${widget.title} No *'
-                : '${proof.type} No *',
+            labelText:
+                proof.type == null
+                    ? '${widget.title} No *'
+                    : '${proof.type} No *',
             border: OutlineInputBorder(),
           ),
           keyboardType:
-          isNumericProof ? TextInputType.number : TextInputType.text,
+              isNumericProof ? TextInputType.number : TextInputType.text,
           onChanged: (val) => proof.idNumber = val,
           validator: (val) {
-            if(savedProofs.isNotEmpty){
+            if (savedProofs.isNotEmpty) {
               return null;
             }
             if (val == null || val.trim().isEmpty) {
@@ -592,7 +750,12 @@ class _ProofSectionWidgetState extends State<ProofSectionWidget> {
           },
         ),
         const SizedBox(height: 18),
-        Text(' Upload document *',style: Theme.of(context).textTheme.bodySmall!.copyWith(color: Colors.grey),),
+        Text(
+          ' Upload document *',
+          style: Theme.of(
+            context,
+          ).textTheme.bodySmall!.copyWith(color: Colors.grey),
+        ),
         const SizedBox(height: 6),
         Row(
           children: [
@@ -600,6 +763,7 @@ class _ProofSectionWidgetState extends State<ProofSectionWidget> {
               child: _buildImageSelector(
                 label: 'Front Image *',
                 selectedFile: proof.frontImage,
+                selectedImageUrl: proof.frontImageUrl,
                 controller: frontFileController,
                 onFileSelected: (file) {
                   setState(() {
@@ -620,6 +784,7 @@ class _ProofSectionWidgetState extends State<ProofSectionWidget> {
               child: _buildImageSelector(
                 label: 'Back Image (optional)',
                 selectedFile: proof.backImage,
+                selectedImageUrl: proof.backImageUrl,
                 controller: backFileController,
                 onFileSelected: (file) {
                   setState(() {
@@ -641,106 +806,114 @@ class _ProofSectionWidgetState extends State<ProofSectionWidget> {
     );
   }
 
-
-  Widget _buildImageSelector(
-  {
-    required String label,
-    File? selectedFile,
-    required TextEditingController controller,
-    required Function(File) onFileSelected,
-    VoidCallback? onDelete,
-}
-  ) {
-    return GestureDetector(
-      onTap: () {
-        ChooseFile.showImagePickerBottomSheet(context, (file) {
-          onFileSelected(file);
-        });
-      },
-      child: Container(
-        padding: EdgeInsets.all(8),
-        height: 120,
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey.shade500),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child:
-            selectedFile == null
-                ? Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Icon(Icons.photo_camera, color: Colors.grey),
-                    SizedBox(height: 6),
-                    Text(
-                      label,
-                      style: TextStyle(color: Colors.grey.shade600),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                )
-                : Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Expanded(
-                      child: Stack(
-                        children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: Image.file(
-                              selectedFile,
-                              fit: BoxFit.cover,
-                              width: double.infinity,
+    Widget _buildImageSelector(
+    {
+      required String label,
+      File? selectedFile,
+      String? selectedImageUrl,
+      required TextEditingController controller,
+      required Function(File) onFileSelected,
+      VoidCallback? onDelete,
+  }
+    ) {
+      return GestureDetector(
+        onTap: () {
+          ChooseFile.showImagePickerBottomSheet(context, (file) {
+            onFileSelected(file);
+          });
+        },
+        child: Container(
+          padding: EdgeInsets.all(8),
+          height: 120,
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.grey.shade500),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child:
+              selectedFile == null && selectedImageUrl == null
+                  ? Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Icon(Icons.photo_camera, color: Colors.grey),
+                      SizedBox(height: 6),
+                      Text(
+                        label,
+                        style: TextStyle(color: Colors.grey.shade600),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  )
+                  : Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Expanded(
+                        child: selectedFile != null ? Stack(
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: Image.file(
+                                selectedFile,
+                                fit: BoxFit.cover,
+                                width: double.infinity,
+                              ),
                             ),
-                          ),
-                          Positioned(
-                            top: 4,
-                            right: 4,
-                            child: GestureDetector(
-                              onTap: () {
-                                onDelete?.call();
-                              },
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.black45,
-                                  shape: BoxShape.circle,
-                                ),
-                                padding: EdgeInsets.all(4),
-                                child: Icon(
-                                  Icons.close,
-                                  size: 18,
-                                  color: Colors.white,
+                            Positioned(
+                              top: 4,
+                              right: 4,
+                              child: GestureDetector(
+                                onTap: () {
+                                  onDelete?.call();
+                                },
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.black45,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  padding: EdgeInsets.all(4),
+                                  child: Icon(
+                                    Icons.close,
+                                    size: 18,
+                                    color: Colors.white,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ):
+                        ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: CachedNetworkImage(imageUrl: selectedImageUrl!)),
                       ),
-                    ),
-                    SizedBox(height: 4),
-                    Text(
-                      controller.text,
-                      style: TextStyle(fontSize: 12),
-                      overflow: TextOverflow.ellipsis,
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
-      ),
-    );
-  }
+                      SizedBox(height: 4),
+                      Text(
+                        controller.text,
+                        style: TextStyle(fontSize: 12),
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+        ),
+      );
+    }
+
 }
 
 class BankProofUploadSection extends StatefulWidget {
   final List<String> proofTypes;
   final ValueChanged<String?> onProofTypeChanged;
   final ValueChanged<File?> onFilePicked;
+  final String? imageUrl;
+  final String? selectedType;
 
   const BankProofUploadSection({
     super.key,
     required this.proofTypes,
     required this.onProofTypeChanged,
     required this.onFilePicked,
+    this.imageUrl,
+    this.selectedType
   });
 
   @override
@@ -750,13 +923,115 @@ class BankProofUploadSection extends StatefulWidget {
 class _BankProofUploadSectionState extends State<BankProofUploadSection> {
   String? selectedType;
   String? fileName;
+  File? selectedFile;
+  final TextEditingController fileController = TextEditingController(
+    text: 'Choose file',
+  );
 
+  @override
+  void initState() {
+    super.initState();
+    selectedType = widget.selectedType;
+  }
   void _pickFile() async {
-    // Simulate file picking
-    ChooseFile.showImagePickerBottomSheet(context, (file){
-      setState(() => fileName = file.path.split('/').last??'');
+    ChooseFile.showImagePickerBottomSheet(context, (file) {
+      setState(() => fileName = file.path.split('/').last ?? '');
+      selectedFile = file;
       widget.onFilePicked(file);
     });
+  }
+
+  Widget _buildImageSelector(
+      {
+        required String label,
+        File? selectedFile,
+        String? selectedImageUrl,
+        required TextEditingController controller,
+        required Function(File) onFileSelected,
+        VoidCallback? onDelete,
+      }
+      ) {
+    return GestureDetector(
+      onTap: () {
+        ChooseFile.showImagePickerBottomSheet(context, (file) {
+          onFileSelected(file);
+        });
+      },
+      child: Container(
+        padding: EdgeInsets.all(8),
+        height: 120,
+        width: double.infinity,
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey.shade500),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child:
+        selectedFile == null && selectedImageUrl == null
+            ? Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Icon(Icons.photo_camera, color: Colors.grey),
+            SizedBox(height: 6),
+            Text(
+              label,
+              style: TextStyle(color: Colors.grey.shade600),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        )
+            : Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(
+              child: selectedFile != null ? Stack(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.file(
+                      selectedFile,
+                      fit: BoxFit.cover,
+                      width: double.infinity,
+                    ),
+                  ),
+                  Positioned(
+                    top: 4,
+                    right: 4,
+                    child: GestureDetector(
+                      onTap: () {
+                        onDelete?.call();
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.black45,
+                          shape: BoxShape.circle,
+                        ),
+                        padding: EdgeInsets.all(4),
+                        child: Icon(
+                          Icons.close,
+                          size: 18,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ):
+              ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: CachedNetworkImage(imageUrl: selectedImageUrl!)),
+            ),
+            SizedBox(height: 4),
+            Text(
+              controller.text,
+              style: TextStyle(fontSize: 12),
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -765,14 +1040,21 @@ class _BankProofUploadSectionState extends State<BankProofUploadSection> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         DropdownButtonFormField<String>(
+          style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+            fontSize: 14,
+            color: Colors.black87,
+          ),
           decoration: InputDecoration(
             labelText: 'Select Bank Proof Type',
             border: OutlineInputBorder(),
             contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
           ),
-          items: widget.proofTypes
-              .map((type) => DropdownMenuItem(value: type, child: Text(type)))
-              .toList(),
+          items:
+              widget.proofTypes
+                  .map(
+                    (type) => DropdownMenuItem(value: type, child: Text(type)),
+                  )
+                  .toList(),
           value: selectedType,
           onChanged: (value) {
             setState(() => selectedType = value);
@@ -781,30 +1063,43 @@ class _BankProofUploadSectionState extends State<BankProofUploadSection> {
           validator: (value) => value == null ? 'Select a proof type' : null,
         ),
         const SizedBox(height: 12),
-        ElevatedButton.icon(
-          onPressed: _pickFile,
-          icon: Icon(Icons.upload_file),
-          label: Text(fileName == null ? 'Upload File' : 'Change File'),
-        ),
-        if (fileName != null)
-          Padding(
-            padding: const EdgeInsets.only(top: 8),
-            child: Text(
-              'Uploaded: $fileName',
-              style: TextStyle(color: Colors.green.shade700),
-            ),
-          ),
+        _buildImageSelector(
+          controller: fileController,
+          label: 'upload \n${selectedType}',
+          onFileSelected: (file){
+            setState(() => fileName = file.path.split('/').last ?? '');
+            selectedFile = file;
+            widget.onFilePicked(file);
+          },
+          onDelete: (){},
+          selectedFile: selectedFile,
+          selectedImageUrl: widget.imageUrl
+        )
+        // ElevatedButton.icon(
+        //   onPressed: _pickFile,
+        //   icon: Icon(Icons.upload_file),
+        //   label: Text(fileName == null ? 'Upload File' : 'Change File'),
+        // ),
+        // if (fileName != null)
+        //   Padding(
+        //     padding: const EdgeInsets.only(top: 8),
+        //     child: Text(
+        //       'Uploaded: $fileName',
+        //       style: TextStyle(color: Colors.green.shade700),
+        //     ),
+        //   ),
       ],
     );
   }
 }
 
-
 class ProofModel {
   String? type;
   String idNumber = '';
   File? frontImage;
+  String? frontImageUrl;
   File? backImage;
+  String? backImageUrl;
 
   ProofModel();
 
@@ -812,5 +1107,7 @@ class ProofModel {
     : type = original.type,
       idNumber = original.idNumber,
       frontImage = original.frontImage,
-      backImage = original.backImage;
+  frontImageUrl = original.frontImageUrl,
+      backImage = original.backImage,
+  backImageUrl = original.backImageUrl;
 }
