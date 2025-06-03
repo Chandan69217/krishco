@@ -55,7 +55,7 @@ class UserDetailsData {
   final dynamic pin;
   final String? dist;
   final String? country;
-  final dynamic tId;
+  final List<String> tId;
   final dynamic gstNo;
   final dynamic gstCopy;
 
@@ -78,7 +78,7 @@ class UserDetailsData {
       pin: json["pin"],
       dist: json["dist"],
       country: json["country"],
-      tId: json["t_id"],
+      tId: json["t_id"] == null ? []:List<String>.from(json["t_id"]!.map((x)=>x)),
       gstNo: json["gst_no"],
       gstCopy: json["gst_copy"],
     );

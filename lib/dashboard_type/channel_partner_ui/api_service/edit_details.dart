@@ -92,9 +92,10 @@ class EditDetails {
 
   static Future<Map<String, dynamic>?> updateDetails(
       BuildContext context, {
-        File? profile, // if needed, base64 encode it
+        File? profile,
+        File? gst_copy,
         required String first_name,
-        required String t_id,
+        required List<String> t_id,
         required String gst_no,
         String last_name = '',
         required String contact_no,
@@ -122,6 +123,12 @@ class EditDetails {
         base64Profile = base64Encode(bytes);
       }
 
+      String? base64GSTCopy;
+      if(gst_copy != null){
+        final bytes = await gst_copy.readAsBytes();
+        base64GSTCopy = base64Encode(bytes);
+      }
+
       final body = {
         'fname': first_name,
         'lname': last_name,
@@ -138,8 +145,9 @@ class EditDetails {
         'pin': pincode,
         'country': country,
         'dist': district,
-        't_id': [t_id],
+        't_id': t_id,
         'gst_no': gst_no,
+        'gst_copy':base64GSTCopy,
         'emergency_contact_details': emergency_details,
         'photo': base64Profile,
       };
