@@ -482,6 +482,11 @@ class _ChannelPartnerEditDetailsScreenState extends State<ChannelPartnerEditDeta
     );
     if(response != null){
       CustDialog.show(context: context, message: response['messages']);
+      final data = await GetUserDetails.getUserLoginData(context);
+      if(data != null){
+        final value = LoginDetailsData.fromJson(data);
+        UserState.update(value.data);
+      }
     }else{
       CustDialog.show(context: context, message:'Failed to update');
     }

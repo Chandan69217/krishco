@@ -22,6 +22,7 @@ import '../splash/splash_screen.dart';
 import 'forget_screen.dart';
 
 
+enum LoginMode { mobile, email }
 
 class LoginScreen extends StatefulWidget {
   LoginScreen({super.key,});
@@ -37,6 +38,12 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _txtPasswordEditingController = TextEditingController(text: "Shivamraj@1950");
   final _formKey = GlobalKey<FormState>();
   bool _passwordVisibility = false;
+
+  LoginMode _loginMode = LoginMode.mobile;
+
+
+
+
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
@@ -68,6 +75,66 @@ class _LoginScreenState extends State<LoginScreen> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          ChoiceChip(
+                            label: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
+                              child: Text('Mobile'),
+                            ),
+                            selected: _loginMode == LoginMode.mobile,
+                            selectedColor: Colors.blue.shade100,
+                            backgroundColor: CustColors.cyan,
+                            checkmarkColor: Colors.blue,
+                            labelStyle: TextStyle(
+                              color: _loginMode == LoginMode.mobile ? Colors.blue : Colors.black87,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                              side: BorderSide(
+                                color: _loginMode == LoginMode.mobile ? Colors.blue : Colors.grey.shade400,
+                              ),
+                            ),
+                            onSelected: (selected) {
+                              setState(() {
+                                _loginMode = LoginMode.mobile;
+                                _txtMobileEditingController.clear();
+                              });
+                            },
+                          ),
+                          SizedBox(width: 12),
+                          ChoiceChip(
+                            label: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
+                              child: Text('Email'),
+                            ),
+                            selected: _loginMode == LoginMode.email,
+                            selectedColor: Colors.blue.shade100,
+                            backgroundColor: CustColors.cyan,
+                            checkmarkColor: Colors.blue,
+                            labelStyle: TextStyle(
+                              color: _loginMode == LoginMode.email ? Colors.blue : Colors.black87,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                              side: BorderSide(
+                                color: _loginMode == LoginMode.email ? Colors.blue : Colors.grey.shade400,
+                              ),
+                            ),
+                            onSelected: (selected) {
+                              setState(() {
+                                _loginMode = LoginMode.email;
+                                _txtMobileEditingController.clear();
+                              });
+                            },
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: screenHeight * 0.02),
+
                       // Here is logo
                       Image.asset(
                         'assets/logo/krishco-logo-bg.webp',
@@ -117,15 +184,24 @@ class _LoginScreenState extends State<LoginScreen> {
                               controller: _txtMobileEditingController,
                               validator: (String? value) {
                                 if (value == null || value.isEmpty) {
-                                  return 'Please enter mobile no/email address ?';
-                                } else {
-                                  return null;
+                                  return 'Please enter ${_loginMode == LoginMode.mobile ? "mobile number" : "email address"}';
+                                } else if (_loginMode == LoginMode.mobile && value.length != 10) {
+                                  return 'Enter a valid 10-digit mobile number';
+                                } else if (_loginMode == LoginMode.email &&
+                                    !RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                                  return 'Enter a valid email address';
                                 }
+                                return null;
                               },
-                              maxLength: 10,
-                              keyboardType: TextInputType.number,
-                              label: 'Mobile No / Email Address',
-                              prefixIcon: Icon(Icons.phone),
+                              maxLength: _loginMode == LoginMode.mobile ? 10 : null,
+                              keyboardType: _loginMode == LoginMode.mobile
+                                  ? TextInputType.number
+                                  : TextInputType.emailAddress,
+                              label: _loginMode == LoginMode.mobile
+                                  ? 'Mobile'
+                                  : 'Email',
+                              prefixIcon: Icon(
+                                  _loginMode == LoginMode.mobile ? Icons.phone : Icons.email),
                             ),
                             SizedBox(height: screenHeight * 0.02),
                             CustomFormTextField(

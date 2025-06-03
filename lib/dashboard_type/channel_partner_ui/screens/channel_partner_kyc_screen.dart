@@ -214,29 +214,7 @@ class _ChannelPartnerKycScreenState extends State<ChannelPartnerKycScreen> {
                         width: MediaQuery.of(context).size.width,
                         child: ElevatedButton(
                           child: Text(snapshot.data != null ?'Update KYC' :'Submit KYC'),
-                          onPressed: () {
-                            if (_formKey.currentState!.validate()) {
-                              if (idProofFileName == null ||
-                                  addressProofFileName == null ||
-                                  bankProofFile == null) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      'Please upload required documents',
-                                    ),
-                                  ),
-                                );
-                                return;
-                              }
-
-                              // Submit logic here
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text('KYC Submitted Successfully!'),
-                                ),
-                              );
-                            }
-                          },
+                          onPressed:_onSubmit,
                         ),
                       ),
                     ],
@@ -488,7 +466,71 @@ class _ChannelPartnerKycScreenState extends State<ChannelPartnerKycScreen> {
   }
 
 
-}
+
+  void _onSubmit()async {
+
+    if (_formKey.currentState!.validate()) {
+      // if (idProofFileName == null ||
+      //     addressProofFileName == null ||
+      //     bankProofFile == null) {
+      //   ScaffoldMessenger.of(context).showSnackBar(
+      //     SnackBar(
+      //       backgroundColor: Colors.red,
+      //       behavior: SnackBarBehavior.floating,
+      //       content: Text(
+      //         'Please upload required documents',
+      //       ),
+      //     ),
+      //   );
+      //   return;
+      // }
+
+      final response = await KYCDetailsAPI(context: context).updateOrCreateKYC(
+          idProofs: _idProofKey.currentState?.savedProofs??[],
+          addressProofs: _addressProofKey.currentState?.savedProofs??[],
+          bankDetails: {
+            'bank_name' : bankNameController.text,
+            'account_holder_name' : accHolderNameController.text,
+            'acct_no': accountConfNumberController.text,
+            'ifsc': ifscController.text,
+            'bank_cheque': selectedBankProofType == 'Cancelled Cheque' ? bankProofFile:null,
+            'bank_pass': selectedBankProofType == 'Bank Passbook' ? bankProofFile:null,
+            'bank_stat' : selectedBankProofType == 'Bank Statement' ? bankProofFile:null
+          });
+
+      if(response != null){
+        final status = response['isScuss'];
+        var message = '';
+        if(status){
+          message = response['messages'];
+        }else{
+          final error = response['error'] as Map<String,dynamic>;
+          message = error.values.toString();
+        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            padding: EdgeInsets.all(18.0),
+            backgroundColor: Colors.green,
+            behavior: SnackBarBehavior.floating,
+            content: Text(
+              message,
+            ),
+          ),
+        );
+      }
+      }else{
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+            content: Text(
+              'Failed KYC not updated',
+            ),
+          ),
+        );
+      }
+    }
+  }
 
 class ProofSectionWidget extends StatefulWidget {
   final String title;
