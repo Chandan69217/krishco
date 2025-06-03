@@ -17,20 +17,20 @@ class ConsumerHomeScreen extends StatelessWidget{
     final screenWidth = mediaQuery.size.width;
     final screenHeight = mediaQuery.size.height;
    return Scaffold(
-     appBar: AppBar(
-       backgroundColor: CustColors.yellow,
-       automaticallyImplyLeading: false,
-       title: Text('Dashboard'),
-       // leading: Image.network(
-       //   'https://storage.googleapis.com/a1aa/image/0-IwFsmX7Em0mr5yOL4vSi7OZSjngURqhMMlQ6mkBKs.jpg',
-       //   height: 50,
-       // ),
-       actions: [
-         IconButton(
-             onPressed: () {},
-             icon: Icon(FontAwesomeIcons.solidBell, size: 20,color: Colors.black,))
-       ],
-     ),
+     // appBar: AppBar(
+     //   backgroundColor: CustColors.yellow,
+     //   automaticallyImplyLeading: false,
+     //   title: Text('Dashboard'),
+     //   // leading: Image.network(
+     //   //   'https://storage.googleapis.com/a1aa/image/0-IwFsmX7Em0mr5yOL4vSi7OZSjngURqhMMlQ6mkBKs.jpg',
+     //   //   height: 50,
+     //   // ),
+     //   actions: [
+     //     IconButton(
+     //         onPressed: () {},
+     //         icon: Icon(FontAwesomeIcons.solidBell, size: 20,color: Colors.black,))
+     //   ],
+     // ),
      body: SingleChildScrollView(
        child: Column(
          children: [

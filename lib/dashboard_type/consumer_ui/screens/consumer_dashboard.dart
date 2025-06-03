@@ -16,11 +16,13 @@ class ConsumerDashboard extends StatefulWidget {
 
 class _ConsumerDashboardState extends State<ConsumerDashboard> {
   int _currentIndex = 0;
-  final List<Widget> _screens = [ConsumerHomeScreen(),
+  final List<String> _titles = ['Home','New Arrivals','Claim','Profile','About Us'];
+  final List<Widget> _screens = [
+    ConsumerHomeScreen(),
     ConsumerNewArrivalsScreen(),
     ConsumerClaimScreen(),
+    ConsumerProfileScreen(),
     ConsumerAboutusScreen(),
-    ConsumerProfileScreen()
   ];
   @override
   Widget build(BuildContext context) {
@@ -29,20 +31,29 @@ class _ConsumerDashboardState extends State<ConsumerDashboard> {
     final screenHeight = mediaQuery.size.height;
 
     return Scaffold(
+      appBar: AppBar(
+        title: Text(_titles[_currentIndex]),
+      ),
       body: _screens[_currentIndex],
       bottomNavigationBar: _buildBottomNavigationBar(screenWidth),
     );
+  }
+
+  BottomNavigationBarItem _bottomNavBarItem({
+    required IconData iconData,
+    required String label,
+  }) {
+    return BottomNavigationBarItem(icon: Icon(iconData), label: label);
   }
 
   Widget _buildBottomNavigationBar(double screenWidth){
     return BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         currentIndex: _currentIndex,
-        iconSize: screenWidth * 0.05,
-        selectedFontSize: screenWidth* 0.03,
-        unselectedFontSize: screenWidth* 0.03,
-        selectedItemColor: CustColors.yellow,
-        unselectedItemColor: Colors.grey,
+        // iconSize: screenWidth * 0.05,
+        // selectedFontSize: screenWidth* 0.03,
+        // unselectedFontSize: screenWidth* 0.03,
+        selectedItemColor: CustColors.nile_blue,
         onTap: (index){
           setState(() {
             _currentIndex = index;
@@ -50,22 +61,11 @@ class _ConsumerDashboardState extends State<ConsumerDashboard> {
         },
         elevation: 30,
         items: [
-          BottomNavigationBarItem(
-            icon:Icon( FontAwesomeIcons.home),
-            label: 'Home',
-          ),BottomNavigationBarItem(
-            icon:Icon( FontAwesomeIcons.gift),
-            label: 'New Arrivals',
-          ),BottomNavigationBarItem(
-            icon:Icon( FontAwesomeIcons.solidEnvelope),
-            label: 'Contact Us',
-          ),BottomNavigationBarItem(
-            icon:Icon( FontAwesomeIcons.infoCircle),
-            label: 'About Us',
-          ),BottomNavigationBarItem(
-            icon:Icon( FontAwesomeIcons.solidUser),
-            label: 'Profile',
-          ),
+          _bottomNavBarItem(label: 'Home', iconData: Icons.home),
+          _bottomNavBarItem(label: 'New Arrivals', iconData: Icons.inventory_2),
+          _bottomNavBarItem(label: 'Claims', iconData: Icons.receipt_long),
+          _bottomNavBarItem(label: 'Profile', iconData: Icons.person),
+          _bottomNavBarItem(label: 'About Us', iconData: Icons.business),
         ]);
   }
 }

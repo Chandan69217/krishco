@@ -14,6 +14,7 @@ class CustomSlider extends StatefulWidget {
 class _SliderState extends State<CustomSlider> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
+  late Timer _autoSlideTimer;
 
   List<String> imageUrls = [
     'assets/user_assets/images/banner.webp',
@@ -27,7 +28,7 @@ class _SliderState extends State<CustomSlider> {
   }
 
   void _startAutoSlide() {
-    Timer.periodic(Duration(seconds: 3), (timer) {
+   _autoSlideTimer =  Timer.periodic(Duration(seconds: 3), (timer) {
       if (_pageController.page == imageUrls.length - 1) {
         _pageController.jumpToPage(0);
       } else {
@@ -42,6 +43,7 @@ class _SliderState extends State<CustomSlider> {
   @override
   void dispose() {
     _pageController.dispose();
+    _autoSlideTimer.cancel();
     super.dispose();
   }
 
