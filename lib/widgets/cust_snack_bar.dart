@@ -53,3 +53,14 @@ void showTopSnackBar({ContentType contentType = ContentType.failure, required Bu
     overlayEntry.remove();
   });
 }
+
+
+void showSimpleSnackBar({required BuildContext context,required String message,bool? status = true}){
+  ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Center(child: Text(message),),
+        backgroundColor: status! ? Colors.green : Colors.red ,
+        behavior: SnackBarBehavior.floating,
+        duration: Duration(seconds: 3),
+      )
+  );
+}
