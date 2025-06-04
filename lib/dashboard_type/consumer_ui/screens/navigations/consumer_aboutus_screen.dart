@@ -10,14 +10,14 @@ class ConsumerAboutusScreen extends StatelessWidget {
     double screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: CustColors.yellow,
-        automaticallyImplyLeading: false,
-        title: Text(
-          'Company Profile',
-          style: TextStyle(fontSize: screenWidth * 0.05),
-        ),
-      ),
+      // appBar: AppBar(
+      //   backgroundColor: CustColors.yellow,
+      //   automaticallyImplyLeading: false,
+      //   title: Text(
+      //     'Company Profile',
+      //     style: TextStyle(fontSize: screenWidth * 0.05),
+      //   ),
+      // ),
       body: SingleChildScrollView(
         child: SafeArea(
           child: Column(
