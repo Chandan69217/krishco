@@ -35,4 +35,7 @@ class Urls {
             // Change Password
   static const String change_password = '/api/change-password/';
 
+          // Transportation
+static const String getTransportationDetails = '/api/get-transporter-details/';
+
 }

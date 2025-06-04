@@ -130,7 +130,7 @@ class KYCDetailsAPI {
       if(addressProofs.isNotEmpty){
         addressProofs.forEach((p)async{
           switch(p.type){
-            case 'Aadhar Card':
+            case 'Aadhaar Card':
               request.fields['add_aadhar'] = p.idNumber;
               if(p.frontImage != null) request.files.add(
                 await http.MultipartFile.fromPath(
@@ -196,6 +196,9 @@ class KYCDetailsAPI {
       final response = await http.Response.fromStream(streamResponse);
       if(response.statusCode == 200 || response.statusCode == 201){
        return json.decode(response.body) as Map<String,dynamic>;
+      }else{
+        print(' Response: ${response.body} with status code: ${response.statusCode}');
+        handleHttpResponse(context, response);
       }
     } catch (exception, trace) {
       print('Exception: $exception , Trace: $trace');

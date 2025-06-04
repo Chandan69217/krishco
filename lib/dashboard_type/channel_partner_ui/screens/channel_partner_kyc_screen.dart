@@ -61,6 +61,7 @@ class _ChannelPartnerKycScreenState extends State<ChannelPartnerKycScreen> {
     'Gas Bill',
     'Electricity Bill',
   ];
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -210,6 +211,14 @@ class _ChannelPartnerKycScreenState extends State<ChannelPartnerKycScreen> {
                         child: _buildBankDetails(),
                       ),
 
+                      _isLoading? Center(
+                        child: SizedBox.square(
+                          dimension: 25.0,
+                          child: CircularProgressIndicator(
+                            color: CustColors.nile_blue,
+                          ),
+                        ),
+                      ):
                       SizedBox(
                         width: MediaQuery.of(context).size.width,
                         child: ElevatedButton(
@@ -485,6 +494,9 @@ class _ChannelPartnerKycScreenState extends State<ChannelPartnerKycScreen> {
       //   return;
       // }
 
+      setState(() {
+        _isLoading = false;
+      });
       final response = await KYCDetailsAPI(context: context).updateOrCreateKYC(
           idProofs: _idProofKey.currentState?.savedProofs??[],
           addressProofs: _addressProofKey.currentState?.savedProofs??[],
@@ -529,7 +541,12 @@ class _ChannelPartnerKycScreenState extends State<ChannelPartnerKycScreen> {
           ),
         );
       }
+    setState(() {
+      _isLoading = false;
+    });
     }
+
+
   }
 
 class ProofSectionWidget extends StatefulWidget {

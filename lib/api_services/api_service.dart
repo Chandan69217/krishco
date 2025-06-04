@@ -19,6 +19,7 @@ class APIService{
   late final _OrderRelated orderRelated;
   late final _InvoiceClaim invoiceClaim;
   late final _ChangePassword changePassword;
+  late final _TransportationRelated transportationDetails;
   APIService({required this.context}){
     productDetails = _ProductDetails(context: context);
     taggedEnterprise = _TaggedEnterprise(context: context);
@@ -26,6 +27,7 @@ class APIService{
     orderRelated = _OrderRelated(context: context);
     invoiceClaim = _InvoiceClaim(context: context);
     changePassword = _ChangePassword(context: context);
+    transportationDetails = _TransportationRelated(context: context);
   }
 
 
@@ -657,6 +659,35 @@ class _ChangePassword{
       print('Exception: $exception\nTrace: $trace');
     }
 
+    return null;
+  }
+}
+
+class _TransportationRelated{
+  final BuildContext context;
+  _TransportationRelated({required this.context});
+  
+  Future<Map<String,dynamic>?> getTransportationList()async{
+    final userToken = Pref.instance.getString(Consts.user_token);
+    try{
+      final url = Uri.https(Urls.base_url,Urls.getTransportationDetails);
+      final response = await get(url,headers: {
+        'Authorization' : 'Bearer $userToken'
+      });
+
+      if(response.statusCode == 200){
+        final data = json.decode(response.body) as Map<String,dynamic>;
+        final status = data['isScuss'];
+        if(status){
+          return data;
+        }
+      }else{
+        print('Response: body- ${response.body} with Status Code: ${response.statusCode}');
+        handleHttpResponse(context, response);
+      }
+    }catch(exception,trace){
+      print('Exception: $exception, Trace: $trace');
+    }
     return null;
   }
 }

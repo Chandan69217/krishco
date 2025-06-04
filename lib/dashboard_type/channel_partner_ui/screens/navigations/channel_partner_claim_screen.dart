@@ -8,6 +8,7 @@ import 'package:krishco/dashboard_type/channel_partner_ui/screens/channel_partne
 import 'package:krishco/models/invoice_claim/claim_list_data.dart';
 import 'package:krishco/models/invoice_claim/claim_reporting_list_data.dart';
 import 'package:krishco/widgets/cust_loader.dart';
+import 'package:krishco/widgets/cust_snack_bar.dart';
 
 
 
@@ -755,6 +756,7 @@ class _ClaimReportingCard extends StatelessWidget {
     if (date == null) return "N/A";
     return DateFormat('dd MMM yyyy').format(date);
   }
+
 }
 
 class _ClaimReportingDetailsScreen extends StatelessWidget {
@@ -937,6 +939,7 @@ class _ClaimReportingDetailsScreen extends StatelessWidget {
       ),
     );
   }
+
 }
 
 
@@ -1049,7 +1052,7 @@ class _ClaimReportingActionsState extends State<_ClaimReportingActions> {
     final response = await APIService(context: context).invoiceClaim.claimRecall(claimID: widget.claimId, finalClaimAmount: int.tryParse(_claimAmountController.text)??0, status: 'confirmed');
     if(response != null){
       final status = response['isScuss'];
-      _showSnackBar(message: response['messages'],status: status);
+      showSimpleSnackBar(context: context, message: response['messages'],status: status);
       if(status){
         widget.onSuccess?.call();
       }
@@ -1070,7 +1073,7 @@ class _ClaimReportingActionsState extends State<_ClaimReportingActions> {
     final resopnse = await APIService(context: context).invoiceClaim.cancelClaim(claimID: widget.claimId, claimStatus: 'cancelled', remakrs: _remarkController.text);
     if(resopnse != null){
       final status = resopnse['isScuss'];
-      _showSnackBar(message: resopnse['messages'],status: status);
+      showSimpleSnackBar(context:context,message: resopnse['messages'],status: status);
      if(status){
        widget.onSuccess?.call();
      }
@@ -1080,13 +1083,5 @@ class _ClaimReportingActionsState extends State<_ClaimReportingActions> {
     });
   }
   
-  void _showSnackBar({required String message,bool? status = true}){
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Center(child: Text(message),),
-        backgroundColor: status! ? Colors.green : Colors.red ,
-        behavior: SnackBarBehavior.floating,
-        duration: Duration(seconds: 3),
-      )
-    );
-  }
+
 }
