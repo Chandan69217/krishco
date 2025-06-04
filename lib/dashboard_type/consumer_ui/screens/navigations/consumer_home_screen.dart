@@ -51,20 +51,17 @@ class ConsumerHomeScreen extends StatelessWidget{
                physics: NeverScrollableScrollPhysics(),
                children: [
                  CardWidget(
-                   icon:
-                   'https://storage.googleapis.com/a1aa/image/9V4ILaBWId5ilowokMfqa5pt4-k6QjbFP-9A0UKclNg.jpg',
+                   icon: Icons.inventory_2,
                    title: 'Product Catalogue',
                    count: 372,
                  ),
                  CardWidget(
-                   icon:
-                   'https://storage.googleapis.com/a1aa/image/y32VAKSEmoyDpefPNqjrWeIrgHXJWRxkuhxpqppB2iM.jpg',
+                   icon:Icons.handyman,
                    title: 'Service Request',
                    count: 0,
                  ),
                  CardWidget(
-                   icon:
-                   'https://storage.googleapis.com/a1aa/image/wH62GqlzE-2bRC9whzHFDIS-CXq94BENboTltNV07aM.jpg',
+                   icon: Icons.engineering,
                    title: 'Installation Request',
                    count: 0,
                  ),
@@ -120,10 +117,6 @@ class ConsumerHomeScreen extends StatelessWidget{
              ),
            ),
            SizedBox(height: screenWidth * 0.05,),
-           ElevatedButton(onPressed: (){
-             Pref.instance.clear();
-             Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context)=>LoginScreen()), (route)=>false);
-           }, child: Text('Logout'))
          ],
        ),
      ),
@@ -142,7 +135,7 @@ class ConsumerHomeScreen extends StatelessWidget{
 
 // Card Widget for displaying Product/Service info
 class CardWidget extends StatelessWidget {
-  final String icon;
+  final IconData icon;
   final String title;
   final int count;
 
@@ -167,10 +160,10 @@ class CardWidget extends StatelessWidget {
           padding: EdgeInsets.only(left: 8.0, right: 8.0, top: 10.0),
           child: Column(
             children: [
-              Image.network(
+              Icon(
                 icon,
-                width: screenWidth * 0.12,
-                height: screenWidth * 0.12,
+                size: screenWidth * 0.12,
+                color: CustColors.nile_blue,
               ),
               SizedBox(height: screenWidth * 0.01),
               Divider(),
