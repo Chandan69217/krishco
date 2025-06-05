@@ -11,6 +11,7 @@ import 'package:krishco/models/transportation_related/transportation_list_data.d
 import 'package:krishco/utilities/cust_colors.dart';
 import 'package:krishco/widgets/cust_dialog_box/cust_dialog_box.dart';
 import 'package:krishco/widgets/choose_file.dart';
+import 'package:krishco/widgets/cust_snack_bar.dart';
 
 class ChannelPartnerEditDetailsScreen extends StatefulWidget {
   final VoidCallback? onUpdated;
@@ -622,37 +623,49 @@ class _ChannelPartnerEditDetailsScreenState
     setState(() {
       _isLoading = true;
     });
+    if(_contactFormKey.currentState?.getContacts().isEmpty??true){
+      showSimpleSnackBar(context: context, message: 'Enter at least one emergency contact no.');
+      return;
+    }
+
     final emergencyDetails = _contactFormKey.currentState?.getContacts();
     final otherDetails = _otherDetailsKey.currentState?.getValidatedData();
     final response = await EditDetails.updateDetails(
       context,
       first_name: _firstNameController.text,
-      t_id: otherDetails?['t_id']??[],
+      t_id: otherDetails?['t_id']??null,
       gst_no: otherDetails?['gst_no']??null,
       gst_copy: otherDetails?['gst_copy']??null,
       contact_no: _contactNoController.text,
       dob: _dobController.text,
       gender: gender,
       marital_status: maritalStatus,
-      country: _countryController.text,
-      state: _stateController.text,
-      district: _districtController.text,
-      city: _cityController.text,
-      pincode: _pincodeController.text,
-      address: _addressController.text,
-      anni_date: _anniDataController.text,
-      alt_contact_no: _altContactNoController.text,
-      email: _emailTextController.text,
-      last_name: _lastNameController.text,
+      country: _countryController.text.trim(),
+      state: _stateController.text.trim(),
+      district: _districtController.text.trim(),
+      city: _cityController.text.trim(),
+      pincode: _pincodeController.text.trim(),
+      address: _addressController.text.trim().isNotEmpty?_addressController.text.trim():null,
+      anni_date: _anniDataController.text.trim().isNotEmpty?_anniDataController.text.trim():null,
+      alt_contact_no: _altContactNoController.text.trim().isNotEmpty? _altContactNoController.text.trim():null,
+      email: _emailTextController.text.trim().isNotEmpty?_emailTextController.text.trim():null,
+      last_name: _lastNameController.text.trim().isNotEmpty?_lastNameController.text.trim():null,
       profile: _selectedProfile,
       emergency_details: emergencyDetails!,
     );
     if (response != null) {
-      CustDialog.show(context: context, message: response['messages']);
-      final data = await GetUserDetails.getUserLoginData(context);
-      if (data != null) {
-        final value = LoginDetailsData.fromJson(data);
-        UserState.update(value.data);
+      print('Resoponse: ${response}');
+      final status = response['isScuss'];
+      if(status){
+        CustDialog.show(context: context, message: response['messages']);
+        final data = await GetUserDetails.getUserLoginData(context);
+        if (data != null) {
+          final value = LoginDetailsData.fromJson(data);
+          UserState.update(value.data);
+        }
+      }else{
+        final errorMessage = response['error'] as Map<String,dynamic>;
+        CustDialog.show(context: context, message: errorMessage.entries.first.value);
       }
     } else {
       CustDialog.show(context: context, message: 'Failed to update');
@@ -661,6 +674,7 @@ class _ChannelPartnerEditDetailsScreenState
       _isLoading = false;
     });
   }
+
 }
 
 class TransportationDetails extends StatefulWidget {

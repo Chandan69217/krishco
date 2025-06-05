@@ -1,15 +1,12 @@
-import 'dart:async';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:krishco/dashboard_type/channel_partner_ui/api_service/get_user_details.dart';
 import 'package:krishco/dashboard_type/channel_partner_ui/models/login_details_data.dart';
-import 'package:krishco/dashboard_type/channel_partner_ui/screens/channel_partner_edit_details_screen.dart';
 import 'package:krishco/screens/authentication/login_screen.dart';
 import 'package:krishco/screens/splash/splash_screen.dart';
 import 'package:krishco/utilities/constant.dart';
 import 'package:krishco/utilities/cust_colors.dart';
+import 'consumer_edit_deatils_screen.dart';
 import 'navigations/consumer_aboutus_screen.dart';
 import 'navigations/consumer_claim_screen.dart';
 import 'navigations/consumer_home_screen.dart';
@@ -151,7 +148,7 @@ class _ConsumerDashboardState extends State<ConsumerDashboard> {
                   child: Column(
                     children: [
                       _buildMenu(iconData:  Icons.edit, label: 'Edit Details',onTap: (){
-                        Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ChannelPartnerEditDetailsScreen(onUpdated: (){
+                        Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ConsumerEditDetailsScreen(onUpdated: (){
                           _init();
                         },)));
                       }),
