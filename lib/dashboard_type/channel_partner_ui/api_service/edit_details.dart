@@ -119,8 +119,15 @@ class EditDetails {
 
       String? base64Profile;
       if (profile != null) {
-        final bytes = await profile.readAsBytes();
-        base64Profile = base64Encode(bytes);
+        final extension = profile.path.split('.').last.toLowerCase();
+        if(['png', 'jpg', 'jpeg'].contains(extension)){
+          final bytes = await profile.readAsBytes();
+          final mediaType = extension == 'png' ? 'image/png' : 'image/jpeg';
+          base64Profile = 'data:$mediaType;base64,${base64Encode(bytes)}';
+        }else{
+          print('Invalid Profile Picture');
+        }
+        print('Profile Base64:${base64Profile} ');
       }
 
       String? base64GSTCopy;

@@ -302,114 +302,56 @@ class _OrderRelated{
     List<Map<String, dynamic>>? productDetails,
   }) async {
     final userToken = Pref.instance.getString(Consts.user_token);
+    final isCompany = Pref.instance.getBool('order_from_company');
+    try{
+      final url = Uri.https(Urls.base_url, Urls.order_entry_for_self);
+      final headers = {
+        'Authorization' : 'Bearer ${userToken}',
+        'Content-Type': 'application/json'
+      };
+      final Map<String,dynamic> value = {};
 
-    // try{
-    //   final url = Uri.https(Urls.base_url, Urls.order_entry_for_self);
-    //   final headers = {
-    //     'Authorization' : 'Bearer ${userToken}',
-    //     'Content-Type': 'application/json'
-    //   };
-    //   final Map<String,dynamic> value = {};
-    //
-    //   value['order_type'] = 'self';
-    //   value['order_from'] = orderForm;
-    //   value['order_from_others'] = orderFromOther;
-    //   value['app_name'] = 'mobile';
-    //   value['product_details'] = productDetails;
-    //
-    //   if (orderBill != null && orderBill.isNotEmpty) {
-    //     List<String> encodedList = [];
-    //
-    //     for (File file in orderBill) {
-    //       final extension = file.path.split('.').last.toLowerCase();
-    //
-    //       if (['png', 'jpg', 'jpeg'].contains(extension)) {
-    //         final bytes = await file.readAsBytes();
-    //         final mediaType = extension == 'png' ? 'image/png' : 'image/jpeg';
-    //         final base64String = 'data:$mediaType;base64,${base64Encode(bytes)}';
-    //         encodedList.add(base64String);
-    //       } else {
-    //         print('Unsupported file type: $extension');
-    //       }
-    //     }
-    //
-    //     value['order_bill'] = encodedList;
-    //   } else {
-    //     value['order_bill'] = null;
-    //   }
-    //
-    //
-    //
-    //
-    //   value.forEach((key,value){
-    //     print('Key: $key, Value: $value, Type: ${value.runtimeType}');
-    //   });
-    //   final body = json.encode(value);
-    //
-    //   final response = await post(url,headers: headers,body: body);
-    //   print('Get Response ${response.body}');
-    //   if(response.statusCode == 200 || response.statusCode == 201){
-    //     final data = json.decode(response.body) as Map<String,dynamic>;
-    //     return data;
-    //   }else{
-    //     handleHttpResponse(context, response);
-    //   }
-    // }catch(exception,trace){
-    //   print('Exception: ${exception},Trace: ${trace}');
-    // }
+      value['order_type'] = 'self';
+      value['order_from'] = orderForm;
+      value['order_from_others'] = orderFromOther;
+      value['app_name'] = 'mobile';
+      value['is_company'] = isCompany;
+      value['product_details'] = productDetails;
 
-    try {
-    final url = Uri.https(Urls.base_url, Urls.order_entry_for_self);
-      final request = http.MultipartRequest('POST', url)
-        ..headers['Authorization'] = 'Bearer $userToken'
-        ..fields['order_type'] = 'self'
-        ..fields['app_name'] = 'mobile';
-      // Optional fields
-      if (orderForm?.isNotEmpty == true) {
-        request.fields['order_from'] = orderForm!;
-      }
-
-      if (orderFromOther != null && orderFromOther.isNotEmpty) {
-        request.fields['order_form_others'] = jsonEncode(orderFromOther);
-      }
-
-      if (productDetails != null && productDetails.isNotEmpty) {
-        request.fields['product_details'] = jsonEncode(productDetails);
-      }
-
-      // Attach order bill images
       if (orderBill != null && orderBill.isNotEmpty) {
-        for (final file in orderBill) {
-          final mimeType = file.path.toLowerCase().endsWith('.png')
-              ? MediaType('image', 'png')
-              : MediaType('image', 'jpeg');
+        List<String> encodedList = [];
 
-          request.files.add(
-            await http.MultipartFile.fromPath(
-              'order_bill',
-              file.path,
-              contentType: mimeType,
-            ),
-          );
+        for (File file in orderBill) {
+          final extension = file.path.split('.').last.toLowerCase();
+
+          if (['png', 'jpg', 'jpeg'].contains(extension)) {
+            final bytes = await file.readAsBytes();
+            final mediaType = extension == 'png' ? 'image/png' : 'image/jpeg';
+            final base64String = 'data:$mediaType;base64,${base64Encode(bytes)}';
+            encodedList.add(base64String);
+          } else {
+            print('Unsupported file type: $extension');
+          }
         }
+
+        value['order_bill'] = encodedList;
+      } else {
+        value['order_bill'] = null;
       }
 
-      // Debug log
-      print('Submitting order with fields:');
-      request.fields.forEach((key, value) => print('$key: $value'));
-      print('Attached files: ${request.files.length}');
 
-      final streamedResponse = await request.send();
-      final response = await http.Response.fromStream(streamedResponse);
+      final body = json.encode(value);
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        return jsonDecode(response.body) as Map<String, dynamic>;
-      } else {
-        print('Request failed: ${response.statusCode} -> ${response.body}');
+      final response = await post(url,headers: headers,body: body);
+      print('Get Response ${response.body}');
+      if(response.statusCode == 200 || response.statusCode == 201){
+        final data = json.decode(response.body) as Map<String,dynamic>;
+        return data;
+      }else{
         handleHttpResponse(context, response);
       }
-    } catch (e, trace) {
-      print('Exception: $e\nTrace: $trace');
+    }catch(exception,trace){
+      print('Exception: ${exception},Trace: ${trace}');
     }
 
     return null;
@@ -458,9 +400,67 @@ class _OrderRelated{
     return null;
   }
 
-  Future<Map<String,dynamic>?> orderForOthers()async{
+  Future<Map<String, dynamic>?> orderForOthers({
+    String? orderForm,
+    Map<String, dynamic>? orderFromOther,
+    Map<String, dynamic>? orderForDetails,
+    List<File>? orderBill,
+    List<Map<String, dynamic>>? productDetails,
+  }) async {
     final userToken = Pref.instance.getString(Consts.user_token);
-    final url = Uri.https(Urls.base_url,Urls.order_entry_for_others);
+    final isCompany = Pref.instance.getBool('order_from_company');
+    try{
+      final url = Uri.https(Urls.base_url, Urls.order_entry_for_self);
+      final headers = {
+        'Authorization' : 'Bearer ${userToken}',
+        'Content-Type': 'application/json'
+      };
+      final Map<String,dynamic> value = {};
+
+      value['order_type'] = 'others';
+      value['order_for'] = orderForDetails;
+      value['order_from'] = orderForm;
+      value['order_from_others'] = orderFromOther;
+      value['app_name'] = 'mobile';
+      value['is_company'] = isCompany;
+      value['product_details'] = productDetails;
+
+      if (orderBill != null && orderBill.isNotEmpty) {
+        List<String> encodedList = [];
+
+        for (File file in orderBill) {
+          final extension = file.path.split('.').last.toLowerCase();
+
+          if (['png', 'jpg', 'jpeg'].contains(extension)) {
+            final bytes = await file.readAsBytes();
+            final mediaType = extension == 'png' ? 'image/png' : 'image/jpeg';
+            final base64String = 'data:$mediaType;base64,${base64Encode(bytes)}';
+            encodedList.add(base64String);
+          } else {
+            print('Unsupported file type: $extension');
+          }
+        }
+
+        value['order_bill'] = encodedList;
+      } else {
+        value['order_bill'] = null;
+      }
+
+
+      final body = json.encode(value);
+
+      final response = await post(url,headers: headers,body: body);
+      print('Get Response ${response.body}');
+      if(response.statusCode == 200 || response.statusCode == 201){
+        final data = json.decode(response.body) as Map<String,dynamic>;
+        return data;
+      }else{
+        handleHttpResponse(context, response);
+      }
+    }catch(exception,trace){
+      print('Exception: ${exception},Trace: ${trace}');
+    }
+
     return null;
   }
 

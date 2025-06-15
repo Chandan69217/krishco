@@ -5,6 +5,7 @@ import 'package:krishco/api_services/api_service.dart';
 import 'package:krishco/models/enterprised_related/enterprises_details_list_data.dart';
 import 'package:krishco/models/product_related/product_category_data.dart';
 import 'package:krishco/models/product_related/product_details_data.dart';
+import 'package:krishco/screens/splash/splash_screen.dart';
 import 'package:krishco/utilities/full_screen_loading.dart';
 import 'package:krishco/widgets/choose_file.dart';
 
@@ -17,9 +18,13 @@ class ChannelPartnerPlaceOrderScreen extends StatefulWidget {
   State<ChannelPartnerPlaceOrderScreen> createState() => _ChannelPartnerPlaceOrderScreenState();
 }
 
+
 class _ChannelPartnerPlaceOrderScreenState extends State<ChannelPartnerPlaceOrderScreen> {
   String _orderFor = 'self';
   bool _isEnterpriseNotListed = false;
+  final _orderForNameController = TextEditingController();
+  final _orderForNumberController = TextEditingController();
+  final _orderForAddressController = TextEditingController();
   final _consumerNumberController = TextEditingController();
   final _consumerNameController = TextEditingController();
   final _consumerAddressController = TextEditingController();
@@ -93,6 +98,7 @@ class _ChannelPartnerPlaceOrderScreenState extends State<ChannelPartnerPlaceOrde
   }
 
   Widget _buildBasicDetailsSection() {
+    final is_company = Pref.instance.getBool('order_from_company')??false;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -119,7 +125,153 @@ class _ChannelPartnerPlaceOrderScreenState extends State<ChannelPartnerPlaceOrde
           ],
         ),
 
-        if(_orderFor == 'self')...[
+        // if(_orderFor == 'self')...[
+        //   const SizedBox(height: 10),
+        //   ValueListenableBuilder<EnterpriseDetailsListData?>(
+        //     valueListenable: taggedEnterprise,
+        //     builder: (context,value,child){
+        //       return DropdownButtonFormField<String>(
+        //         key: Key('enterprise_dropdown'),
+        //         validator:  !_isEnterpriseNotListed ? (value){
+        //           if(value == null || value.isEmpty){
+        //             return 'Select Enterprise Details';
+        //           }
+        //           return null;
+        //         }:null,
+        //         decoration: InputDecoration(
+        //           labelText: 'Enterprise Details *',
+        //           border: OutlineInputBorder(),
+        //         ),
+        //         value: _enterpriseDetails,
+        //         items: [
+        //           DropdownMenuItem(child: Text("Select Enterprise Details"), value: null),
+        //           if(value != null)...[
+        //             ...value.data.map((datum) {
+        //               final customer = datum.customer;
+        //               if (customer == null) return null;
+        //
+        //               final displayText =
+        //                   '${customer.name ?? 'Unknown'} - ${customer.groupName ?? 'N/A'}';
+        //
+        //               return DropdownMenuItem<String>(
+        //                 value: customer.id?.toString(),
+        //                 child: Text(displayText),
+        //               );
+        //             }).whereType<DropdownMenuItem<String>>().toList(),
+        //           ]
+        //         ],
+        //         onChanged: !_isEnterpriseNotListed ? (value) => setState(() => _enterpriseDetails = value):null,
+        //       );
+        //     },
+        //   ),
+        //   Row(
+        //     children: [
+        //       Checkbox(
+        //         value: _isEnterpriseNotListed,
+        //         onChanged: (val) => setState(() => _isEnterpriseNotListed = val!),
+        //       ),
+        //       const Expanded(
+        //         child: Text('From where you purchased is not in the enterprise list.'),
+        //       ),
+        //     ],
+        //   ),
+        //
+        //   if (_isEnterpriseNotListed) ...[
+        //     const SizedBox(height: 16),
+        //     TextFormField(
+        //       keyboardType: TextInputType.number,
+        //       key: Key('Self_Customer_Number'),
+        //       validator: (value){
+        //         if(value == null||value.isEmpty){
+        //           return 'Enter Consumer Number';
+        //         }
+        //         return null;
+        //       },
+        //       controller: _consumerNumberController,
+        //       decoration: const InputDecoration(
+        //         labelText: 'Consumer Number *',
+        //         border: OutlineInputBorder(),
+        //       ),
+        //     ),
+        //     const SizedBox(height: 10),
+        //     TextFormField(
+        //       key: Key('Self Customer Name'),
+        //       controller: _consumerNameController,
+        //       validator: (value){
+        //         if(value == null||value.isEmpty){
+        //           return 'Enter Consumer Name';
+        //         }
+        //         return null;
+        //       },
+        //       decoration: const InputDecoration(
+        //         labelText: 'Consumer Name *',
+        //         border: OutlineInputBorder(),
+        //       ),
+        //     ),
+        //     const SizedBox(height: 10),
+        //     TextFormField(
+        //       key: Key('Self Customer Address'),
+        //       controller: _consumerAddressController,
+        //       decoration: const InputDecoration(
+        //         labelText: 'Consumer Address (Optional)',
+        //         border: OutlineInputBorder(),
+        //       ),
+        //     ),
+        //   ],
+        // ],
+
+        // 👇 Conditionally show when orderFor is 'others'
+        if (_orderFor == 'others') ...[
+          const SizedBox(height: 16),
+          TextFormField(
+            keyboardType: TextInputType.phone,
+            maxLength: 10,
+            key: Key('Other_Customer_Number'),
+            validator: (value){
+              if(value == null||value.isEmpty){
+                return 'Enter Consumer Number';
+              }
+              return null;
+            },
+            controller: _orderForNumberController,
+            decoration: const InputDecoration(
+              labelText: 'Consumer Number *',
+              border: OutlineInputBorder(),
+              counterText: ''
+            ),
+          ),
+          const SizedBox(height: 10),
+          TextFormField(
+            key: Key('Other_Customer_Name'),
+            validator: (value){
+              if(value == null||value.isEmpty){
+                return 'Enter Consumer Name';
+              }
+              return null;
+            },
+            controller: _orderForNameController,
+            decoration: const InputDecoration(
+              labelText: 'Consumer Name *',
+              border: OutlineInputBorder(),
+            ),
+          ),
+          const SizedBox(height: 10),
+          TextFormField(
+            key: Key('Other_Customer_Address'),
+            maxLines: 3,
+            controller: _orderForAddressController,
+            decoration: const InputDecoration(
+              labelText: 'Consumer Address (Optional)',
+              // floatingLabelBehavior: FloatingLabelBehavior.always,
+              border: OutlineInputBorder(),
+            ),
+          ),
+          const SizedBox(height: 16),
+          if(!is_company)
+          Divider(),
+        ],
+
+        if(!is_company)...[
           const SizedBox(height: 10),
           ValueListenableBuilder<EnterpriseDetailsListData?>(
             valueListenable: taggedEnterprise,
@@ -158,6 +310,7 @@ class _ChannelPartnerPlaceOrderScreenState extends State<ChannelPartnerPlaceOrde
               );
             },
           ),
+          const SizedBox(height: 16),
           Row(
             children: [
               Checkbox(
@@ -169,7 +322,6 @@ class _ChannelPartnerPlaceOrderScreenState extends State<ChannelPartnerPlaceOrde
               ),
             ],
           ),
-
           if (_isEnterpriseNotListed) ...[
             const SizedBox(height: 16),
             TextFormField(
@@ -181,9 +333,11 @@ class _ChannelPartnerPlaceOrderScreenState extends State<ChannelPartnerPlaceOrde
                 }
                 return null;
               },
+              maxLength: 10,
               controller: _consumerNumberController,
               decoration: const InputDecoration(
                 labelText: 'Consumer Number *',
+                counterText: '',
                 border: OutlineInputBorder(),
               ),
             ),
@@ -204,7 +358,8 @@ class _ChannelPartnerPlaceOrderScreenState extends State<ChannelPartnerPlaceOrde
             ),
             const SizedBox(height: 10),
             TextFormField(
-              key: Key('Self Customer Address'),
+              key: Key('Self_Customer Address'),
+              maxLines: 3,
               controller: _consumerAddressController,
               decoration: const InputDecoration(
                 labelText: 'Consumer Address (Optional)',
@@ -212,50 +367,8 @@ class _ChannelPartnerPlaceOrderScreenState extends State<ChannelPartnerPlaceOrde
               ),
             ),
           ],
-        ],
+        ]
 
-        // 👇 Conditionally show when orderFor is 'others'
-        if (_orderFor == 'others') ...[
-          const SizedBox(height: 16),
-          TextFormField(
-            key: Key('Other_Customer_Number'),
-            validator: (value){
-              if(value == null||value.isEmpty){
-                return 'Enter Consumer Number';
-              }
-              return null;
-            },
-            controller: _consumerNumberController,
-            decoration: const InputDecoration(
-              labelText: 'Consumer Number *',
-              border: OutlineInputBorder(),
-            ),
-          ),
-          const SizedBox(height: 10),
-          TextFormField(
-            key: Key('Other_Customer_Name'),
-            validator: (value){
-              if(value == null||value.isEmpty){
-                return 'Enter Consumer Name';
-              }
-              return null;
-            },
-            controller: _consumerNameController,
-            decoration: const InputDecoration(
-              labelText: 'Consumer Name *',
-              border: OutlineInputBorder(),
-            ),
-          ),
-          const SizedBox(height: 10),
-          TextFormField(
-            key: Key('Other_Customer_Address'),
-            controller: _consumerAddressController,
-            decoration: const InputDecoration(
-              labelText: 'Consumer Address (Optional)',
-              border: OutlineInputBorder(),
-            ),
-          ),
-        ],
       ],
     );
   }
@@ -912,6 +1025,9 @@ class _ChannelPartnerPlaceOrderScreenState extends State<ChannelPartnerPlaceOrde
       _consumerNumberController.text = '';
       _consumerAddressController.text = '';
       _consumerNameController.text = '';
+      _orderForNameController.text = '';
+      _orderForNumberController.text = '';
+      _orderForAddressController.text = '';
       _selectedFile = [];
       _filePreviewController.text = 'Choose File';
       _addedProductList = [];
@@ -943,22 +1059,41 @@ class _ChannelPartnerPlaceOrderScreenState extends State<ChannelPartnerPlaceOrde
       "id": x.id.toString(),
       'quantity' : x.qty.toString()
     }).toList();
-
-    final response = await APIService(context:context).orderRelated.orderForSelf(
-      orderBill: _selectedFile,
-      orderForm: _enterpriseDetails,
-      orderFromOther: _isEnterpriseNotListed?{
-        'name' : _consumerNameController.text,
-        'number' : _consumerNumberController.text,
-        'address':_consumerAddressController.text,
-      }:null,
-      productDetails: products
-    );
+    final Map<String,dynamic>? response;
+    if(_orderFor == 'self'){
+      response = await APIService(context:context).orderRelated.orderForSelf(
+          orderBill: _selectedFile,
+          orderForm: _enterpriseDetails,
+          orderFromOther: _isEnterpriseNotListed?{
+            'name' : _consumerNameController.text,
+            'number' : _consumerNumberController.text,
+            'address':_consumerAddressController.text,
+          }:null,
+          productDetails: products
+      );
+    }else{
+      response = await APIService(context:context).orderRelated.orderForOthers(
+          orderBill: _selectedFile,
+          orderForm: _enterpriseDetails,
+          orderForDetails: {
+            'name' : _orderForNameController.text,
+            'number': _orderForNumberController.text,
+            'address': _orderForAddressController.text
+          },
+          orderFromOther: _isEnterpriseNotListed?{
+            'name' : _consumerNameController.text,
+            'number' : _consumerNumberController.text,
+            'address':_consumerAddressController.text,
+          }:null,
+          productDetails: products
+      );
+    }
 
     if(response != null){
       final status = response['isScuss'];
       if(status){
         _showSnackBar(message: response['messages'],status: status);
+        widget.onSuccess?.call();
         _onReset();
       }else{
         final error = response['error'] as Map<String,dynamic>;
