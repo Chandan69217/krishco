@@ -7,18 +7,18 @@ import 'package:krishco/utilities/cust_colors.dart';
 import 'package:krishco/widgets/choose_file.dart';
 
 
-class ChannelPartnerKycScreen extends StatefulWidget {
+class ConsumerKycScreen extends StatefulWidget {
   @override
-  _ChannelPartnerKycScreenState createState() =>
-      _ChannelPartnerKycScreenState();
+  _ConsumerKycScreenState createState() =>
+      _ConsumerKycScreenState();
 }
 
-class _ChannelPartnerKycScreenState extends State<ChannelPartnerKycScreen> {
+class _ConsumerKycScreenState extends State<ConsumerKycScreen> {
   final _formKey = GlobalKey<FormState>();
   final GlobalKey<_ProofSectionWidgetState> _idProofKey =
-      GlobalKey<_ProofSectionWidgetState>();
+  GlobalKey<_ProofSectionWidgetState>();
   final GlobalKey<_ProofSectionWidgetState> _addressProofKey =
-      GlobalKey<_ProofSectionWidgetState>();
+  GlobalKey<_ProofSectionWidgetState>();
   late Future<Map<String, dynamic>?> _futureKYCDetails;
   bool _isInitialized = false;
   String memberId = 'N/A';
@@ -333,7 +333,7 @@ class _ChannelPartnerKycScreenState extends State<ChannelPartnerKycScreen> {
               iconData: Icons.account_balance,
               validator:
                   (value) =>
-                      value == null || value.isEmpty ? 'Enter Bank Name' : null,
+              value == null || value.isEmpty ? 'Enter Bank Name' : null,
             ),
             _buildTextFormField(
               controller: accHolderNameController,
@@ -341,9 +341,9 @@ class _ChannelPartnerKycScreenState extends State<ChannelPartnerKycScreen> {
               iconData: Icons.person,
               validator:
                   (value) =>
-                      value == null || value.isEmpty
-                          ? 'Enter Acc. Holder Name'
-                          : null,
+              value == null || value.isEmpty
+                  ? 'Enter Acc. Holder Name'
+                  : null,
             ),
             _buildTextFormField(
               controller: accountNumberController,
@@ -352,9 +352,9 @@ class _ChannelPartnerKycScreenState extends State<ChannelPartnerKycScreen> {
               iconData: Icons.numbers,
               validator:
                   (value) =>
-                      value == null || value.isEmpty
-                          ? 'Enter Account Number'
-                          : null,
+              value == null || value.isEmpty
+                  ? 'Enter Account Number'
+                  : null,
             ),
             _buildTextFormField(
               controller: accountConfNumberController,
@@ -363,9 +363,9 @@ class _ChannelPartnerKycScreenState extends State<ChannelPartnerKycScreen> {
               iconData: Icons.numbers,
               validator:
                   (value) =>
-                      value == null || value.isEmpty
-                          ? 'Enter Confirm Acc. No'
-                          : null,
+              value == null || value.isEmpty
+                  ? 'Enter Confirm Acc. No'
+                  : null,
             ),
             _buildTextFormField(
               controller: ifscController,
@@ -373,7 +373,7 @@ class _ChannelPartnerKycScreenState extends State<ChannelPartnerKycScreen> {
               iconData: Icons.code,
               validator:
                   (value) =>
-                      value == null || value.isEmpty ? 'Enter IFSC Code' : null,
+              value == null || value.isEmpty ? 'Enter IFSC Code' : null,
             ),
           ],
         ),
@@ -466,8 +466,8 @@ class _ChannelPartnerKycScreenState extends State<ChannelPartnerKycScreen> {
         contentPadding: const EdgeInsets.symmetric(vertical: 12),
       ),
       validator:
-          validator ??
-          (value) {
+      validator ??
+              (value) {
             if (isRequired && (value == null || value.trim().isEmpty)) {
               return 'Enter $label';
             }
@@ -532,24 +532,24 @@ class _ChannelPartnerKycScreenState extends State<ChannelPartnerKycScreen> {
           ),
         );
       }
-      }else{
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            backgroundColor: Colors.red,
-            behavior: SnackBarBehavior.floating,
-            content: Text(
-              'Failed KYC not updated',
-            ),
+    }else{
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+          content: Text(
+            'Failed KYC not updated',
           ),
-        );
-      }
+        ),
+      );
+    }
     setState(() {
       _isLoading = false;
     });
-    }
-
-
   }
+
+
+}
 
 class _ProofSectionWidget extends StatefulWidget {
   final String title;
@@ -595,14 +595,14 @@ class _ProofSectionWidgetState extends State<_ProofSectionWidget> {
   @override
   Widget build(BuildContext context) {
     final List<String> availableDropdownItems =
-        widget.allProofTypes
-            .where(
-              (type) =>
-                  savedProofs.every((proof) => proof.type != type) ||
-                  (editingIndex != null &&
-                      savedProofs[editingIndex!].type == type),
-            )
-            .toList();
+    widget.allProofTypes
+        .where(
+          (type) =>
+      savedProofs.every((proof) => proof.type != type) ||
+          (editingIndex != null &&
+              savedProofs[editingIndex!].type == type),
+    )
+        .toList();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -659,10 +659,10 @@ class _ProofSectionWidgetState extends State<_ProofSectionWidget> {
                           currentProof = ProofModel.clone(proof);
                           frontFileController.text =
                               proof.frontImage?.path.split('/').last ??
-                              'Choose file';
+                                  'Choose file';
                           backFileController.text =
                               proof.backImage?.path.split('/').last ??
-                              'Choose file';
+                                  'Choose file';
                         });
                       },
                     ),
@@ -691,7 +691,7 @@ class _ProofSectionWidgetState extends State<_ProofSectionWidget> {
   void _handleAddOrUpdate() {
     if (currentProof.type == null ||
         currentProof.idNumber.isEmpty ||
-       ( currentProof.frontImage == null && currentProof.frontImageUrl == null)) {
+        ( currentProof.frontImage == null && currentProof.frontImageUrl == null)) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text("Please fill all required fields"),
@@ -704,8 +704,8 @@ class _ProofSectionWidgetState extends State<_ProofSectionWidget> {
     }
 
     bool alreadyExists = savedProofs.any(
-      (proof) =>
-          proof.type == currentProof.type &&
+          (proof) =>
+      proof.type == currentProof.type &&
           (editingIndex == null ||
               savedProofs[editingIndex!].type != currentProof.type),
     );
@@ -740,7 +740,7 @@ class _ProofSectionWidgetState extends State<_ProofSectionWidget> {
   Widget _buildProofForm(ProofModel proof, List<String> availableTypes) {
     final bool isNumericProof =
         proof.type != null &&
-        (proof.type!.toLowerCase().contains("aadhaar card"));
+            (proof.type!.toLowerCase().contains("aadhaar card"));
     // || proof.type!.toLowerCase().contains("") ||
     // proof.type!.toLowerCase().contains("number") ||
     // proof.type!.toLowerCase().contains("no"));
@@ -763,9 +763,9 @@ class _ProofSectionWidgetState extends State<_ProofSectionWidget> {
             border: OutlineInputBorder(),
           ),
           items:
-              availableTypes
-                  .map((e) => DropdownMenuItem(value: e, child: Text(e)))
-                  .toList(),
+          availableTypes
+              .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+              .toList(),
           value: proof.type,
           onChanged: (val) => setState(() => proof.type = val),
           validator: (t) {
@@ -784,13 +784,13 @@ class _ProofSectionWidgetState extends State<_ProofSectionWidget> {
           ),
           decoration: InputDecoration(
             labelText:
-                proof.type == null
-                    ? '${widget.title} No *'
-                    : '${proof.type} No *',
+            proof.type == null
+                ? '${widget.title} No *'
+                : '${proof.type} No *',
             border: OutlineInputBorder(),
           ),
           keyboardType:
-              isNumericProof ? TextInputType.number : TextInputType.text,
+          isNumericProof ? TextInputType.number : TextInputType.text,
           onChanged: (val) => proof.idNumber = val,
           validator: (val) {
             if (savedProofs.isNotEmpty) {
@@ -867,97 +867,97 @@ class _ProofSectionWidgetState extends State<_ProofSectionWidget> {
     );
   }
 
-    Widget _buildImageSelector(
-    {
-      required String label,
-      File? selectedFile,
-      String? selectedImageUrl,
-      required TextEditingController controller,
-      required Function(File) onFileSelected,
-      VoidCallback? onDelete,
-  }
-    ) {
-      return GestureDetector(
-        onTap: () {
-          ChooseFile.showImagePickerBottomSheet(context, (file) {
-            onFileSelected(file);
-          });
-        },
-        child: Container(
-          padding: EdgeInsets.all(8),
-          height: 120,
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.grey.shade500),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child:
-              selectedFile == null && selectedImageUrl == null
-                  ? Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Icon(Icons.photo_camera, color: Colors.grey),
-                      SizedBox(height: 6),
-                      Text(
-                        label,
-                        style: TextStyle(color: Colors.grey.shade600),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
-                  )
-                  : Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Expanded(
-                        child: selectedFile != null ? Stack(
-                          children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(8),
-                              child: Image.file(
-                                selectedFile,
-                                fit: BoxFit.cover,
-                                width: double.infinity,
-                              ),
-                            ),
-                            Positioned(
-                              top: 4,
-                              right: 4,
-                              child: GestureDetector(
-                                onTap: () {
-                                  onDelete?.call();
-                                },
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: Colors.black45,
-                                    shape: BoxShape.circle,
-                                  ),
-                                  padding: EdgeInsets.all(4),
-                                  child: Icon(
-                                    Icons.close,
-                                    size: 18,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ):
-                        ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: CachedNetworkImage(imageUrl: selectedImageUrl!)),
-                      ),
-                      SizedBox(height: 4),
-                      Text(
-                        controller.text,
-                        style: TextStyle(fontSize: 12),
-                        overflow: TextOverflow.ellipsis,
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
-                  ),
+  Widget _buildImageSelector(
+      {
+        required String label,
+        File? selectedFile,
+        String? selectedImageUrl,
+        required TextEditingController controller,
+        required Function(File) onFileSelected,
+        VoidCallback? onDelete,
+      }
+      ) {
+    return GestureDetector(
+      onTap: () {
+        ChooseFile.showImagePickerBottomSheet(context, (file) {
+          onFileSelected(file);
+        });
+      },
+      child: Container(
+        padding: EdgeInsets.all(8),
+        height: 120,
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey.shade500),
+          borderRadius: BorderRadius.circular(12),
         ),
-      );
-    }
+        child:
+        selectedFile == null && selectedImageUrl == null
+            ? Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Icon(Icons.photo_camera, color: Colors.grey),
+            SizedBox(height: 6),
+            Text(
+              label,
+              style: TextStyle(color: Colors.grey.shade600),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        )
+            : Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(
+              child: selectedFile != null ? Stack(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.file(
+                      selectedFile,
+                      fit: BoxFit.cover,
+                      width: double.infinity,
+                    ),
+                  ),
+                  Positioned(
+                    top: 4,
+                    right: 4,
+                    child: GestureDetector(
+                      onTap: () {
+                        onDelete?.call();
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.black45,
+                          shape: BoxShape.circle,
+                        ),
+                        padding: EdgeInsets.all(4),
+                        child: Icon(
+                          Icons.close,
+                          size: 18,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ):
+              ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: CachedNetworkImage(imageUrl: selectedImageUrl!)),
+            ),
+            SizedBox(height: 4),
+            Text(
+              controller.text,
+              style: TextStyle(fontSize: 12),
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
 }
 
@@ -1111,11 +1111,11 @@ class _BankProofUploadSectionState extends State<_BankProofUploadSection> {
             contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
           ),
           items:
-              widget.proofTypes
-                  .map(
-                    (type) => DropdownMenuItem(value: type, child: Text(type)),
-                  )
-                  .toList(),
+          widget.proofTypes
+              .map(
+                (type) => DropdownMenuItem(value: type, child: Text(type)),
+          )
+              .toList(),
           value: selectedType,
           onChanged: (value) {
             setState(() => selectedType = value);
@@ -1125,16 +1125,16 @@ class _BankProofUploadSectionState extends State<_BankProofUploadSection> {
         ),
         const SizedBox(height: 12),
         _buildImageSelector(
-          controller: fileController,
-          label: 'upload \n${selectedType}',
-          onFileSelected: (file){
-            setState(() => fileName = file.path.split('/').last ?? '');
-            selectedFile = file;
-            widget.onFilePicked(file);
-          },
-          onDelete: (){},
-          selectedFile: selectedFile,
-          selectedImageUrl: widget.imageUrl
+            controller: fileController,
+            label: 'upload \n${selectedType}',
+            onFileSelected: (file){
+              setState(() => fileName = file.path.split('/').last ?? '');
+              selectedFile = file;
+              widget.onFilePicked(file);
+            },
+            onDelete: (){},
+            selectedFile: selectedFile,
+            selectedImageUrl: widget.imageUrl
         )
         // ElevatedButton.icon(
         //   onPressed: _pickFile,

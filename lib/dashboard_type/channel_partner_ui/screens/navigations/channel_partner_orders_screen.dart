@@ -45,7 +45,7 @@ class _ChannelPartnerOrdersScreenState extends State<ChannelPartnerOrdersScreen>
   }
 
   void _fetchOrderData()async{
-    final orderRelatedObj = APIService(context: context).orderRelated;
+    final orderRelatedObj = APIService.getInstance(context).orderRelated;
     setState(() {
       _futureOrder = selectedTabIndex == 0 ? orderRelatedObj.getOrderList():orderRelatedObj.getOrderReportingList();
     });
@@ -279,7 +279,7 @@ class _ChannelPartnerOrdersScreenState extends State<ChannelPartnerOrdersScreen>
 
 
   Future<void> _onRefresh()async{
-    final orderRelatedObj = APIService(context: context).orderRelated;
+    final orderRelatedObj = APIService.getInstance(context).orderRelated;
     if(selectedTabIndex == 0){
       final data = await orderRelatedObj.getOrderList();
       if(data != null){

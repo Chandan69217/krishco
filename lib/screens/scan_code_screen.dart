@@ -1,9 +1,13 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:krishco/api_services/api_service.dart';
+import 'package:krishco/utilities/full_screen_loading.dart';
 import 'package:krishco/utilities/permission_handler.dart';
+import 'package:krishco/widgets/cust_dialog_box/cust_dialog_box.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:qr_code_scanner_plus/qr_code_scanner_plus.dart';
 import 'package:krishco/widgets/custom_button.dart';
@@ -12,7 +16,8 @@ import 'package:krishco/widgets/custom_textfield.dart';
 import '../utilities/cust_colors.dart';
 
 class ScanCodeScreen extends StatefulWidget {
-  const ScanCodeScreen({super.key});
+  final String? title;
+  const ScanCodeScreen({super.key,this.title});
 
   @override
   State<ScanCodeScreen> createState() => _ScanCodeScreenState();
@@ -21,6 +26,9 @@ class ScanCodeScreen extends StatefulWidget {
 class _ScanCodeScreenState extends State<ScanCodeScreen> {
 
   bool showScanner = false;
+  bool _isLoading = false;
+  final TextEditingController _uniqueCodeController = TextEditingController();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
@@ -29,127 +37,145 @@ class _ScanCodeScreenState extends State<ScanCodeScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Scan Code'),
+        title: Text(widget.title??'Scan Code'),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05, vertical: screenHeight * 0.02),
-            child: Column(
-              children: [
-                // QR Code
-                showScanner ? ScannerScreen()
-                :Container(
-                  margin: EdgeInsets.only(bottom: screenHeight * 0.02),
-                  child: Image.asset(
-                    'assets/logo/qr_logo.webp',
-                    width: screenWidth * 0.55,
-                    height: screenWidth * 0.55,
-                  ),
-                ),
-        
-                // Scan Button
-                SizedBox(
-                  width: screenWidth,
-                  child: ElevatedButton(
-                    onPressed: ()async {
-                      if(await PermissionHandler.handleCameraPermission(context)){
-                        Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ScannerScreen()));
-                      }
-                      // if(!showScanner){
-                      //   setState(() {
-                      //     showScanner = !showScanner;
-                      //   });
-                      // }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      elevation: 4,
-                      backgroundColor: Colors.black,
-                      padding: EdgeInsets.symmetric(vertical: screenHeight * 0.01),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(screenWidth * 0.01)),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                children: [
+                  // QR Code
+                  showScanner ? ScannerScreen()
+                  :Container(
+                    margin: EdgeInsets.only(bottom: screenHeight * 0.02),
+                    child: Image.asset(
+                      'assets/logo/qr_logo.webp',
+                      width: screenWidth * 0.55,
+                      height: screenWidth * 0.55,
                     ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text('Click here to scan a unique code',
-                          style: TextStyle(
-                            fontSize: screenWidth * 0.04,
-                            height: 1,
-                            fontWeight: FontWeight.w400,
-                            color: Colors.white,
+                  ),
+
+                  // Scan Button
+                  SizedBox(
+                    width: screenWidth,
+                    child: ElevatedButton(
+                      onPressed: ()async {
+                        if(await PermissionHandler.handleCameraPermission(context)){
+                          Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ScannerScreen()));
+                        }
+                        // if(!showScanner){
+                        //   setState(() {
+                        //     showScanner = !showScanner;
+                        //   });
+                        // }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        elevation: 4,
+                        backgroundColor: Colors.black,
+                        padding: EdgeInsets.symmetric(vertical: screenHeight * 0.01),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(screenWidth * 0.01)),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text('Click here to scan a unique code',
+                            style: TextStyle(
+                              fontSize: screenWidth * 0.04,
+                              height: 1,
+                              fontWeight: FontWeight.w400,
+                              color: Colors.white,
+                            ),
                           ),
-                        ),
-                        SizedBox(width: 20),
-                        CircleAvatar(
-                          radius: 18,
-                          backgroundColor: Colors.white,
-                            child: Icon(Icons.camera_alt,color: Colors.black,)),
-                      ],
+                          SizedBox(width: 20),
+                          CircleAvatar(
+                            radius: 18,
+                            backgroundColor: Colors.white,
+                              child: Icon(Icons.camera_alt,color: Colors.black,)),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-        
-                // "or" text
-                Padding(
-                  padding: EdgeInsets.symmetric(vertical: screenHeight * 0.02),
-                  child: Text(
-                    'or',
-                    style: TextStyle(fontWeight: FontWeight.bold,fontSize: 24,color: Colors.black),
+
+                  // "or" text
+                  Padding(
+                    padding: EdgeInsets.symmetric(vertical: screenHeight * 0.02),
+                    child: Text(
+                      'or',
+                      style: TextStyle(fontWeight: FontWeight.bold,fontSize: 24,color: Colors.black),
+                    ),
                   ),
-                ),
-        
-                // Input Field for Code
-        
-                CustomFormTextField(hintText: 'Enter Code', prefixIcon: Icon(Icons.qr_code_scanner),radius: screenWidth * 0.01,),
-                SizedBox(height: screenHeight * 0.08,),
-                // Proceed Button
-                CustomElevatedButton(text: 'Proceed', onPressed: (){}),
-        
-                SizedBox(height: screenHeight * 0.02,),
-                // History Link
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: () {
-        
+
+                  // Input Field for Code
+
+                  CustomFormTextField(hintText: 'Enter Serial Number', prefixIcon: Icon(Icons.qr_code_scanner),radius: screenWidth * 0.01,
+                   textCapitalization: TextCapitalization.characters,
+                    textInputFormatter: [CustomSerialNumberFormatter()],
+                    controller: _uniqueCodeController,
+                    validator: (value){
+                    if(value == null || value.isEmpty ){
+                      return 'Please Enter Serial Number || Scan QR Code';
+                    }
+                    return null;
                     },
-                    style: TextButton.styleFrom(
-                      foregroundColor: Colors.black,
-                      splashFactory: NoSplash.splashFactory,
-                      backgroundColor: Colors.transparent,
-                      overlayColor: Colors.transparent
+                  ),
+                  SizedBox(height: screenHeight * 0.08,),
+                  // Proceed Button
+                  _isLoading ? SizedBox.square(
+                    dimension: 25,
+                    child: CircularProgressIndicator(
+                        color:CustColors.nile_blue
                     ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text('Go to unique code history'),
-                        SizedBox(width: 10),
-                        CircleAvatar(child: Icon(Icons.arrow_forward_rounded,color: Colors.black,),backgroundColor: CustColors.yellow,),
-                      ],
+                  ):CustomElevatedButton(text: 'Proceed', onPressed: _onProceed),
+
+                  SizedBox(height: screenHeight * 0.02,),
+                  // History Link
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton(
+                      onPressed: () {
+
+                      },
+                      style: TextButton.styleFrom(
+                        foregroundColor: Colors.black,
+                        splashFactory: NoSplash.splashFactory,
+                        backgroundColor: Colors.transparent,
+                        overlayColor: Colors.transparent
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text('Go to warranty registration history'),
+                          SizedBox(width: 10),
+                          CircleAvatar(child: Icon(Icons.arrow_forward_rounded,color: Colors.black,),backgroundColor: CustColors.yellow,),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-        
-        
-                // // Help Section
-                // Padding(
-                //   padding: EdgeInsets.only(top: screenHeight * 0.07),
-                //   child: Column(
-                //     crossAxisAlignment: CrossAxisAlignment.start,
-                //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                //     children: [
-                //       Text('Need help?',style: TextStyle(
-                //         fontSize: screenWidth * 0.06,
-                //         fontWeight: FontWeight.w400
-                //       ),),
-                //       SizedBox(height: 8.0,),
-                //       _buildContactItem(icon: Icons.phone, label: '9717500011'),
-                //       _buildContactItem(icon: Icons.email, label: 'info@vguardrishta.com'),
-                //       _buildContactItem(icon: FontAwesomeIcons.whatsapp, label: '9818900011'),
-                //     ],
-                //   ),
-                // ),
-              ],
+
+
+                  // // Help Section
+                  // Padding(
+                  //   padding: EdgeInsets.only(top: screenHeight * 0.07),
+                  //   child: Column(
+                  //     crossAxisAlignment: CrossAxisAlignment.start,
+                  //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  //     children: [
+                  //       Text('Need help?',style: TextStyle(
+                  //         fontSize: screenWidth * 0.06,
+                  //         fontWeight: FontWeight.w400
+                  //       ),),
+                  //       SizedBox(height: 8.0,),
+                  //       _buildContactItem(icon: Icons.phone, label: '9717500011'),
+                  //       _buildContactItem(icon: Icons.email, label: 'info@vguardrishta.com'),
+                  //       _buildContactItem(icon: FontAwesomeIcons.whatsapp, label: '9818900011'),
+                  //     ],
+                  //   ),
+                  // ),
+                ],
+              ),
             ),
           ),
         ),
@@ -170,6 +196,34 @@ class _ScanCodeScreenState extends State<ScanCodeScreen> {
 
 
   
+
+  void _onProceed() async{
+    if(!_formKey.currentState!.validate()){
+      return;
+    }
+    setState(() {
+      _isLoading = true;
+    });
+
+    final response = await APIService.getInstance(context).warrantyRelated.warrantyRegistration(
+        warrantyType: 'serial_no',
+        warrantyNumber: _uniqueCodeController.text
+    );
+    String message = 'Something went wrong';
+    if(response != null){
+      final status = response['isScuss'];
+      if(status){
+        message =  response['messages'];
+      }else{
+        final error = response['error'] as Map<String,dynamic>;
+        message = error.entries.first.value;
+      }
+      CustDialog.show(context: context, message: message);
+    }
+    setState(() {
+      _isLoading = false;
+    });
+  }
 }
 
 
@@ -186,6 +240,8 @@ class ScannerScreen extends StatefulWidget {
 class _HomeDashboardScreenState extends State<ScannerScreen> {
   Barcode? result;
   QRViewController? controller;
+  bool _isLoading = false;
+  bool _isScanHandled = false;
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
   double zoom = 0;
 
@@ -203,43 +259,50 @@ class _HomeDashboardScreenState extends State<ScannerScreen> {
     double titleFontSize = screenWidth * 0.05;
     double subTitleFontSize = screenWidth * 0.04;
 
-    return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          onPressed: () async {
-            await controller!.toggleFlash();
-            setState(() {});
-          },
-          icon: FutureBuilder(
-            future: controller?.getFlashStatus(),
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                return snapshot.data!
-                    ? Icon(Icons.flash_on)
-                    : Icon(Icons.flash_off);
-              } else {
-                return CircularProgressIndicator();
-              }
-            },
-          ),
-        ),
-        actions: <Widget>[
-          IconButton(
+    return Stack(
+      children: [
+        Scaffold(
+        appBar: AppBar(
+          leading: IconButton(
             onPressed: () async {
-              await controller!.flipCamera();
+              await controller!.toggleFlash();
               setState(() {});
             },
-            icon: Icon(Icons.flip_camera_ios),
-          )
-        ],
-        title: Text(
-          'Scan',
-          style: TextStyle(fontSize: titleFontSize),
+            icon: FutureBuilder(
+              future: controller?.getFlashStatus(),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  return snapshot.data!
+                      ? Icon(Icons.flash_on)
+                      : Icon(Icons.flash_off);
+                } else {
+                  return SizedBox.square(
+                    dimension: 25.0,
+                    child: CircularProgressIndicator(
+                      color: Colors.white,
+                    ),
+                  );
+                }
+              },
+            ),
+          ),
+          // actions: <Widget>[
+          //   IconButton(
+          //     onPressed: () async {
+          //       await controller!.flipCamera();
+          //       setState(() {});
+          //     },
+          //     icon: Icon(Icons.flip_camera_ios),
+          //   )
+          // ],
+          title: Text(
+            'Scan',
+            style: TextStyle(fontSize: titleFontSize),
+          ),
+          centerTitle: true,
         ),
-        centerTitle: true,
-      ),
-      body: SafeArea(
-        child: Padding(
+        body: SafeArea(
+          child: Padding(
           padding: EdgeInsets.all(screenWidth * 0.06),
           child: Center(
             child: Column(
@@ -251,7 +314,7 @@ class _HomeDashboardScreenState extends State<ScannerScreen> {
                   width: screenWidth * 0.6,
                   child: RichText(
                     text: TextSpan(
-                      text: 'Align the QR Code within the frame to scan',
+                      text: 'Align the QR Code with in the frame to scan',
                       style: TextStyle(fontSize: subTitleFontSize,color: Colors.black),
                     ),
                     softWrap: true,
@@ -273,8 +336,13 @@ class _HomeDashboardScreenState extends State<ScannerScreen> {
               ],
             ),
           ),
+                    ),
         ),
       ),
+        if(_isLoading)...[
+          FullScreenLoading()
+        ]
+      ]
     );
   }
 
@@ -303,17 +371,52 @@ class _HomeDashboardScreenState extends State<ScannerScreen> {
     setState(() {
       this.controller = controller;
     });
-    controller.scannedDataStream.listen((scanData) {
-      setState(() {
-        result = scanData;
-        Map<String, dynamic> data = {
-          'data': result!.code,
-          'time': DateFormat('dd-mmm-yyyy  HH:mm').format(DateTime.now())
-        };
-        showDialogBox(context, result!);
-      });
+
+    controller.scannedDataStream.listen((scanData) async {
+      if (_isScanHandled) return;
+      _isScanHandled = true;
+
+      setState(() => _isLoading = true);
+      await controller.pauseCamera();
+
+      result = scanData;
+      Map<String, dynamic> data = {
+        'data': result!.code,
+        'time': DateFormat('dd-MMM-yyyy  HH:mm').format(DateTime.now())
+      };
+
+      final response = await APIService.getInstance(context).warrantyRelated.warrantyRegistration(
+        warrantyType: 'qrcode',
+        warrantyNumber: data.entries.first.value,
+      );
+
+      String message = 'Something went wrong';
+      if (response != null) {
+        final status = response['isScuss'];
+        if (status) {
+          message = response['messages'];
+        } else {
+          final error = response['error'] as Map<String, dynamic>;
+          message = error.entries.first.value;
+        }
+
+        CustDialog.show(
+          context: context,
+          message: message,
+          onConfirm: () async {
+            _isScanHandled = false;
+            await controller.resumeCamera();
+          },
+        );
+      } else {
+        _isScanHandled = false;
+        await controller.resumeCamera();
+      }
+
+      setState(() => _isLoading = false);
     });
   }
+
 
   void _onPermissionSet(BuildContext context, QRViewController ctrl, bool p) {
     log('${DateTime.now().toIso8601String()}_onPermissionSet $p');
@@ -358,6 +461,38 @@ class _HomeDashboardScreenState extends State<ScannerScreen> {
           ),
         );
       },
+    );
+  }
+
+}
+
+
+
+class CustomSerialNumberFormatter extends TextInputFormatter {
+  // static final _regExp = RegExp(r'^[A-Z]{0,2}[0-9]{0,6}-?[0-9]{0,2}$');
+
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue,
+      TextEditingValue newValue,
+      ) {
+    String value = newValue.text.toUpperCase();
+
+    value = value.replaceAll(RegExp(r'[^A-Z0-9]'), '');
+
+
+    if (value.length > 8) {
+      value = value.substring(0, 8) + '-' + value.substring(8);
+    }
+
+
+    // if (value.length > 11) {
+    //   value = value.substring(0, 11);
+    // }
+
+    return TextEditingValue(
+      text: value,
+      selection: TextSelection.collapsed(offset: value.length),
     );
   }
 }

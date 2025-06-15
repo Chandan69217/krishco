@@ -36,7 +36,7 @@ class _ChannelPartnerCreateClaimScreenState extends State<ChannelPartnerCreateCl
 
 
   void _getEnterprises()async{
-    final taggedEnterpriseObj = APIService(context:context).taggedEnterprise;
+    final taggedEnterpriseObj = APIService.getInstance(context).taggedEnterprise;
     final data = await taggedEnterpriseObj.getTaggedEnterpriseOfLoginCustomer();
     if(data !=null){
       taggedEnterprise.value = EnterpriseDetailsListData.fromJson(data);
@@ -353,7 +353,7 @@ class _ChannelPartnerCreateClaimScreenState extends State<ChannelPartnerCreateCl
       });
 
 
-      final response = await APIService(context: context).invoiceClaim.createInvoiceClaim(
+      final response = await APIService.getInstance( context).invoiceClaim.createInvoiceClaim(
           invoiceNo: _invoiceNumberController.text,
           claimFrom: !_notInList ? _enterpriseDetails :null,
           invoiceData: _invoiceDate != null ? DateFormat('yyyy-MM-dd').format(_invoiceDate!) : '',

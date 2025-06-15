@@ -131,7 +131,7 @@ class _ChannelPartnerChangePasswordScreenState
                                   _isLoading = true;
                                 });
                                 final changePasswordObj =
-                                    APIService(context: context).changePassword;
+                                    APIService.getInstance(context).changePassword;
                                 final response = await changePasswordObj
                                     .changePassword(
                                   currentPassword: _currentController.text,

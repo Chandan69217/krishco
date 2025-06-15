@@ -38,4 +38,9 @@ class Urls {
           // Transportation
 static const String getTransportationDetails = '/api/get-transporter-details/';
 
+          // Warranty Related
+static const String warrantyRegistration = '/api/warranty/add/';
+static const String warrantyList = '/api/warranty/list/';
+
+
 }

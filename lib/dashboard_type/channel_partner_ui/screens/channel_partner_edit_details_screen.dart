@@ -4,14 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:krishco/api_services/api_service.dart';
-import 'package:krishco/dashboard_type/channel_partner_ui/api_service/edit_details.dart';
-import 'package:krishco/dashboard_type/channel_partner_ui/api_service/get_user_details.dart';
 import 'package:krishco/dashboard_type/channel_partner_ui/models/login_details_data.dart';
 import 'package:krishco/models/transportation_related/transportation_list_data.dart';
 import 'package:krishco/utilities/cust_colors.dart';
 import 'package:krishco/widgets/cust_dialog_box/cust_dialog_box.dart';
 import 'package:krishco/widgets/choose_file.dart';
 import 'package:krishco/widgets/cust_snack_bar.dart';
+import 'package:krishco/widgets/custom_network_image/custom_network_image.dart';
+
 
 class ChannelPartnerEditDetailsScreen extends StatefulWidget {
   final VoidCallback? onUpdated;
@@ -60,7 +60,7 @@ class _ChannelPartnerEditDetailsScreenState
   @override
   void initState() {
     super.initState();
-    userData = GetUserDetails.getUserLoginDataInModel(context);
+    userData = APIService.getInstance(context).getUserDetails.getUserLoginDataInModel();
   }
 
   init(UserDetailsData data) async {
@@ -630,8 +630,7 @@ class _ChannelPartnerEditDetailsScreenState
 
     final emergencyDetails = _contactFormKey.currentState?.getContacts();
     final otherDetails = _otherDetailsKey.currentState?.getValidatedData();
-    final response = await EditDetails.updateDetails(
-      context,
+    final response = await APIService.getInstance(context).editDetails.updateDetails(
       first_name: _firstNameController.text,
       t_id: otherDetails?['t_id']??null,
       gst_no: otherDetails?['gst_no']??null,
@@ -658,7 +657,7 @@ class _ChannelPartnerEditDetailsScreenState
       final status = response['isScuss'];
       if(status){
         CustDialog.show(context: context, message: response['messages']);
-        final data = await GetUserDetails.getUserLoginData(context);
+        final data = await APIService.getInstance(context).getUserDetails.getUserLoginData();
         if (data != null) {
           final value = LoginDetailsData.fromJson(data);
           UserState.update(value.data);
@@ -708,8 +707,8 @@ class _TransportationDetailsState extends State<TransportationDetails> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       List<TransportationData> transporterList;
       final response =
-          await APIService(
-            context: context,
+          await APIService.getInstance(
+            context,
           ).transportationDetails.getTransportationList();
       if (response != null) {
         transporterList = TransportationDataList.fromJson(response).data;
@@ -1076,17 +1075,25 @@ class _ProfileUpdateSectionState extends State<ProfileUpdateSection> {
           child: Center(
             child: Stack(
               children: [
-                CircleAvatar(
-                  radius: 60,
-                  backgroundImage:
-                      widget.selectedImageFile != null
-                          ? FileImage(widget.selectedImageFile!)
-                          : widget.imageUrl != null &&
-                              widget.imageUrl!.isNotEmpty
-                          ? CachedNetworkImageProvider(widget.imageUrl!)
-                          : const AssetImage('assets/logo/dummy_profile.webp')
-                              as ImageProvider,
+                CustomNetworkImage(
+                  placeHolder: 'assets/logo/dummy_profile.webp',
+                  width: 130.0,
+                  height: 130.0,
+                  imageFile:  widget.selectedImageFile,
+                  borderRadius: BorderRadius.circular(80.0),
+                  imageUrl: widget.imageUrl ??'',
                 ),
+                // CircleAvatar(
+                //   radius: 60,
+                //   backgroundImage:
+                //       widget.selectedImageFile != null
+                //           ? FileImage(widget.selectedImageFile!)
+                //           : widget.imageUrl != null &&
+                //               widget.imageUrl!.isNotEmpty
+                //           ? CachedNetworkImageProvider(widget.imageUrl!)
+                //           : const AssetImage('assets/logo/dummy_profile.webp')
+                //               as ImageProvider,
+                // ),
                 Positioned(
                   bottom: 0,
                   right: 4,

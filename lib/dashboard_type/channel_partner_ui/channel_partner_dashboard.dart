@@ -1,7 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:krishco/dashboard_type/channel_partner_ui/api_service/get_user_details.dart';
+import 'package:krishco/api_services/api_service.dart';
 import 'package:krishco/dashboard_type/channel_partner_ui/models/login_details_data.dart';
 import 'package:krishco/dashboard_type/channel_partner_ui/screens/channel_partner_change_password_screen.dart';
 import 'package:krishco/dashboard_type/channel_partner_ui/screens/channel_partner_notification_screen.dart';
@@ -16,6 +16,7 @@ import 'package:krishco/screens/scan_code_screen.dart';
 import 'package:krishco/screens/splash/splash_screen.dart';
 import 'package:krishco/utilities/constant.dart';
 import 'package:krishco/utilities/cust_colors.dart';
+import 'package:krishco/widgets/custom_network_image/custom_network_image.dart';
 
 
 class ChannelPartnerDashboard extends StatefulWidget {
@@ -126,13 +127,21 @@ class _ChannelPartnerDashboardState extends State<ChannelPartnerDashboard> {
                   child: SafeArea(
                     child: Column(
                       children: [
-                        CircleAvatar(
-                          radius: 60.0,
-                          backgroundImage: value != null && value.photo != null && value.photo.isNotEmpty
-                              ? CachedNetworkImageProvider(value.photo )
-                              : const AssetImage('assets/logo/dummy_profile.webp') as ImageProvider,
+                        CustomNetworkImage(
+                          placeHolder: 'assets/logo/dummy_profile.webp',
+                          width: 130.0,
+                            height: 130.0,
+                            borderRadius: BorderRadius.circular(80.0),
+                            imageUrl:value?.photo ??'',
                         ),
-      
+
+                        // CircleAvatar(
+                        //   radius: 60.0,
+                        //   backgroundImage: value != null && value.photo != null && value.photo.isNotEmpty
+                        //       ? CachedNetworkImageProvider(value.photo )
+                        //       : const AssetImage('assets/logo/dummy_profile.webp') as ImageProvider,
+                        // ),
+                        //
                         const SizedBox(height: 6,),
                         Text(
                           value != null && value.fname != null && value.fname!.isNotEmpty? '${value.fname} ${value.lname}' :'unknown',
@@ -226,7 +235,7 @@ class _ChannelPartnerDashboardState extends State<ChannelPartnerDashboard> {
 
   void _init()async {
     WidgetsBinding.instance.addPostFrameCallback((duration)async{
-      final data = await GetUserDetails.getUserLoginData(context);
+      final data = await APIService.getInstance(context).getUserDetails.getUserLoginData();
       if(data != null){
         final value = LoginDetailsData.fromJson(data);
         UserState.update(value.data);

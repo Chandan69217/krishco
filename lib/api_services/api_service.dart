@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart';
 import 'package:http/http.dart' as http;
+import 'package:krishco/dashboard_type/channel_partner_ui/models/login_details_data.dart';
+import 'package:krishco/models/kyc_proof_related/kyc_proof_model.dart';
 import 'package:krishco/screens/splash/splash_screen.dart';
 import 'package:krishco/api_services/api_urls.dart';
 import 'package:krishco/utilities/constant.dart';
@@ -11,8 +13,11 @@ import 'package:krishco/api_services/handle_https_response.dart';
 
 
 
+
 class APIService{
+  static APIService? _instance;
   final BuildContext context;
+
   late final _ProductDetails productDetails;
   late final _TaggedEnterprise taggedEnterprise;
   late final _GroupDetails groupDetails;
@@ -20,7 +25,12 @@ class APIService{
   late final _InvoiceClaim invoiceClaim;
   late final _ChangePassword changePassword;
   late final _TransportationRelated transportationDetails;
-  APIService({required this.context}){
+  late final _EditDetails editDetails;
+  late final _GetUserDetails getUserDetails;
+  late final _KYCDetailsAPI kycDetailsAPI;
+  late final _WarrantyRelated warrantyRelated;
+
+  APIService._internal({required this.context}){
     productDetails = _ProductDetails(context: context);
     taggedEnterprise = _TaggedEnterprise(context: context);
     groupDetails = _GroupDetails(context: context);
@@ -28,6 +38,19 @@ class APIService{
     invoiceClaim = _InvoiceClaim(context: context);
     changePassword = _ChangePassword(context: context);
     transportationDetails = _TransportationRelated(context: context);
+    editDetails = _EditDetails(context: context);
+    getUserDetails = _GetUserDetails(context: context);
+    kycDetailsAPI = _KYCDetailsAPI(context: context);
+    warrantyRelated = _WarrantyRelated(context:context);
+  }
+
+  static APIService getInstance(BuildContext context){
+    _instance ??= APIService._internal(context: context);
+    return _instance!;
+  }
+
+  static void resetInstance(){
+    _instance = null;
   }
 
 
@@ -626,7 +649,6 @@ class _InvoiceClaim{
 
 }
 
-
 class _ChangePassword{
   final BuildContext context;
   _ChangePassword({required this.context});
@@ -690,4 +712,547 @@ class _TransportationRelated{
     }
     return null;
   }
+}
+
+class _EditDetails {
+  final BuildContext context;
+  _EditDetails({required this.context});
+
+  // static Future<Map<String, dynamic>?> updateDetails(
+  //     BuildContext context, {
+  //       File? profile,
+  //       required String first_name,
+  //       required String t_id,
+  //       required String gst_no,
+  //       String last_name = '',
+  //       required String contact_no,
+  //       String alt_contact_no = '',
+  //       String email = '',
+  //       required String dob,
+  //       required String gender,
+  //       required String marital_status,
+  //       String anni_date = '',
+  //       required String country,
+  //       required String state,
+  //       required String district,
+  //       required String city,
+  //       required String pincode,
+  //       required String address,
+  //       required List<Map<String, dynamic>> emergency_details,
+  //     }) async {
+  //   final userToken = Pref.instance.getString(Consts.user_token);
+  //   try {
+  //     final url = Uri.https(Urls.base_url, '/api/edit-details/');
+  //
+  //     final request = http.MultipartRequest('POST', url)
+  //       ..headers['Authorization'] = 'Bearer $userToken'
+  //       ..fields['fname'] = first_name
+  //       ..fields['lname'] = last_name
+  //       ..fields['alt_cont_no'] = alt_contact_no
+  //       ..fields['contact_no'] = contact_no
+  //       ..fields['dob'] = dob
+  //       ..fields['gender'] = gender
+  //       ..fields['mar_status'] = marital_status
+  //       ..fields['ann_date'] = anni_date
+  //       ..fields['email'] = email
+  //       ..fields['address'] = address
+  //       ..fields['city'] = city
+  //       ..fields['state'] = state
+  //       ..fields['pin'] = pincode
+  //       ..fields['country'] = country
+  //       ..fields['dist'] = district
+  //       ..fields['t_id'] = t_id
+  //       ..fields['gst_no'] = gst_no
+  //       ..fields['emergency_contact_details'] = jsonEncode(emergency_details);
+  //
+  //     if (profile != null) {
+  //       final mimeType = profile.path.toLowerCase().endsWith('.png')
+  //           ? MediaType('image', 'png')
+  //           : MediaType('image', 'jpeg');
+  //
+  //       request.files.add(
+  //         await http.MultipartFile.fromPath(
+  //           'profile', // ✅ corrected field name
+  //           profile.path,
+  //           contentType: mimeType,
+  //         ),
+  //       );
+  //     }
+  //
+  //     final streamedResponse = await request.send();
+  //     final response = await http.Response.fromStream(streamedResponse);
+  //
+  //     if (response.statusCode == 200 || response.statusCode == 201) {
+  //       return jsonDecode(response.body) as Map<String, dynamic>;
+  //     } else {
+  //       print('Request failed: ${response.statusCode} -> ${response.body}');
+  //       handleHttpResponse(context, response);
+  //     }
+  //   } catch (exception, trace) {
+  //     print('Exception: $exception, Trace: $trace');
+  //   }
+  //   return null;
+  // }
+
+  Future<Map<String, dynamic>?> updateDetails(
+      {
+        File? profile,
+        File? gst_copy,
+        required String first_name,
+        required List<String> t_id,
+        String? gst_no,
+        String? last_name,
+        required String contact_no,
+        String? alt_contact_no,
+        String? email,
+        required String dob,
+        required String gender,
+        required String marital_status,
+        String? anni_date,
+        required String country,
+        required String state,
+        required String district,
+        required String city,
+        required String pincode,
+        String? address,
+        required List<Map<String, dynamic>> emergency_details,
+      }) async {
+    final userToken = Pref.instance.getString(Consts.user_token);
+    try {
+      final url = Uri.https(Urls.base_url, '/api/edit-details/');
+
+      String? base64Profile;
+      if (profile != null) {
+        final extension = profile.path.split('.').last.toLowerCase();
+        if(['png', 'jpg', 'jpeg'].contains(extension)){
+          final bytes = await profile.readAsBytes();
+          final mediaType = extension == 'png' ? 'image/png' : 'image/jpeg';
+          base64Profile = 'data:$mediaType;base64,${base64Encode(bytes)}';
+        }else{
+          print('Invalid Profile Picture');
+        }
+        print('Profile Base64:${base64Profile} ');
+      }
+
+      String? base64GSTCopy;
+      if(gst_copy != null){
+        final bytes = await gst_copy.readAsBytes();
+        base64GSTCopy = base64Encode(bytes);
+      }
+
+      final body = {
+        'fname': first_name,
+        'lname': last_name,
+        'alt_cont_no': alt_contact_no,
+        'contact_no': contact_no,
+        'dob': dob,
+        'gender': gender,
+        'mar_status': marital_status,
+        'ann_date': anni_date,
+        'email': email,
+        'address': address,
+        'city': city,
+        'state': state,
+        'pin': pincode,
+        'country': country,
+        'dist': district,
+        't_id': t_id,
+        'gst_no': gst_no,
+        'gst_copy':base64GSTCopy,
+        'emergency_contact_details': emergency_details,
+        'photo': base64Profile,
+      };
+
+      final response = await http.post(
+        url,
+        headers: {
+          'Authorization': 'Bearer $userToken',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(body),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        print('Request failed: ${response.statusCode} -> ${response.body}');
+        return jsonDecode(response.body) as Map<String, dynamic>;
+      } else {
+        print('Request failed: ${response.statusCode} -> ${response.body}');
+        handleHttpResponse(context, response);
+      }
+    } catch (e, s) {
+      print('Exception: $e\n$s');
+    }
+
+    return null;
+  }
+
+// static Future<Map<String, dynamic>?> updateDetails(
+//     BuildContext context, {
+//       File? profile,
+//       required String first_name,
+//       required String t_id,
+//       required String gst_no,
+//       String last_name = '',
+//       required String contact_no,
+//       String alt_contact_no = '',
+//       String email = '',
+//       required String dob,
+//       required String gender,
+//       required String marital_status,
+//       String anni_date = '',
+//       required String country,
+//       required String state,
+//       required String district,
+//       required String city,
+//       required String pincode,
+//       required String address,
+//       required List<Map<String, dynamic>> emergency_details,
+//     }) async {
+//   final userToken = Pref.instance.getString(Consts.user_token);
+//
+//   try {
+//     final url = Uri.https(Urls.base_url, '/api/edit-details/');
+//
+//     final request = http.MultipartRequest('POST', url);
+//     request.headers['Authorization'] = 'Bearer $userToken';
+//
+//     // Add text fields
+//     request.fields.addAll({
+//       'fname': first_name,
+//       'lname': last_name,
+//       'alt_cont_no': alt_contact_no,
+//       'contact_no': contact_no,
+//       'dob': dob,
+//       'gender': gender,
+//       'mar_status': marital_status,
+//       'ann_date': anni_date,
+//       'email': email,
+//       'address': address,
+//       'city': city,
+//       'state': state,
+//       'pin': pincode,
+//       'country': country,
+//       'dist': district,
+//       'gst_no': gst_no,
+//     });
+//
+//     // t_id and emergency_details should be sent as JSON strings
+//     request.fields['t_id'] = jsonEncode([t_id]);
+//     request.fields['emergency_contact_details'] = jsonEncode(emergency_details);
+//
+//     // Attach file if available
+//     if (profile != null) {
+//       final mimeType = lookupMimeType(profile.path) ?? 'image/jpeg';
+//       final fileStream = http.ByteStream(profile.openRead());
+//       final fileLength = await profile.length();
+//
+//       request.files.add(http.MultipartFile(
+//         'photo', // ✅ field name expected by backend
+//         fileStream,
+//         fileLength,
+//         filename: profile.path.split('/').last,
+//         contentType: MediaType.parse(mimeType),
+//       ));
+//     }
+//
+//     final streamedResponse = await request.send();
+//     final response = await http.Response.fromStream(streamedResponse);
+//
+//     print('Status Code: ${response.statusCode}');
+//     print('Response Body: ${response.body}');
+//
+//     if (response.statusCode == 200 || response.statusCode == 201) {
+//       return jsonDecode(response.body) as Map<String, dynamic>;
+//     } else {
+//       handleHttpResponse(context, response);
+//     }
+//   } catch (e, s) {
+//     print('Exception in updateDetails: $e');
+//     print('Stack trace: $s');
+//   }
+//
+//   return null;
+// }
+
+
+}
+
+class _GetUserDetails{
+  final BuildContext context;
+  _GetUserDetails({required this.context});
+  Future<Map<String,dynamic>?> getUserLoginData() async{
+    final userToken = Pref.instance.getString(Consts.user_token);
+    try{
+      final url = Uri.https(Urls.base_url,'/api/edit-details/');
+      final request = http.MultipartRequest('GET', url)
+        ..headers['Authorization'] = 'Bearer ${userToken}';
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+      if(response.statusCode == 200){
+        final body = json.decode(response.body) as Map<String,dynamic>;
+        final status = body['isScuss'];
+        if(status){
+          return body;
+        }
+      }else{
+        print('https Response: ${response.body}');
+        handleHttpResponse(context, response);
+      }
+    }catch(exception,trace){
+      print('Exception: ${exception},Trace: ${trace}');
+    }
+    return null;
+  }
+  Future<UserDetailsData?> getUserLoginDataInModel() async{
+    final dataFromAPI = await getUserLoginData();
+    if(dataFromAPI != null){
+      return LoginDetailsData.fromJson(dataFromAPI).data;
+    }
+    return null;
+  }
+}
+
+class _KYCDetailsAPI {
+  final BuildContext context;
+  _KYCDetailsAPI({required this.context});
+  // factory _KYCDetailsAPI({required BuildContext context}) =>
+  //     _KYCDetailsAPI._(context: context);
+
+  Future<Map<String, dynamic>?> getKYCDetails() async {
+    final userToken = Pref.instance.getString(Consts.user_token);
+    try {
+      final url = Uri.https(Urls.base_url, '/api/edit-kyc-details/');
+
+      final response = await get(
+        url,
+        headers: {'Authorization': 'Bearer ${userToken}'},
+      );
+
+      if (response.statusCode == 200) {
+        final body = json.decode(response.body) as Map<String, dynamic>;
+        final status = body['isScuss'];
+        if (status) {
+          return body['data'];
+        }
+      } else {
+        print(
+          'response body: ${response.body},Status Code: ${response.statusCode}',
+        );
+        handleHttpResponse(context, response);
+      }
+    } catch (exception, trace) {
+      print('Exception: ${exception},Trace: ${trace}');
+    }
+    return null;
+  }
+
+  Future<Map<String, dynamic>?> updateOrCreateKYC({
+    required List<ProofModel> idProofs,
+    required List<ProofModel> addressProofs,
+    required Map<String, dynamic> bankDetails,
+  }) async {
+    final userToken = Pref.instance.getString(Consts.user_token);
+
+
+    try {
+      final url = Uri.https(Urls.base_url, '/api/edit-kyc-details/');
+      final request = http.MultipartRequest('POST', url)
+        ..headers['Authorization'] = 'Bearer $userToken';
+
+      if (idProofs.isNotEmpty) {
+        idProofs.forEach((p) async {
+          switch (p.type) {
+            case 'Pan Card':
+              request.fields['id_pan'] = p.idNumber;
+              if(p.frontImage != null) request.files.add(
+                await http.MultipartFile.fromPath(
+                  'id_pan_front',
+                  p.frontImage!.path,
+                ),
+              );
+              if(p.backImage != null) request.files.add(await http.MultipartFile.fromPath(
+                  'id_pan_back',
+                  p.backImage!.path
+              ));
+              break;
+            case 'Aadhaar Card':
+              request.fields['id_aadhar'] = p.idNumber;
+              if(p.frontImage != null) request.files.add(
+                await http.MultipartFile.fromPath(
+                  'id_aadhar_front',
+                  p.frontImage!.path,
+                ),
+              );
+              if(p.backImage != null) request.files.add(await http.MultipartFile.fromPath(
+                  'id_aadhar_back',
+                  p.backImage!.path
+              ));
+              break;
+            case 'Passport':
+              request.fields['id_pass'] = p.idNumber;
+              if(p.frontImage != null) request.files.add(
+                await http.MultipartFile.fromPath(
+                  'id_pass_front',
+                  p.frontImage!.path,
+                ),
+              );
+              if(p.backImage != null) request.files.add(await http.MultipartFile.fromPath(
+                  'id_pass_back',
+                  p.backImage!.path
+              ));
+              break;
+            case 'Voter ID':
+              request.fields['id_voter'] = p.idNumber;
+              if(p.frontImage != null)  request.files.add(
+                await http.MultipartFile.fromPath(
+                  'id_voter_front',
+                  p.frontImage!.path,
+                ),
+              );
+              if(p.backImage != null) request.files.add(await http.MultipartFile.fromPath(
+                  'id_voter_back',
+                  p.backImage!.path
+              ));
+              break;
+            case 'Driving License':
+              request.fields['id_dl'] = p.idNumber;
+              if(p.frontImage != null) request.files.add(
+                await http.MultipartFile.fromPath(
+                  'id_dl_front',
+                  p.frontImage!.path,
+                ),
+              );
+              if(p.backImage != null) request.files.add(await http.MultipartFile.fromPath(
+                  'id_dl_back',
+                  p.backImage!.path
+              ));
+              break;
+          }
+        });
+      }
+
+      if(addressProofs.isNotEmpty){
+        addressProofs.forEach((p)async{
+          switch(p.type){
+            case 'Aadhaar Card':
+              request.fields['add_aadhar'] = p.idNumber;
+              if(p.frontImage != null) request.files.add(
+                await http.MultipartFile.fromPath(
+                  'add_aadhar_front',
+                  p.frontImage!.path,
+                ),
+              );
+              if(p.backImage != null) request.files.add(await http.MultipartFile.fromPath(
+                  'add_aadhar_back',
+                  p.backImage!.path
+              ));
+              break;
+            case 'Bank Passbook':
+              request.fields['add_pass'] = p.idNumber;
+              if(p.frontImage != null) request.files.add(
+                await http.MultipartFile.fromPath(
+                  'add_pass_front',
+                  p.frontImage!.path,
+                ),
+              );
+              if(p.backImage != null) request.files.add(await http.MultipartFile.fromPath(
+                  'add_pass_back',
+                  p.backImage!.path
+              ));
+              break;
+            case 'Gas Bill':
+              request.fields['add_gas'] = p.idNumber;
+              if(p.frontImage != null) request.files.add(
+                await http.MultipartFile.fromPath(
+                  'add_gas_front',
+                  p.frontImage!.path,
+                ),
+              );
+              if(p.backImage != null) request.files.add(await http.MultipartFile.fromPath(
+                  'add_gas_back',
+                  p.backImage!.path
+              ));
+              break;
+            case 'Electricity Bill':
+              request.fields['add_electricity'] = p.idNumber;
+              if(p.frontImage != null) request.files.add(
+                await http.MultipartFile.fromPath(
+                  'add_electricity_front',
+                  p.frontImage!.path,
+                ),
+              );
+              if(p.backImage != null) request.files.add(await http.MultipartFile.fromPath(
+                  'add_electricity_back',
+                  p.backImage!.path
+              ));
+              break;
+          }
+        });
+      }
+
+      bankDetails.forEach((key,value)async{
+        if(value != null){
+          if(value is File){
+            request.files.add(await http.MultipartFile.fromPath(
+                key,
+                value.path
+            ));
+          }else{
+            request.fields[key] = value;
+          }
+        }
+      });
+
+      final streamResponse = await request.send();
+      final response = await http.Response.fromStream(streamResponse);
+      print(' Response: ${response.body} with status code: ${response.statusCode}');
+      if(response.statusCode == 200 || response.statusCode == 201){
+        return json.decode(response.body) as Map<String,dynamic>;
+      }else{
+        handleHttpResponse(context, response);
+      }
+    } catch (exception, trace) {
+      print('Exception: $exception , Trace: $trace');
+    }
+    return null;
+  }
+}
+
+class _WarrantyRelated{
+  final BuildContext context;
+  _WarrantyRelated({required this.context});
+  
+  Future<Map<String,dynamic>?> warrantyRegistration({
+    required String warrantyType,
+    required String warrantyNumber
+})async{
+    final userToken = Pref.instance.getString(Consts.user_token);
+    
+    try{
+      final url = Uri.https(Urls.base_url,Urls.warrantyRegistration);
+      final headers = {
+        'Authorization' : 'Bearer ${userToken}',
+        'Content-Type' : 'Application/json'
+      };
+
+      final body = jsonEncode({
+        "warranty_type": warrantyType,
+        "warranty_number": warrantyNumber
+      });
+
+      final response = await post(url,headers: headers,body: body);
+
+      print('Response Code: ${response.statusCode}, body: ${response.body}');
+      if(response.statusCode == 200 || response.statusCode == 201){
+        final data = json.decode(response.body) as Map<String,dynamic>;
+        return data;
+      }else{
+        handleHttpResponse(context, response);
+      }
+    }catch(exception,trace){
+      print('Exception: $exception , Trace: $trace');
+    }
+    return null;
+  }
+
 }

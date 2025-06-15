@@ -37,7 +37,7 @@ class _ChannelPartnerClaimScreenState extends State<ChannelPartnerClaimScreen> {
   }
 
   void _fetchClaimData(){
-    final invoiceClaimObj = APIService(context: context).invoiceClaim;
+    final invoiceClaimObj = APIService.getInstance(context).invoiceClaim;
     setState(() {
       _futureClaims = selectedTabIndex == 0
           ? invoiceClaimObj.getClaimList()
@@ -79,7 +79,7 @@ class _ChannelPartnerClaimScreenState extends State<ChannelPartnerClaimScreen> {
   }
 
   Future<void> _onRefresh()async{
-    final invoiceClaimObj = APIService(context: context).invoiceClaim;
+    final invoiceClaimObj = APIService.getInstance(context).invoiceClaim;
     if(selectedTabIndex == 0){
       final data = await invoiceClaimObj.getClaimList();
       if(data!=null){
@@ -1049,7 +1049,7 @@ class _ClaimReportingActionsState extends State<_ClaimReportingActions> {
     setState(() {
       _isLoading = true;
     });
-    final response = await APIService(context: context).invoiceClaim.claimRecall(claimID: widget.claimId, finalClaimAmount: int.tryParse(_claimAmountController.text)??0, status: 'confirmed');
+    final response = await APIService.getInstance(context).invoiceClaim.claimRecall(claimID: widget.claimId, finalClaimAmount: int.tryParse(_claimAmountController.text)??0, status: 'confirmed');
     if(response != null){
       final status = response['isScuss'];
       showSimpleSnackBar(context: context, message: response['messages'],status: status);
@@ -1070,7 +1070,7 @@ class _ClaimReportingActionsState extends State<_ClaimReportingActions> {
     setState(() {
       _isLoading = true;
     });
-    final resopnse = await APIService(context: context).invoiceClaim.cancelClaim(claimID: widget.claimId, claimStatus: 'cancelled', remakrs: _remarkController.text);
+    final resopnse = await APIService.getInstance(context).invoiceClaim.cancelClaim(claimID: widget.claimId, claimStatus: 'cancelled', remakrs: _remarkController.text);
     if(resopnse != null){
       final status = resopnse['isScuss'];
       showSimpleSnackBar(context:context,message: resopnse['messages'],status: status);

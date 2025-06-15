@@ -352,7 +352,7 @@ class _LoginScreenState extends State<LoginScreen> {
           String? number = rawData['data']['number'];
           String? email = rawData['data']['email'];
           String? photo = rawData['data']['photo'];
-          bool? orderForCompany = rawData['data']['photo'];
+          bool? orderForCompany = rawData['data']['order_from_company'];
           Pref.instance.setString('photo', photo??'');
           Pref.instance.setBool('order_from_company', orderForCompany??false);
           Pref.instance.setBool(Consts.isLogin, true);

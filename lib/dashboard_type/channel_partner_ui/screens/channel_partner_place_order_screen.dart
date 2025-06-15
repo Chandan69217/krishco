@@ -55,7 +55,7 @@ class _ChannelPartnerPlaceOrderScreenState extends State<ChannelPartnerPlaceOrde
   }
 
   void _getEnterprises()async{
-    final taggedEnterpriseObj = APIService(context:context).taggedEnterprise;
+    final taggedEnterpriseObj = APIService.getInstance(context).taggedEnterprise;
     final data = await taggedEnterpriseObj.getTaggedEnterpriseOfLoginCustomer();
     if(data !=null){
       taggedEnterprise.value = EnterpriseDetailsListData.fromJson(data);
@@ -702,7 +702,7 @@ class _ChannelPartnerPlaceOrderScreenState extends State<ChannelPartnerPlaceOrde
                       _quantityController.text = '';
                       _productList.value = null;
                       if (val != null) {
-                        final response = await APIService(context: context)
+                        final response = await APIService.getInstance(context)
                             .productDetails
                             .getProdDetailsByProductID(val);
                         if (response != null) {
@@ -1011,7 +1011,7 @@ class _ChannelPartnerPlaceOrderScreenState extends State<ChannelPartnerPlaceOrde
 
 
   void _getProductCategoryList() async{
-    final response = await APIService(context: context).productDetails.getProductCategory();
+    final response = await APIService.getInstance(context).productDetails.getProductCategory();
     if(response !=  null){
       _productCategoryList.value = ProductCategoryListData.fromJson(response);
     }
@@ -1061,7 +1061,7 @@ class _ChannelPartnerPlaceOrderScreenState extends State<ChannelPartnerPlaceOrde
     }).toList();
     final Map<String,dynamic>? response;
     if(_orderFor == 'self'){
-      response = await APIService(context:context).orderRelated.orderForSelf(
+      response = await APIService.getInstance(context).orderRelated.orderForSelf(
           orderBill: _selectedFile,
           orderForm: _enterpriseDetails,
           orderFromOther: _isEnterpriseNotListed?{
@@ -1072,7 +1072,7 @@ class _ChannelPartnerPlaceOrderScreenState extends State<ChannelPartnerPlaceOrde
           productDetails: products
       );
     }else{
-      response = await APIService(context:context).orderRelated.orderForOthers(
+      response = await APIService.getInstance(context).orderRelated.orderForOthers(
           orderBill: _selectedFile,
           orderForm: _enterpriseDetails,
           orderForDetails: {

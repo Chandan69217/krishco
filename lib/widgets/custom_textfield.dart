@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 // class CustomTextField extends StatelessWidget {
 //   final String hintText;
@@ -64,7 +65,9 @@ class CustomFormTextField extends StatelessWidget {
   final String? label;
   final int? maxLength;
   final Key? key;
+  final TextCapitalization? textCapitalization;
   final String? Function(String? value)? validator;
+  final List<TextInputFormatter>? textInputFormatter;
 
   CustomFormTextField({
     this.hintText,
@@ -80,6 +83,8 @@ class CustomFormTextField extends StatelessWidget {
     this.maxLength,
     this.key,
     this.isborder = true,
+    this.textCapitalization,
+    this.textInputFormatter
   });
 
   @override
@@ -91,8 +96,10 @@ class CustomFormTextField extends StatelessWidget {
       children: [
         if(label != null) Text(label!,style: TextStyle(height: 2),),
         TextFormField(
+          inputFormatters: textInputFormatter,
           controller: controller,
           obscureText: obscureText,
+          textCapitalization: textCapitalization??TextCapitalization.none,
           keyboardType: keyboardType,
           validator: validator,
           maxLength: maxLength,
@@ -134,4 +141,5 @@ class CustomFormTextField extends StatelessWidget {
     );
   }
 }
+
 

@@ -36,7 +36,7 @@ class _ConsumerClaimScreenState extends State<ConsumerClaimScreen> {
   }
 
   void _fetchClaimData(){
-    final invoiceClaimObj = APIService(context: context).invoiceClaim;
+    final invoiceClaimObj = APIService.getInstance(context).invoiceClaim;
     setState(() {
       _futureClaims = selectedTabIndex == 0
           ? invoiceClaimObj.getClaimList()
@@ -78,7 +78,7 @@ class _ConsumerClaimScreenState extends State<ConsumerClaimScreen> {
   }
 
   Future<void> _onRefresh()async{
-    final invoiceClaimObj = APIService(context: context).invoiceClaim;
+    final invoiceClaimObj = APIService.getInstance(context).invoiceClaim;
     if(selectedTabIndex == 0){
       final data = await invoiceClaimObj.getClaimList();
       if(data!=null){
