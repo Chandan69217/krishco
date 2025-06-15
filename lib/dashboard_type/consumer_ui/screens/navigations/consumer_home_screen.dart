@@ -94,13 +94,13 @@ class ConsumerHomeScreen extends StatelessWidget{
                      Navigator.of(context).push(MaterialPageRoute(builder: (context)=> NewInstallationReqScreen()));
                    },
                  ),
-                 ButtonWidget(
-                   icon: FontAwesomeIcons.headset,
-                   text: 'Customer Care',
-                   onPressed: () {
-                     _launchDialer('+919876543210');
-                   },
-                 ),
+                 // ButtonWidget(
+                 //   icon: FontAwesomeIcons.headset,
+                 //   text: 'Customer Care',
+                 //   onPressed: () {
+                 //     _launchDialer('+919876543210');
+                 //   },
+                 // ),
                  ButtonWidget(
                    icon: FontAwesomeIcons.boxOpen,
                    text: 'New Arrivals',
@@ -109,8 +109,8 @@ class ConsumerHomeScreen extends StatelessWidget{
                    },
                  ),
                  ButtonWidget(
-                   icon: FontAwesomeIcons.mapMarkerAlt,
-                   text: 'Nearest Plumbers',
+                   icon: Icons.verified_user,
+                   text: 'Warranty Registration',
                    onPressed: () {},
                  ),
                ],

@@ -2,16 +2,18 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:krishco/dashboard_type/channel_partner_ui/api_service/get_user_details.dart';
 import 'package:krishco/dashboard_type/channel_partner_ui/models/login_details_data.dart';
+import 'package:krishco/dashboard_type/consumer_ui/screens/consumer_change_password_screen.dart';
 import 'package:krishco/screens/authentication/login_screen.dart';
 import 'package:krishco/screens/splash/splash_screen.dart';
 import 'package:krishco/utilities/constant.dart';
 import 'package:krishco/utilities/cust_colors.dart';
 import 'consumer_edit_deatils_screen.dart';
-import 'navigations/consumer_aboutus_screen.dart';
+import 'customer_notification_screen.dart';
+import 'navigations/consumer_support_screen.dart';
 import 'navigations/consumer_claim_screen.dart';
 import 'navigations/consumer_home_screen.dart';
 import 'navigations/consumer_new_arrivals_screen.dart';
-import 'navigations/consumer_profile_screen.dart';
+import 'navigations/consumer_redemption_screen.dart';
 
 class ConsumerDashboard extends StatefulWidget {
   @override
@@ -20,13 +22,12 @@ class ConsumerDashboard extends StatefulWidget {
 
 class _ConsumerDashboardState extends State<ConsumerDashboard> {
   int _currentIndex = 0;
-  final List<String> _titles = ['Home','New Arrivals','Claim','Profile','About Us'];
+  final List<String> _titles = ['Home','New Arrivals','Redemption','Support',];
   final List<Widget> _screens = [
     ConsumerHomeScreen(),
     ConsumerNewArrivalsScreen(),
-    ConsumerClaimScreen(),
-    ConsumerProfileScreen(),
-    ConsumerAboutusScreen(),
+    ConsumerRedemptionScreen(),
+    ConsumerSupportScreen(),
   ];
 
   @override
@@ -38,16 +39,15 @@ class _ConsumerDashboardState extends State<ConsumerDashboard> {
   Widget build(BuildContext context) {
     final mediaQuery = MediaQuery.of(context);
     final screenWidth = mediaQuery.size.width;
-    final screenHeight = mediaQuery.size.height;
+
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(_titles[_currentIndex]),
-      ),
+      appBar: _appBar(),
       body: _screens[_currentIndex],
       bottomNavigationBar: _buildBottomNavigationBar(screenWidth),
       drawer: _drawerUi(),
     );
+
   }
 
   BottomNavigationBarItem _bottomNavBarItem({
@@ -74,12 +74,48 @@ class _ConsumerDashboardState extends State<ConsumerDashboard> {
         items: [
           _bottomNavBarItem(label: 'Home', iconData: Icons.home),
           _bottomNavBarItem(label: 'New Arrivals', iconData: Icons.inventory_2),
-          _bottomNavBarItem(label: 'Claims', iconData: Icons.receipt_long),
-          _bottomNavBarItem(label: 'Profile', iconData: Icons.person),
-          _bottomNavBarItem(label: 'About Us', iconData: Icons.business),
+          _bottomNavBarItem(label: 'Redemption', iconData: Icons.card_giftcard),
+          _bottomNavBarItem(label: 'Support', iconData: Icons.support_agent),
         ]);
   }
 
+  AppBar _appBar() {
+    return AppBar(
+      shape: _currentIndex == 3 ? const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(bottom: Radius.circular(0))):null,
+      title: Text(
+        _titles[_currentIndex],
+        style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: Colors.white),
+      ),
+      actions: [
+        // IconButton(onPressed: (){
+        //   // Navigator.of(context).push(MaterialPageRoute(builder: (context)=> ScanCodeScreen()));
+        // }, icon: Icon(Icons.qr_code_scanner)),
+        Stack(
+          children: [
+            IconButton(
+              icon: Icon(Icons.notifications, color: CustColors.white),
+              onPressed: () {
+                Navigator.of(context).push(MaterialPageRoute(builder: (context)=> ConsumerNotificationScreen()));
+              },
+            ),
+            Positioned(
+              right: 8,
+              top: 8,
+              child: CircleAvatar(
+                radius: 8,
+                backgroundColor: Colors.green,
+                child: const Text(
+                  "1",
+                  style: TextStyle(fontSize: 12, color: Colors.white),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
 
   Drawer _drawerUi() {
     return Drawer(
@@ -159,7 +195,7 @@ class _ConsumerDashboardState extends State<ConsumerDashboard> {
                       ),
                       Divider(height: 2,),
                       _buildMenu(iconData: Icons.lock, label: 'Change Password',onTap: (){
-                        // Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ChannelPartnerChangePasswordScreen()));
+                        Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ConsumerChangePasswordScreen()));
                       }),
                       _buildMenu(iconData: Icons.logout, label: 'Logout',onTap: (){
                         Pref.instance.clear();
