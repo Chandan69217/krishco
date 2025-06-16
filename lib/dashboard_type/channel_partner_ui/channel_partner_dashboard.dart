@@ -132,7 +132,7 @@ class _ChannelPartnerDashboardState extends State<ChannelPartnerDashboard> {
                           width: 130.0,
                             height: 130.0,
                             borderRadius: BorderRadius.circular(80.0),
-                            imageUrl:value?.photo ??'',
+                            imageUrl:value?.photo,
                         ),
 
                         // CircleAvatar(

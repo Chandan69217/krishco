@@ -140,7 +140,7 @@ class _ConsumerDashboardState extends State<ConsumerDashboard> {
                           width: 130.0,
                           height: 130.0,
                           borderRadius: BorderRadius.circular(80.0),
-                          imageUrl:value?.photo ??'',
+                          imageUrl:value?.photo,
                         ),
                         // CircleAvatar(
                         //   radius: 60.0,

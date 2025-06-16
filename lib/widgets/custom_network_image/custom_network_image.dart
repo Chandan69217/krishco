@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 class CustomNetworkImage extends StatelessWidget {
   final String? imageUrl;
-  final File? imageFile;
+  final File? selectedFile;
   final String? placeHolder;
   final double width;
   final double height;
@@ -13,11 +13,11 @@ class CustomNetworkImage extends StatelessWidget {
 
   const CustomNetworkImage({
     Key? key,
-    required this.imageUrl,
+    this.imageUrl,
     this.width = 100,
     this.height = 100,
     this.borderRadius,
-    this.imageFile,
+    this.selectedFile,
     this.placeHolder,
     this.fit = BoxFit.cover,
   }) : super(key: key);
@@ -26,22 +26,27 @@ class CustomNetworkImage extends StatelessWidget {
   Widget build(BuildContext context) {
     return ClipRRect(
       borderRadius: borderRadius ?? BorderRadius.circular(10.0),
-      child: imageFile != null ? 
+      child: selectedFile != null ?
           Image.file(
-            imageFile!,
+            selectedFile!,
             width: width,
             height: height,
             fit: BoxFit.cover,
           )
-          : FadeInImage.assetNetwork(
+          : imageUrl==null || imageUrl!.isEmpty ?  Image.asset(
+        placeHolder??'assets/logo/Placeholder_image.webp',
+        width: width,
+        height: height,
+        fit: fit,
+      ): FadeInImage.assetNetwork(
         width: width,
         height: height,
         placeholder: placeHolder??'assets/logo/Placeholder_image.webp',
-        image: imageUrl?.isNotEmpty == true ? imageUrl! : '',
+        image: imageUrl!,
         fit: fit,
         imageErrorBuilder: (context, error, stackTrace) {
           return Image.asset(
-            'assets/logo/Placeholder_image.webp',
+            placeHolder??'assets/logo/Placeholder_image.webp',
             width: width,
             height: height,
             fit: fit,

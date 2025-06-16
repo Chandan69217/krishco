@@ -1077,12 +1077,12 @@ class _ProfileUpdateSectionState extends State<ProfileUpdateSection> {
             child: Stack(
               children: [
                 CustomNetworkImage(
-                  imageFile:  widget.selectedImageFile,
+                  selectedFile:  widget.selectedImageFile,
                   placeHolder: 'assets/logo/dummy_profile.webp',
                   width: 130.0,
                   height: 130.0,
                   borderRadius: BorderRadius.circular(80.0),
-                  imageUrl: widget.imageUrl ??'',
+                  imageUrl: widget.imageUrl,
                 ),
                 // CircleAvatar(
                 //   radius: 60,

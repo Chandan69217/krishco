@@ -831,13 +831,18 @@ class _EditDetails {
         }else{
           print('Invalid Profile Picture');
         }
-        print('Profile Base64:${base64Profile} ');
       }
 
       String? base64GSTCopy;
       if(gst_copy != null){
-        final bytes = await gst_copy.readAsBytes();
-        base64GSTCopy = base64Encode(bytes);
+        final extension = gst_copy.path.split('.').last.toLowerCase();
+        if(['png','jpg','jpeg'].contains(extension)){
+          final bytes = await gst_copy.readAsBytes();
+          final mediaType = extension == 'png' ? 'image/png':'image/jpeg';
+          base64GSTCopy = 'data:$mediaType;base64,${base64Encode(bytes)}';
+        }else{
+          print('Invalid GST Copy File');
+        }
       }
 
       final body = {
@@ -863,6 +868,7 @@ class _EditDetails {
         'photo': base64Profile,
       };
 
+      print('body: $body');
       final response = await http.post(
         url,
         headers: {
@@ -1251,6 +1257,29 @@ class _WarrantyRelated{
       }
     }catch(exception,trace){
       print('Exception: $exception , Trace: $trace');
+    }
+    return null;
+  }
+
+  Future<Map<String,dynamic>?> getWarrantyRegistrationList()async{
+    final userToken = Pref.instance.getString(Consts.user_token);
+    try{
+      final url = Uri.https(Urls.base_url,Urls.warrantyList);
+      final response = await get(url,headers: {
+        'Authorization' : 'Bearer $userToken'
+      });
+      print('response code: ${response.statusCode} , Body: ${response.body}');
+      if(response.statusCode == 200){
+        final body = json.decode(response.body) as Map<String,dynamic>;
+        final status = body['isScuss'];
+        if(status){
+          return body;
+        }
+      }else{
+        handleHttpResponse(context, response);
+      }
+    }catch(exception,trace){
+      print('Exception: $exception trace: $trace',);
     }
     return null;
   }

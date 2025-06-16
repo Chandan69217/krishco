@@ -1,13 +1,21 @@
+import 'dart:convert';
 import 'dart:developer';
 
+import 'package:custom_refresh_indicator/custom_refresh_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:http/http.dart';
 import 'package:intl/intl.dart';
 import 'package:krishco/api_services/api_service.dart';
+import 'package:krishco/api_services/api_urls.dart';
+import 'package:krishco/api_services/handle_https_response.dart';
+import 'package:krishco/screens/splash/splash_screen.dart';
+import 'package:krishco/utilities/constant.dart';
 import 'package:krishco/utilities/full_screen_loading.dart';
 import 'package:krishco/utilities/permission_handler.dart';
 import 'package:krishco/widgets/cust_dialog_box/cust_dialog_box.dart';
+import 'package:krishco/widgets/custom_network_image/custom_network_image.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:qr_code_scanner_plus/qr_code_scanner_plus.dart';
 import 'package:krishco/widgets/custom_button.dart';
@@ -136,7 +144,7 @@ class _ScanCodeScreenState extends State<ScanCodeScreen> {
                     alignment: Alignment.centerRight,
                     child: TextButton(
                       onPressed: () {
-
+                        Navigator.of(context).push(MaterialPageRoute(builder: (context)=> WarrantyRegistrationListScreen()));
                       },
                       style: TextButton.styleFrom(
                         foregroundColor: Colors.black,
@@ -467,7 +475,6 @@ class _HomeDashboardScreenState extends State<ScannerScreen> {
 }
 
 
-
 class CustomSerialNumberFormatter extends TextInputFormatter {
   // static final _regExp = RegExp(r'^[A-Z]{0,2}[0-9]{0,6}-?[0-9]{0,2}$');
 
@@ -496,3 +503,528 @@ class CustomSerialNumberFormatter extends TextInputFormatter {
     );
   }
 }
+
+
+
+
+
+class WarrantyRegistrationListScreen extends StatefulWidget {
+
+  const WarrantyRegistrationListScreen({super.key});
+
+  @override
+  State<WarrantyRegistrationListScreen> createState() => _WarrantyRegistrationListScreenState();
+}
+
+class _WarrantyRegistrationListScreenState extends State<WarrantyRegistrationListScreen> {
+  ValueNotifier<List<dynamic>> filteredData = ValueNotifier<List<dynamic>>([]);
+  List<dynamic> data = [];
+  String searchQuery = '';
+  late Future<Map<String,dynamic>?> futureWarrantyList;
+  @override
+  void initState() {
+    super.initState();
+    futureWarrantyList = APIService.getInstance(context).warrantyRelated.getWarrantyRegistrationList();
+  }
+
+  void _search(String query) {
+    searchQuery = query.toLowerCase();
+    filteredData.value = data.where((item) {
+      final customerName = item['customer']['name']?.toLowerCase() ?? '';
+      final productName = item['qrcode']['product']['name']?.toLowerCase() ?? '';
+      final qrCode = item['qrcode']['qrCodeId']?.toLowerCase() ?? '';
+      return customerName.contains(searchQuery) ||
+          productName.contains(searchQuery) ||
+          qrCode.contains(searchQuery);
+    }).toList();
+  }
+
+
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Warranty Registrations'),
+      ),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: TextField(
+              onChanged: _search,
+              decoration: InputDecoration(
+                hintText: 'Search by customer, product or QR ID',
+                prefixIcon: const Icon(Icons.search),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+            ),
+          ),
+          Expanded(
+            child: CustomRefreshIndicator(
+                  onRefresh: ()async {
+                    final data = await APIService.getInstance(context).warrantyRelated.getWarrantyRegistrationList();
+                    if(data != null){
+                      final status =  data['isScuss'];
+                      if(status){
+                        filteredData.value = data['data'];
+                      }
+                    }
+                  },
+                  builder: (BuildContext context, Widget child, IndicatorController controller) {
+                    return Stack(
+                      alignment: Alignment.topCenter,
+                      children: [
+                        if (controller.isLoading)
+                          Padding(
+                            padding: EdgeInsets.only(top: 16.0),
+                            child: CircularProgressIndicator(color: Colors.blue.shade600,),
+                          ),
+                        Transform.translate(
+                          offset: Offset(0, 100 * controller.value),
+                          child: child,
+                        ),
+                      ],
+                    );
+                  },
+                  child: FutureBuilder(future: futureWarrantyList, builder:(context,snapshot){
+                    if(snapshot.connectionState == ConnectionState.waiting){
+                      return Center(
+                        child: SizedBox.square(
+                          dimension: 25.0,
+                          child: CircularProgressIndicator(
+                            color: CustColors.nile_blue,
+                          ),
+                        ),
+                      );
+                    }
+
+                    if(snapshot.hasData){
+                      data = snapshot.data!['data'];
+                      if(data.isEmpty){
+                        return Center(
+                          child: Text('Empty'),
+                        );
+                      }
+
+                      WidgetsBinding.instance.addPostFrameCallback((duration){
+                        filteredData.value = data;
+                      });
+
+                      return ValueListenableBuilder(valueListenable: filteredData, builder: (context,value,child){
+                        if(value.isEmpty){
+                          return Center(
+                              child: const Center(child: Text('No matching records found.'))
+                          );
+                        }
+                        return ListView.builder(
+                          itemCount: value.length,
+                          itemBuilder: (context, index) {
+                            return WarrantyCard(
+                              onTap: (){
+                                Navigator.of(context).push(MaterialPageRoute(builder: (context)=>WarrantyDetailsScreen(warrantyId: value[index]['id'].toString(),)));
+                              },
+                              item: value[index],
+                            );
+                          },
+                        );
+                      });
+
+                    }else{
+                     return Center(
+                        child: Text('Something went wrong !'),
+                      );
+                    }
+                  })
+                ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+
+
+
+
+class WarrantyCard extends StatelessWidget {
+  final Map<String, dynamic> item;
+  final VoidCallback? onTap;
+
+  const WarrantyCard({super.key, required this.item,this.onTap});
+
+  String _formatDate(String date) {
+    return date.split(" ").first;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final customer = item['customer'] ?? {};
+    final product = item['qrcode']?['product'] ?? {};
+    final qrcode = item['qrcode'] ?? {};
+
+    final String status = (item['status'] ?? '').toString().toUpperCase();
+    final bool isActive = status == 'ACTIVE';
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: EdgeInsets.symmetric(horizontal: 12.0,vertical: 8.0),
+        // padding: EdgeInsets.all(8.0),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12.0),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black12,
+              offset: Offset(0, 4),
+              blurRadius: 12,
+            )
+          ]
+        ),
+        child: Stack(
+          children: [
+            // Custom Warranty Watermark
+            Positioned.fill(
+              child: Align(
+                alignment: Alignment.center,
+                child: Opacity(
+                  opacity: 0.09,
+                  child: Transform.rotate(
+                    angle: 0,
+                    child: Icon(
+                      Icons.verified,
+                      color: Colors.green,
+                      size: 180.0,
+                    ),
+                    // child: Text(
+                    //   "KRISHCO",
+                    //   style: TextStyle(
+                    //     fontSize: 60,
+                    //     fontWeight: FontWeight.bold,
+                    //     letterSpacing: 12,
+                    //     color: Colors.green[800],
+                    //   ),
+                    // ),
+                  ),
+                ),
+              ),
+            ),
+            // Card with info
+            Padding(
+              padding: const EdgeInsets.all(14),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Product Image
+                  CustomNetworkImage(
+                    imageUrl:  product['photo'],
+                    width: 80,
+                    height: 80,
+                    fit: BoxFit.cover,
+                  ),
+
+                  const SizedBox(width: 12),
+
+                  // Text Info
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Product name
+                        Text(
+                          product['name'] ?? '',
+                          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.teal,
+                          )
+                        ),
+                        const SizedBox(height: 4),
+                        // QR code and serial
+                        Wrap(
+                          spacing: 16,
+                          runSpacing: 4,
+                          children: [
+                            Text("QR: ${qrcode['qrCodeId']}"),
+                            Text("Serial: ${qrcode['serial_no']}"),
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+
+                        // Customer and warranty
+                        Text("Customer: ${customer['name']}"),
+                        Row(
+                          children: [
+                            Text("Warranty: ${item['warranty_period']} months"),
+                            const SizedBox(width: 10),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: isActive ? Colors.green[100] : Colors.red[100],
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Text(
+                                status,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color: isActive ? Colors.green[800] : Colors.red[800],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+
+                        // Dates
+                        Row(
+                          children: [
+                            const Icon(Icons.calendar_today, size: 14, color: Colors.grey),
+                            const SizedBox(width: 4),
+                            Text("From: ${_formatDate(item['warranty_date'])}"),
+                            const SizedBox(width: 12),
+                            Text("To: ${_formatDate(item['expire_date'])}"),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
+
+class WarrantyDetailsScreen extends StatelessWidget {
+  final String warrantyId;
+  const WarrantyDetailsScreen({Key? key,required this.warrantyId}) : super(key: key);
+
+  String _formatDate(String? dateStr) {
+    if (dateStr == null || dateStr.isEmpty) return 'N/A';
+    try {
+      DateTime dateTime = DateTime.parse(dateStr);
+      return DateFormat('dd MMM yyyy, HH:mm').format(dateTime);
+    } catch (e) {
+      return dateStr;
+    }
+  }
+
+  Future<Map<String,dynamic>?> _getWarrantyDetails(BuildContext context)async{
+    final userToken = Pref.instance.getString(Consts.user_token);
+    final url = Uri.https(Urls.base_url,'/api/warranty/${warrantyId}/view/');
+    final response = await get(url,headers: {
+      'Authorization': 'Bearer ${userToken}'
+    });
+
+    print('response code: ${response.statusCode} Body: ${response.body}');
+    if(response.statusCode == 200){
+      final data = json.decode(response.body) as Map<String,dynamic>;
+      return data;
+    }else{
+      WidgetsBinding.instance.addPostFrameCallback((duration){
+        handleHttpResponse(context, response);
+      });
+    }
+    return null;
+  }
+
+
+  @override
+  Widget build(BuildContext context) {
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Warranty Details'),
+      ),
+      body: SafeArea(
+        child: FutureBuilder<Map<String,dynamic>?>(
+          future: _getWarrantyDetails(context),
+          builder:(context,snapshot){
+            if(snapshot.connectionState == ConnectionState.waiting){
+              return Center(
+                child: SizedBox.square(
+                  dimension: 25.0,
+                  child: CircularProgressIndicator(
+                    color: CustColors.nile_blue,
+                  ),
+                ),
+              );
+            }
+            if(snapshot.hasData){
+              final status = snapshot.data!['isScuss'];
+              if(status){
+                final data = snapshot.data!['data'];
+                final customer = data['customer'] ?? {};
+                final qrcode = data['qrcode'] ?? {};
+                final product = qrcode['product'] ?? {};
+                final addedBy = data['add_by'] ?? {};
+                return  ListView(
+                  children: [
+                    CustomNetworkImage(
+                      width: double.infinity,
+                      height: 260,
+                      imageUrl: product['photo'],
+                      fit: BoxFit.cover,
+                      borderRadius: BorderRadius.circular(0),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _sectionHeader("Product Information"),
+                          const SizedBox(height:8.0,),
+                          Text(
+                            product['name'] ?? 'Product Name',
+                            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.teal),
+                          ),
+                          // const SizedBox(height: 12),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    _dataRow("Category", product['catgeory']),
+                                    _dataRow("Price", "₹${product['price']}"),
+                                    _dataRow("Unit", product['unit']),
+                                    _dataRow("QR Code ID", qrcode['qrCodeId']),
+                                    _dataRow("Serial No", qrcode['serial_no']),
+                                    _dataRow("QR Status", qrcode['status']),
+                                  ],
+                                ),
+                              ),
+                              // CustomNetworkImage(
+                              //   width: 100,
+                              //   height: 100,
+                              //   imageUrl: product['photo'],
+                              //   fit: BoxFit.cover,
+                              //   borderRadius: BorderRadius.circular(8),
+                              // ),
+                              // const SizedBox(width: 16),
+                            ],
+                          ),
+
+                          const Divider(height: 32),
+                          _sectionHeader("Customer Details"),
+                          const SizedBox(height: 8),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    _dataRow("Name", customer['name']),
+                                    _dataRow("Group", customer['group_name']),
+                                    _dataRow("Group Type", customer['group_type']),
+                                    _dataRow("Phone", customer['number']),
+                                    _dataRow("Email", customer['email']),
+                                  ],
+                                ),
+                              ),
+                              CustomNetworkImage(
+                                height: 80.0,
+                                width: 80.0,
+                                imageUrl: customer['photo'],
+                                placeHolder: 'assets/logo/dummy_profile.webp',
+                                fit: BoxFit.cover,
+                                borderRadius: BorderRadius.circular(80.0),
+                              ),
+                              const SizedBox(width: 16),
+                            ],
+                          ),
+
+                          const Divider(height: 32),
+                          _sectionHeader("Warranty Information"),
+                          const SizedBox(height: 8),
+                          _iconTextRow(Icons.calendar_today, "Warranty Date: ${_formatDate(data['warranty_date'])}"),
+                          _iconTextRow(Icons.event_available, "Expiry Date: ${_formatDate(data['expire_date'])}"),
+                          _iconTextRow(Icons.timelapse, "Period: ${data['warranty_period']} months"),
+                          _iconTextRow(Icons.info_outline, "Status: ${data['status'].toString().toUpperCase()}"),
+
+                          const Divider(height: 32),
+                          _sectionHeader("Added By"),
+                          const SizedBox(height: 8),
+                          _dataRow("Name", addedBy['name']),
+                          _dataRow("Email", addedBy['email']),
+                          _dataRow("Number", addedBy['number']),
+                          _dataRow("Group", addedBy['group_name']),
+                        ],
+                      ),
+                    )
+                  ],
+                );
+              }else{
+                return Center(
+                  child: Text('Something went wrong !'),
+                );
+              }
+            }else{
+              return Center(
+                child: Text('Something went wrong !'),
+              );
+            }
+          }
+        ),
+      ),
+    );
+  }
+
+  Widget _sectionHeader(String title) {
+    return Text(
+      title,
+      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.black87),
+    );
+  }
+
+  Widget _dataRow(String label, String? value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: Text(
+        "$label: ${value ?? 'N/A'}",
+        style: const TextStyle(fontSize: 16),
+      ),
+    );
+  }
+
+  Widget _iconTextRow(IconData icon, String? text) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: Colors.teal, size: 22),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              text ?? 'N/A',
+              style: const TextStyle(fontSize: 16),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1079,9 +1079,9 @@ class _ProfileUpdateSectionState extends State<ProfileUpdateSection> {
                   placeHolder: 'assets/logo/dummy_profile.webp',
                   width: 130.0,
                   height: 130.0,
-                  imageFile:  widget.selectedImageFile,
+                  selectedFile:  widget.selectedImageFile,
                   borderRadius: BorderRadius.circular(80.0),
-                  imageUrl: widget.imageUrl ??'',
+                  imageUrl: widget.imageUrl,
                 ),
                 // CircleAvatar(
                 //   radius: 60,
