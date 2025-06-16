@@ -20,6 +20,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:qr_code_scanner_plus/qr_code_scanner_plus.dart';
 import 'package:krishco/widgets/custom_button.dart';
 import 'package:krishco/widgets/custom_textfield.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 
 import '../utilities/cust_colors.dart';
 
@@ -732,26 +733,43 @@ class WarrantyCard extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Product name
-                        Text(
-                          product['name'] ?? '',
-                          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.teal,
-                          )
-                        ),
-                        const SizedBox(height: 4),
-                        // QR code and serial
-                        Wrap(
-                          spacing: 16,
-                          runSpacing: 4,
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text("QR: ${qrcode['qrCodeId']}"),
-                            Text("Serial: ${qrcode['serial_no']}"),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Product name
+                                Text(
+                                    product['name'] ?? '',
+                                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.teal,
+                                    )
+                                ),
+                                const SizedBox(height: 4),
+                                // QR code and serial
+                                Wrap(
+                                  spacing: 16,
+                                  runSpacing: 4,
+                                  children: [
+                                    // Text("QR: ${qrcode['qrCodeId']}"),
+                                    Text("Serial: ${qrcode['serial_no']}"),
+                                  ],
+                                ),
+                                const SizedBox(height: 6),
+                              ],
+                            ),
+                            QrImageView(
+                              data: qrcode['qrCodeId'] ?? '',
+                              version: QrVersions.auto,
+                              size: 100,
+                              gapless: false,
+                            ),
                           ],
                         ),
-                        const SizedBox(height: 6),
 
                         // Customer and warranty
                         Text("Customer: ${customer['name']}"),
@@ -911,6 +929,13 @@ class WarrantyDetailsScreen extends StatelessWidget {
                               //   borderRadius: BorderRadius.circular(8),
                               // ),
                               // const SizedBox(width: 16),
+                              QrImageView(
+                                data: qrcode['qrCodeId'] ?? '',
+                                version: QrVersions.auto,
+                                size: 150,
+                                gapless: false,
+                              ),
+                              SizedBox(width:20 ,)
                             ],
                           ),
 
