@@ -42,5 +42,8 @@ static const String getTransportationDetails = '/api/get-transporter-details/';
 static const String warrantyRegistration = '/api/warranty/add/';
 static const String warrantyList = '/api/warranty/list/';
 
+          // Support Related
+static const String supportDetails =  '/api/get-support-details/';
+
 
 }

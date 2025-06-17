@@ -12,14 +12,14 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 
-class ConsumerSupportScreen extends StatefulWidget {
+class ChannelPartnerSupportScreen extends StatefulWidget {
   final bool? showAppBar;
-  ConsumerSupportScreen({super.key,this.showAppBar = false});
+  ChannelPartnerSupportScreen({super.key,this.showAppBar = false});
   @override
-  State<ConsumerSupportScreen> createState() => _ConsumerSupportScreenState();
+  State<ChannelPartnerSupportScreen> createState() => _ChannelPartnerSupportScreenState();
 }
 
-class _ConsumerSupportScreenState extends State<ConsumerSupportScreen> {
+class _ChannelPartnerSupportScreenState extends State<ChannelPartnerSupportScreen> {
 
   late Future<Map<String,dynamic>?> _futureSupportDetails;
 
@@ -165,9 +165,9 @@ class _ConsumerSupportScreenState extends State<ConsumerSupportScreen> {
             onTap: ()async {
               final Uri url = Uri(scheme: 'tel', path: careNumber);
               if (await canLaunchUrl(url)) {
-              await launchUrl(url);
+                await launchUrl(url);
               } else {
-              throw 'Could not launch $url';
+                throw 'Could not launch $url';
               }
             },
           ),
@@ -184,9 +184,9 @@ class _ConsumerSupportScreenState extends State<ConsumerSupportScreen> {
               );
 
               if (await canLaunchUrl(emailLaunchUri)) {
-              await launchUrl(emailLaunchUri);
+                await launchUrl(emailLaunchUri);
               } else {
-              print('Could not launch email');
+                print('Could not launch email');
               }
             },
           ),
@@ -511,8 +511,3 @@ class _SalesSupportSectionState extends State<_SalesSupportSection> {
     );
   }
 }
-
-
-
-
-

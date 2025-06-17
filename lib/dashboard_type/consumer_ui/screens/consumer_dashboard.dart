@@ -45,7 +45,10 @@ class _ConsumerDashboardState extends State<ConsumerDashboard> {
 
     return Scaffold(
       appBar: _appBar(),
-      body: _screens[_currentIndex],
+      body: IndexedStack(
+        index: _currentIndex,
+          children: _screens
+      ),
       bottomNavigationBar: _buildBottomNavigationBar(screenWidth),
       drawer: _drawerUi(),
     );
