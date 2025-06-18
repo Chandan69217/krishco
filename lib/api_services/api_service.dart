@@ -29,6 +29,7 @@ class APIService{
   late final _GetUserDetails getUserDetails;
   late final _KYCDetailsAPI kycDetailsAPI;
   late final _WarrantyRelated warrantyRelated;
+  late final _ConsumersGroup consumersGroup;
 
   APIService._internal({required this.context}){
     productDetails = _ProductDetails(context: context);
@@ -42,6 +43,7 @@ class APIService{
     getUserDetails = _GetUserDetails(context: context);
     kycDetailsAPI = _KYCDetailsAPI(context: context);
     warrantyRelated = _WarrantyRelated(context:context);
+    consumersGroup = _ConsumersGroup(context:context);
   }
 
   static APIService getInstance(BuildContext context){
@@ -1284,4 +1286,32 @@ class _WarrantyRelated{
     return null;
   }
 
+}
+
+class  _ConsumersGroup{
+  final BuildContext context;
+  _ConsumersGroup({required this.context});
+  
+  Future<Map<String,dynamic>?> getConsumerGroup()async{
+    final userToken = Pref.instance.getString(Consts.user_token);
+    try{
+      final url = Uri.https(Urls.base_url,Urls.consumersGroup);
+      final response = await get(url,headers: {
+        'Authorization' : 'Bearer $userToken'
+      });
+      print('response code: ${response.statusCode}, body: ${response.body}');
+      if(response.statusCode == 200){
+        final body = json.decode(response.body) as Map<String,dynamic>;
+        final status = body['isScuss'];
+        if(status){
+          return body;
+        }
+      }else{
+        handleHttpResponse(context, response);
+      }
+    }catch(exception,trace){
+      print('Exception: $exception, Trace: $trace');
+    }
+    return null;
+  }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:krishco/dashboard_type/consumer_ui/screens/consumer_group_details.dart';
 import 'package:krishco/screens/authentication/login_screen.dart';
 import 'package:krishco/screens/scan_code_screen.dart';
 import 'package:krishco/screens/splash/splash_screen.dart';
@@ -116,6 +117,19 @@ class ConsumerHomeScreen extends StatelessWidget{
                      Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ScanCodeScreen(
                        title: 'Warranty Registration',
                      )));
+                   },
+                 ),
+                 ButtonWidget(
+                   icon: Icons.group,
+                   text: 'Others Consumers',
+                   onPressed: () {
+                     Navigator.push(
+                       context,
+                       MaterialPageRoute(
+                         builder: (_) => CustomerDetailsScreen(),
+                       ),
+                     );
+
                    },
                  ),
                ],

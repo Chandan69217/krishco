@@ -45,5 +45,8 @@ static const String warrantyList = '/api/warranty/list/';
           // Support Related
 static const String supportDetails =  '/api/get-support-details/';
 
+          // Consumers Groups
+static const String consumersGroup = '/api/customer-groups/';
+
 
 }
