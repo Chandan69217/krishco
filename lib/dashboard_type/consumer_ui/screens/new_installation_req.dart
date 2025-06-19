@@ -12,8 +12,6 @@ class NewInstallationReqScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: CustColors.yellow,
-        titleSpacing: 0,
         title: Text(
           'New Request',
         ),
