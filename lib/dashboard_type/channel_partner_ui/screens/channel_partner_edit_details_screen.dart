@@ -152,7 +152,7 @@ class _ChannelPartnerEditDetailsScreenState
 
                       _buildGroupSection(
                         title: 'Other Details (Optional)',
-                        child: TransportationDetails(
+                        child: _TransportationDetails(
                           key:_otherDetailsKey,
                           transporationIDs: data.tId ?? [],
                           gstNo: data.gstNo,
@@ -502,8 +502,10 @@ class _ChannelPartnerEditDetailsScreenState
             ),
           ],
         ),
+        const SizedBox(height: 14.0,),
         // _buildTextFormField(controller: _addressController, label: 'Address *', iconData: Icons.home,maxLength: 100,maxLines: 3,),
         TextFormField(
+          style: Theme.of(context).textTheme.bodySmall,
           controller: _addressController,
           maxLines: 3,
           decoration: InputDecoration(
@@ -538,6 +540,7 @@ class _ChannelPartnerEditDetailsScreenState
   }) {
     return TextFormField(
       controller: controller,
+      style: Theme.of(context).textTheme.bodySmall,
       readOnly: readOnly,
       textAlignVertical: TextAlignVertical.center,
       maxLength: isDateField ? 10 : maxLength,
@@ -676,22 +679,22 @@ class _ChannelPartnerEditDetailsScreenState
 
 }
 
-class TransportationDetails extends StatefulWidget {
+class _TransportationDetails extends StatefulWidget {
   final List<String?> transporationIDs;
   final String? gstNo;
   final String? gstCopy;
 
-  TransportationDetails({
+  _TransportationDetails({
     super.key,
     required this.transporationIDs,
     this.gstNo,
     this.gstCopy,
   });
   @override
-  State<TransportationDetails> createState() => _TransportationDetailsState();
+  State<_TransportationDetails> createState() => _TransportationDetailsState();
 }
 
-class _TransportationDetailsState extends State<TransportationDetails> {
+class _TransportationDetailsState extends State<_TransportationDetails> {
   final ValueNotifier<Map<String, String>?> transportationList =
       ValueNotifier<Map<String, String>?>(null);
   String? _selectedTransporter;
@@ -1067,6 +1070,7 @@ class ProfileUpdateSection extends StatefulWidget {
 class _ProfileUpdateSectionState extends State<ProfileUpdateSection> {
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
     return Row(
       children: [
         // Profile Picture
@@ -1077,23 +1081,12 @@ class _ProfileUpdateSectionState extends State<ProfileUpdateSection> {
               children: [
                 CustomNetworkImage(
                   placeHolder: 'assets/logo/dummy_profile.webp',
-                  width: 130.0,
-                  height: 130.0,
+                  width: screenWidth > 360 ? 130.0:115.0,
+                  height:screenWidth > 360 ? 130.0:115.0,
                   selectedFile:  widget.selectedImageFile,
                   borderRadius: BorderRadius.circular(80.0),
                   imageUrl: widget.imageUrl,
                 ),
-                // CircleAvatar(
-                //   radius: 60,
-                //   backgroundImage:
-                //       widget.selectedImageFile != null
-                //           ? FileImage(widget.selectedImageFile!)
-                //           : widget.imageUrl != null &&
-                //               widget.imageUrl!.isNotEmpty
-                //           ? CachedNetworkImageProvider(widget.imageUrl!)
-                //           : const AssetImage('assets/logo/dummy_profile.webp')
-                //               as ImageProvider,
-                // ),
                 Positioned(
                   bottom: 0,
                   right: 4,
@@ -1117,7 +1110,7 @@ class _ProfileUpdateSectionState extends State<ProfileUpdateSection> {
             ),
           ),
         ),
-
+        SizedBox(width: 8.0,),
         // First & Last Name Fields
         Expanded(
           flex: 3,
@@ -1151,6 +1144,7 @@ class _ProfileUpdateSectionState extends State<ProfileUpdateSection> {
   }) {
     return TextFormField(
       controller: controller,
+      style: Theme.of(context).textTheme.bodySmall,
       decoration: InputDecoration(
         prefixIcon: Icon(iconData),
         contentPadding: EdgeInsets.zero,

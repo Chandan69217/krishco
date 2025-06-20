@@ -288,10 +288,11 @@ class _ChannelPartnerKycScreenState extends State<ChannelPartnerKycScreen> {
   }
 
   Widget _buildCustomerDetails() {
+    final screenWidth = MediaQuery.of(context).size.width;
     return GridView.count(
       crossAxisSpacing: 16,
       physics: NeverScrollableScrollPhysics(),
-      childAspectRatio: 2.5,
+      childAspectRatio: screenWidth > 360 ? 2.5:2.2,
       crossAxisCount: 2,
       shrinkWrap: true,
       children: [
@@ -423,7 +424,7 @@ class _ChannelPartnerKycScreenState extends State<ChannelPartnerKycScreen> {
                   value,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                     fontSize: 14,
                     color: Colors.black87,
                   ),
@@ -447,10 +448,11 @@ class _ChannelPartnerKycScreenState extends State<ChannelPartnerKycScreen> {
     return TextFormField(
       controller: controller,
       keyboardType: textInputType,
-      style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-        fontSize: 14,
-        color: Colors.black87,
-      ),
+      style:  Theme.of(context).textTheme.bodySmall,
+      // style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+      //   fontSize: 14,
+      //   color: Colors.black87,
+      // ),
       decoration: InputDecoration(
         labelText: label,
         border: const OutlineInputBorder(),

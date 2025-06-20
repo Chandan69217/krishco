@@ -54,7 +54,7 @@ class ChannelPartnerHomeScreen extends StatelessWidget {
                   crossAxisCount: 1,
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
-                  childAspectRatio: 3,
+                  childAspectRatio: 2.6,
                   crossAxisSpacing: 16,
                   mainAxisSpacing: 16,
                   children: const [
@@ -430,15 +430,17 @@ class SummaryCard extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Text(
-                      '$title $subtitle',
-                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF0F2F66),
+                    Expanded(
+                      child: Text(
+                        '$title $subtitle',
+                        style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF0F2F66),
+                        ),
                       ),
                     ),
-                    Spacer(),
+                    // Spacer(),
                     DateRangeMenu(
                       onSelected: (option) {
                         switch (option) {
@@ -459,21 +461,27 @@ class SummaryCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                Text(
-                  value,
-                  style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF0F2F66),
+                Expanded(
+                  flex: 2,
+                  child: Text(
+                    value,
+                    style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF0F2F66),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 4),
-                Text(
-                  '${increase ? '' : '-'}$percentage ${increase ? 'Increase' : 'Decrease'}',
-                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: increase ? const Color(0xFF1F6E2E) : const Color(0xFFB91C1C),
+                Expanded(
+                  flex: 1,
+                  child: Text(
+                    '${increase ? '' : '-'}$percentage ${increase ? 'Increase' : 'Decrease'}',
+                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: increase ? const Color(0xFF1F6E2E) : const Color(0xFFB91C1C),
+                    ),
                   ),
                 ),
               ],

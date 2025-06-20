@@ -75,12 +75,13 @@ class _LoginScreenState extends State<LoginScreen> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
+                      SizedBox(height: 8.0,),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           ChoiceChip(
                             label: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
+                              padding: const EdgeInsets.symmetric(horizontal: 8.0,),
                               child: Text('Mobile'),
                             ),
                             selected: _loginMode == LoginMode.mobile,
@@ -107,7 +108,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           SizedBox(width: 12),
                           ChoiceChip(
                             label: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
+                              padding: const EdgeInsets.symmetric(horizontal: 8.0,),
                               child: Text('Email'),
                             ),
                             selected: _loginMode == LoginMode.email,
@@ -297,6 +298,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ],
                       ),
+                      SizedBox(height: 8.0,),
                     ],
                   ),
                 ),

@@ -25,6 +25,7 @@ class TInputDecorationTheme{
     ),
   );
 
+
   static InputDecorationTheme dark = InputDecorationTheme(
     labelStyle: TTextTheme.darkTextTheme.bodySmall!.copyWith(
       color:  Colors.white70,

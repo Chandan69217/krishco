@@ -12,11 +12,11 @@ import 'package:krishco/widgets/cust_snack_bar.dart';
 
 
 
-
 class ChannelPartnerClaimScreen extends StatefulWidget {
   @override
   _ChannelPartnerClaimScreenState createState() => _ChannelPartnerClaimScreenState();
 }
+
 
 class _ChannelPartnerClaimScreenState extends State<ChannelPartnerClaimScreen> {
   int selectedTabIndex = 0;

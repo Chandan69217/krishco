@@ -72,41 +72,45 @@ class _ChannelPartnerCreateClaimScreenState extends State<ChannelPartnerCreateCl
                   children: [
                     Text(
                       'Claim Details *',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Color(0xFF0B6EF6)),
+                      style: Theme.of(context).textTheme.bodySmall!.copyWith(fontSize: 16, fontWeight: FontWeight.w600, color: Color(0xFF0B6EF6)),
                     ),
-                    RichText(
-                      text: TextSpan(
-                        style: TextStyle(fontSize: 12, color: Colors.red, fontWeight: FontWeight.w600),
-                        children: [
-                          TextSpan(text: 'Note: '),
-                          TextSpan(
-                            text: 'All ',
-                            style: TextStyle(color: Colors.grey[700], fontWeight: FontWeight.normal),
-                          ),
-                          TextSpan(children: [
+                    SizedBox(width: 18.0,),
+                    Expanded(
+                      child: RichText(
+                        text: TextSpan(
+                          style: Theme.of(context).textTheme.bodySmall!.copyWith(fontSize: 12, color: Colors.red, fontWeight: FontWeight.w600),
+                          children: [
+                            TextSpan(text: 'Note: '),
                             TextSpan(
-                              text: '(',
-                              style: TextStyle(color: Colors.grey[700], fontWeight: FontWeight.normal),
+                              text: 'All ',
+                              style: Theme.of(context).textTheme.bodySmall!.copyWith(color: Colors.grey[700], fontWeight: FontWeight.normal),
                             ),
+                            TextSpan(children: [
+                              TextSpan(
+                                text: '(',
+                                style: Theme.of(context).textTheme.bodySmall!.copyWith(color: Colors.grey[700], fontWeight: FontWeight.normal),
+                              ),
+                              TextSpan(
+                                text: '*',
+                              ),
+                              TextSpan(
+                                text: ') ',
+                                style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: Colors.grey[700], fontWeight: FontWeight.normal),
+                              )
+                            ]),
                             TextSpan(
-                              text: '*',
+                              text: 'Fields are Mandatory.',
+                              style: Theme.of(context).textTheme.bodySmall!.copyWith(color: Colors.grey[700], fontWeight: FontWeight.normal),
                             ),
-                            TextSpan(
-                              text: ') ',
-                              style: TextStyle(color: Colors.grey[700], fontWeight: FontWeight.normal),
-                            )
-                          ]),
-                          TextSpan(
-                            text: 'Fields are Mandatory.',
-                            style: TextStyle(color: Colors.grey[700], fontWeight: FontWeight.normal),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     )
                   ],
                 ),
                 const SizedBox(height: 20.0),
                 TextFormField(
+                  style:Theme.of(context).textTheme.bodySmall,
                   controller: _invoiceNumberController,
                   decoration: InputDecoration(
                     labelText: 'Invoice Number (Optional)',
@@ -118,6 +122,7 @@ class _ChannelPartnerCreateClaimScreenState extends State<ChannelPartnerCreateCl
                 const SizedBox(height: 16),
                 TextFormField(
                   readOnly: true,
+                  style:Theme.of(context).textTheme.bodySmall,
                   controller: TextEditingController(
                     text: _invoiceDate != null ? DateFormat('yyyy-MM-dd').format(_invoiceDate!) : '',
                   ),
@@ -153,6 +158,7 @@ class _ChannelPartnerCreateClaimScreenState extends State<ChannelPartnerCreateCl
                   valueListenable: taggedEnterprise,
                   builder: (context,value,child){
                     return DropdownButtonFormField<String>(
+                      style:Theme.of(context).textTheme.bodySmall,
                       validator:  !_notInList ? (value){
                         if(value == null || value.isEmpty){
                           return 'Select Enterprise Details';
@@ -188,7 +194,7 @@ class _ChannelPartnerCreateClaimScreenState extends State<ChannelPartnerCreateCl
                 const SizedBox(height: 8),
                 CheckboxListTile(
                   contentPadding: EdgeInsets.zero,
-                  title: Text('From where you purchased is not in the enterprise list.', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                  title: Text('From where you purchased is not in the enterprise list.', style: Theme.of(context).textTheme.bodyMedium!.copyWith(fontSize: 14, fontWeight: FontWeight.w500)),
                   value: _notInList,
                   onChanged: (value) => setState(() => _notInList = value ?? false),
                   controlAffinity: ListTileControlAffinity.leading,
@@ -197,6 +203,7 @@ class _ChannelPartnerCreateClaimScreenState extends State<ChannelPartnerCreateCl
                 if (_notInList) ...[
                   const SizedBox(height: 16),
                   TextFormField(
+                    style:Theme.of(context).textTheme.bodySmall,
                     controller: _enterpriseNameController,
                     decoration: InputDecoration(
                       labelText: 'Enterprise Name *',
@@ -211,6 +218,7 @@ class _ChannelPartnerCreateClaimScreenState extends State<ChannelPartnerCreateCl
                   ),
                   const SizedBox(height: 16),
                   TextFormField(
+                    style:Theme.of(context).textTheme.bodySmall,
                     controller: _enterpriseNumberController,
                     keyboardType: TextInputType.phone,
                     maxLength: 10,
@@ -228,8 +236,9 @@ class _ChannelPartnerCreateClaimScreenState extends State<ChannelPartnerCreateCl
                   ),
                   const SizedBox(height: 16),
                   TextFormField(
+                    style:Theme.of(context).textTheme.bodySmall,
                     controller: _enterpriseAddressController,
-                    maxLines: 2,
+                    maxLines: 3,
                     decoration: InputDecoration(
                       labelText: 'Enterprise Address (Optional)',
                       border: OutlineInputBorder(),
@@ -239,6 +248,7 @@ class _ChannelPartnerCreateClaimScreenState extends State<ChannelPartnerCreateCl
           
                 const SizedBox(height: 16),
                 TextFormField(
+                  style:Theme.of(context).textTheme.bodySmall,
                   controller: _claimAmountController,
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(
@@ -257,6 +267,7 @@ class _ChannelPartnerCreateClaimScreenState extends State<ChannelPartnerCreateCl
                 const SizedBox(height: 16),
           
                 TextFormField(
+                  style:Theme.of(context).textTheme.bodySmall,
                   controller: _filePreviewController,
                   maxLines: 2,
                   readOnly: true,
@@ -269,6 +280,9 @@ class _ChannelPartnerCreateClaimScreenState extends State<ChannelPartnerCreateCl
                         ? TextButton.icon(
                       icon: const Icon(Icons.attach_file),
                       label: const Text("Upload"),
+                      style: TextButton.styleFrom(
+                        textStyle:Theme.of(context).textTheme.bodySmall!.copyWith(fontWeight: FontWeight.w500),
+                      ),
                       // onPressed: _pickFile,
                       onPressed: (){
                         ChooseFile.showImagePickerBottomSheet(context,(file){
