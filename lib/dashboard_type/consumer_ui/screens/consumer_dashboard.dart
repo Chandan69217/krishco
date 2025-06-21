@@ -11,6 +11,7 @@ import 'package:krishco/utilities/constant.dart';
 import 'package:krishco/utilities/cust_colors.dart';
 import 'package:krishco/widgets/custom_network_image/custom_network_image.dart';
 import 'consumer_edit_deatils_screen.dart';
+import 'consumer_redemption_catalogues_screen.dart';
 import 'customer_notification_screen.dart';
 import 'navigations/consumer_support_screen.dart';
 import 'navigations/consumer_claim_screen.dart';
@@ -33,7 +34,8 @@ class _ConsumerDashboardState extends State<ConsumerDashboard> {
       showNewArrivalsOnly: true,
       selectedTabIndex: 1,
     ),
-    ConsumerRedemptionScreen(),
+    // ConsumerRedemptionScreen(),
+    ConsumerRedemptionCataloguesScreen(),
     ConsumerSupportScreen(),
   ];
 

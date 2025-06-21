@@ -49,6 +49,8 @@ static const String support_details =  '/api/get-support-details/';
 static const String consumers_group = '/api/customer-groups/';
           // Product Catalogues
 static const String product_catalogues = '/api/product-catalogue/';
+          // Redemption Catalogues
+static const String redemptionCatalogues = '/api/redemption-catalogue/';
 
 
 }
