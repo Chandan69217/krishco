@@ -1,18 +1,37 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:krishco/api_services/api_service.dart';
 import 'package:krishco/dashboard_type/consumer_ui/screens/consumer_group_details.dart';
+import 'package:krishco/dashboard_type/consumer_ui/screens/consumer_product_catalogue.dart';
+import 'package:krishco/dashboard_type/consumer_ui/screens/new_installation_req.dart';
+import 'package:krishco/dashboard_type/consumer_ui/screens/new_service_req_screen.dart';
 import 'package:krishco/screens/authentication/login_screen.dart';
 import 'package:krishco/screens/scan_code_screen.dart';
 import 'package:krishco/screens/splash/splash_screen.dart';
 import 'package:krishco/utilities/cust_colors.dart';
 import 'package:krishco/widgets/custom_slider/custom_slider.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../new_installation_req.dart';
-import '../new_service_req_screen.dart';
 import 'consumer_new_arrivals_screen.dart';
 
-class ConsumerHomeScreen extends StatelessWidget{
+
+
+class ConsumerHomeScreen extends StatefulWidget{
+  @override
+  State<ConsumerHomeScreen> createState() => _ConsumerHomeScreenState();
+}
+
+class _ConsumerHomeScreenState extends State<ConsumerHomeScreen> {
+  final ValueNotifier<int> _productCatalogues = ValueNotifier<int>(0);
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((duration)async{
+      final count = await APIService.getInstance(context).productCatalogues.getProductCataloguesCount();
+      _productCatalogues.value = count;
+    });
+  }
   @override
   Widget build(BuildContext context) {
     final mediaQuery = MediaQuery.of(context);
@@ -41,21 +60,28 @@ class ConsumerHomeScreen extends StatelessWidget{
            Padding(
              padding: EdgeInsets.symmetric(
                  vertical: screenWidth * 0.06,
-                 horizontal: screenWidth > 375
+                 horizontal: screenWidth > 360
                      ? screenWidth * 0.02
-                     : screenWidth * 0.1),
+                     : screenWidth * 0.02),
              child: GridView.count(
                shrinkWrap: true,
-               crossAxisSpacing: screenWidth > 375 ? screenWidth * 0.03: screenWidth * 0.01,
-               mainAxisSpacing: screenWidth > 375 ? screenWidth * 0.02: screenWidth * 0.01,
+               crossAxisSpacing: screenWidth > 360 ? screenWidth * 0.03: screenWidth * 0.01,
+               mainAxisSpacing: screenWidth > 360 ? screenWidth * 0.02: screenWidth * 0.01,
                crossAxisCount: 3,
-               childAspectRatio: screenWidth > 375 ? 0.86 : 0.8,
+               childAspectRatio: screenWidth > 360 ? 0.86 : 0.9,
                physics: NeverScrollableScrollPhysics(),
                children: [
-                 CardWidget(
-                   icon: Icons.inventory_2,
-                   title: 'Product Catalogue',
-                   count: 372,
+                 ValueListenableBuilder<int>(
+                   valueListenable: _productCatalogues,
+                   builder: (context,value,child)=>CardWidget(
+                     icon: Icons.inventory_2,
+                     title: 'Product Catalogue',
+                     count: value,
+                     onTap: (){
+                       Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ConsumerProductCatalogueScreen(
+                       )));
+                     },
+                   ),
                  ),
                  CardWidget(
                    icon:Icons.handyman,
@@ -107,7 +133,10 @@ class ConsumerHomeScreen extends StatelessWidget{
                    icon: FontAwesomeIcons.boxOpen,
                    text: 'New Arrivals',
                    onPressed: () {
-                     Navigator.of(context).push(MaterialPageRoute(builder: (context)=> ConsumerNewArrivalsScreen()));
+                     Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ConsumerProductCatalogueScreen(
+                       selectedTabIndex: 1,
+                       title: 'New Arrivals',
+                     )));
                    },
                  ),
                  ButtonWidget(
@@ -157,58 +186,63 @@ class CardWidget extends StatelessWidget {
   final IconData icon;
   final String title;
   final int count;
+  final VoidCallback? onTap;
 
   const CardWidget({
     required this.icon,
     required this.title,
     required this.count,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    return Material(
-      elevation: 5,
-      color: Colors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: CustomPaint(
-        painter: _MyCustomPainter(), // Use MyCustomPainter here
-        child: Container(
-          padding: EdgeInsets.only(left: 8.0, right: 8.0, top: 10.0),
-          child: Column(
-            children: [
-              Icon(
-                icon,
-                size: screenWidth * 0.12,
-                color: CustColors.nile_blue,
-              ),
-              SizedBox(height: screenWidth * 0.01),
-              Divider(),
-              Expanded(
-                flex: 2,
-                child: Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: screenWidth * 0.026,
-                    fontWeight: FontWeight.w600,
+    return GestureDetector(
+      onTap: onTap,
+      child: Material(
+        elevation: 5,
+        color: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: CustomPaint(
+          painter: _MyCustomPainter(), // Use MyCustomPainter here
+          child: Container(
+            padding: EdgeInsets.only(left: 8.0, right: 8.0, top: 10.0),
+            child: Column(
+              children: [
+                Icon(
+                  icon,
+                  size: screenWidth * 0.12,
+                  color: CustColors.nile_blue,
+                ),
+                SizedBox(height: screenWidth * 0.01),
+                Divider(),
+                Expanded(
+                  flex: 2,
+                  child: Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: screenWidth * 0.026,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
-              ),
-              // SizedBox(height: 5),
-              Expanded(
-                flex: 1,
-                child: Text(
-                  '$count',
-                  style: TextStyle(
-                    fontSize: screenWidth * 0.035,
-                    fontWeight: FontWeight.w500,
-                    height: 1.1,
+                // SizedBox(height: 5),
+                Expanded(
+                  flex: 1,
+                  child: Text(
+                    '$count',
+                    style: TextStyle(
+                      fontSize: screenWidth * 0.035,
+                      fontWeight: FontWeight.w500,
+                      height: 1.1,
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

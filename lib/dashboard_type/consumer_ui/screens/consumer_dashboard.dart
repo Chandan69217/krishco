@@ -4,6 +4,7 @@ import 'package:krishco/api_services/api_service.dart';
 import 'package:krishco/dashboard_type/channel_partner_ui/models/login_details_data.dart';
 import 'package:krishco/dashboard_type/consumer_ui/screens/consumer_change_password_screen.dart';
 import 'package:krishco/dashboard_type/consumer_ui/screens/consumer_kyc_screen.dart';
+import 'package:krishco/dashboard_type/consumer_ui/screens/consumer_product_catalogue.dart';
 import 'package:krishco/screens/authentication/login_screen.dart';
 import 'package:krishco/screens/splash/splash_screen.dart';
 import 'package:krishco/utilities/constant.dart';
@@ -27,7 +28,11 @@ class _ConsumerDashboardState extends State<ConsumerDashboard> {
   final List<String> _titles = ['Home','New Arrivals','Redemption','Support',];
   final List<Widget> _screens = [
     ConsumerHomeScreen(),
-    ConsumerNewArrivalsScreen(),
+    // ConsumerNewArrivalsScreen(),
+    ConsumerProductCatalogueScreen(
+      showNewArrivalsOnly: true,
+      selectedTabIndex: 1,
+    ),
     ConsumerRedemptionScreen(),
     ConsumerSupportScreen(),
   ];

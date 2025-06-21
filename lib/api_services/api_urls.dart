@@ -36,17 +36,19 @@ class Urls {
   static const String change_password = '/api/change-password/';
 
           // Transportation
-static const String getTransportationDetails = '/api/get-transporter-details/';
+static const String get_transportation_details = '/api/get-transporter-details/';
 
           // Warranty Related
-static const String warrantyRegistration = '/api/warranty/add/';
-static const String warrantyList = '/api/warranty/list/';
+static const String warranty_registration = '/api/warranty/add/';
+static const String warranty_list = '/api/warranty/list/';
 
           // Support Related
-static const String supportDetails =  '/api/get-support-details/';
+static const String support_details =  '/api/get-support-details/';
 
           // Consumers Groups
-static const String consumersGroup = '/api/customer-groups/';
+static const String consumers_group = '/api/customer-groups/';
+          // Product Catalogues
+static const String product_catalogues = '/api/product-catalogue/';
 
 
 }

@@ -30,6 +30,7 @@ class APIService{
   late final _KYCDetailsAPI kycDetailsAPI;
   late final _WarrantyRelated warrantyRelated;
   late final _ConsumersGroup consumersGroup;
+  late final _ProductCatalogues productCatalogues;
 
   APIService._internal({required this.context}){
     productDetails = _ProductDetails(context: context);
@@ -44,6 +45,7 @@ class APIService{
     kycDetailsAPI = _KYCDetailsAPI(context: context);
     warrantyRelated = _WarrantyRelated(context:context);
     consumersGroup = _ConsumersGroup(context:context);
+    productCatalogues = _ProductCatalogues(context: context);
   }
 
   static APIService getInstance(BuildContext context){
@@ -694,7 +696,7 @@ class _TransportationRelated{
   Future<Map<String,dynamic>?> getTransportationList()async{
     final userToken = Pref.instance.getString(Consts.user_token);
     try{
-      final url = Uri.https(Urls.base_url,Urls.getTransportationDetails);
+      final url = Uri.https(Urls.base_url,Urls.get_transportation_details);
       final response = await get(url,headers: {
         'Authorization' : 'Bearer $userToken'
       });
@@ -1237,7 +1239,7 @@ class _WarrantyRelated{
     final userToken = Pref.instance.getString(Consts.user_token);
     
     try{
-      final url = Uri.https(Urls.base_url,Urls.warrantyRegistration);
+      final url = Uri.https(Urls.base_url,Urls.warranty_registration);
       final headers = {
         'Authorization' : 'Bearer ${userToken}',
         'Content-Type' : 'Application/json'
@@ -1266,7 +1268,7 @@ class _WarrantyRelated{
   Future<Map<String,dynamic>?> getWarrantyRegistrationList()async{
     final userToken = Pref.instance.getString(Consts.user_token);
     try{
-      final url = Uri.https(Urls.base_url,Urls.warrantyList);
+      final url = Uri.https(Urls.base_url,Urls.warranty_list);
       final response = await get(url,headers: {
         'Authorization' : 'Bearer $userToken'
       });
@@ -1295,7 +1297,7 @@ class  _ConsumersGroup{
   Future<Map<String,dynamic>?> getConsumerGroup()async{
     final userToken = Pref.instance.getString(Consts.user_token);
     try{
-      final url = Uri.https(Urls.base_url,Urls.consumersGroup);
+      final url = Uri.https(Urls.base_url,Urls.consumers_group);
       final response = await get(url,headers: {
         'Authorization' : 'Bearer $userToken'
       });
@@ -1313,5 +1315,46 @@ class  _ConsumersGroup{
       print('Exception: $exception, Trace: $trace');
     }
     return null;
+  }
+}
+
+class _ProductCatalogues{
+  final BuildContext context;
+  _ProductCatalogues({required this.context});
+  
+  Future<Map<String,dynamic>?> getProductCatalogues()async{
+    final userToken = Pref.instance.getString(Consts.user_token);
+    try{
+      final url = Uri.https(Urls.base_url,Urls.product_catalogues);
+      final response = await get(url,headers: {
+        'Authorization' : 'Bearer $userToken'
+      });
+      print('Response: ${response.statusCode},Body: ${response.body}');
+      if(response.statusCode == 200){
+        final body = json.decode(response.body) as Map<String,dynamic>;
+        final status = body['isScuss'];
+        if(status){
+          return body;
+        }
+      }else{
+        handleHttpResponse(context, response);
+      }
+    }catch(exception,trace){
+      print('Exception: $exception, Trace: $trace');
+    }
+    return null;
+  }
+
+  Future<int> getProductCataloguesCount()async{
+    var count = 0;
+    final value = await getProductCatalogues();
+    if(value != null){
+      final data = value['data'] as List<dynamic>;
+      for(var v in data){
+        final catalogues = v['catalogue'] as List<dynamic>;
+        count += catalogues.length;
+      }
+    }
+    return count;
   }
 }

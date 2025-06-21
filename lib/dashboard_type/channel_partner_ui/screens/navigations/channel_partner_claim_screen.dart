@@ -9,6 +9,7 @@ import 'package:krishco/models/invoice_claim/claim_list_data.dart';
 import 'package:krishco/models/invoice_claim/claim_reporting_list_data.dart';
 import 'package:krishco/widgets/cust_loader.dart';
 import 'package:krishco/widgets/cust_snack_bar.dart';
+import 'package:krishco/widgets/file_viewer/image_viewer.dart';
 
 
 
@@ -405,7 +406,7 @@ class _ClaimCard extends StatelessWidget {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (_) => _ClaimCopyViewerScreen(
+                                  builder: (_) => ImageViewerScreen(
                                     imageUrl: claim.claimCopy!,
                                   ),
                                 ),
@@ -521,7 +522,7 @@ class _ClaimDetailsScreen extends StatelessWidget {
                 children: [
                   GestureDetector(
                     onTap: (){
-                      Navigator.of(context).push(MaterialPageRoute(builder: (context)=>_ClaimCopyViewerScreen(imageUrl: claim.claimCopy!)));
+                      Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ImageViewerScreen(imageUrl: claim.claimCopy!)));
                     },
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(10),
@@ -585,47 +586,6 @@ class _ClaimDetailsScreen extends StatelessWidget {
     );
   }
 }
-
-class _ClaimCopyViewerScreen extends StatelessWidget {
-  final String imageUrl;
-
-  const _ClaimCopyViewerScreen({super.key, required this.imageUrl});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Claim Copy"),
-      ),
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          return InteractiveViewer(
-            panEnabled: true,
-            minScale: 0.5,
-            maxScale: 5.0,
-            child: CachedNetworkImage(
-              imageUrl: imageUrl,
-              placeholder: (context, url) => const Center(
-                child: CircularProgressIndicator(),
-              ),
-              errorWidget: (context, url, error) =>
-              const Center(child: Icon(Icons.error, color: Colors.red)),
-              imageBuilder: (context, imageProvider) => SizedBox(
-                width: constraints.maxWidth,
-                height: constraints.maxHeight,
-                child: Image(
-                  image: imageProvider,
-                  fit: BoxFit.contain,
-                ),
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-}
-
 
 
 
@@ -862,7 +822,7 @@ class _ClaimReportingDetailsScreen extends StatelessWidget {
                       GestureDetector(
                         onTap: () {
                           Navigator.of(context).push(MaterialPageRoute(
-                            builder: (_) => _ClaimCopyViewerScreen(imageUrl: claim.claimCopy!),
+                            builder: (_) => ImageViewerScreen(imageUrl: claim.claimCopy!),
                           ));
                         },
                         child: ClipRRect(

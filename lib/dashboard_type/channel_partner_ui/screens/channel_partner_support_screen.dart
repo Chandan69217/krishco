@@ -301,7 +301,7 @@ class _ChannelPartnerSupportScreenState extends State<ChannelPartnerSupportScree
   Future<Map<String, dynamic>?> _getSupportDetais() async{
     final userToken = Pref.instance.getString(Consts.user_token);
     try{
-      final url = Uri.https(Urls.base_url,Urls.supportDetails);
+      final url = Uri.https(Urls.base_url,Urls.support_details);
       final response = await get(url,headers: {
         'Authorization' : 'Bearer $userToken'
       });

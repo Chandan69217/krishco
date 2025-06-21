@@ -190,7 +190,7 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
   Future<Map<String, dynamic>?> _getConsumerGroupDetail(String id) async {
     final userToken = Pref.instance.getString(Consts.user_token);
     try {
-      final url = Uri.https(Urls.base_url, "${Urls.consumersGroup} $id/");
+      final url = Uri.https(Urls.base_url, "${Urls.consumers_group} $id/");
       final response = await get(
         url,
         headers: {'Authorization': 'Bearer ${userToken}'},
