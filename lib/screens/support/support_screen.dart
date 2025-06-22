@@ -1,14 +1,18 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:krishco/api_services/api_urls.dart';
 import 'package:krishco/api_services/handle_https_response.dart';
 import 'package:krishco/screens/splash/splash_screen.dart';
 import 'package:krishco/utilities/constant.dart';
 import 'package:krishco/utilities/cust_colors.dart';
+import 'package:krishco/widgets/choose_file.dart';
 import 'package:krishco/widgets/custom_network_image/custom_network_image.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:mime/mime.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 
@@ -26,7 +30,7 @@ class _SupportScreenState extends State<SupportScreen> {
   @override
   void initState() {
     super.initState();
-    _futureSupportDetails = _getSupportDetais();
+    _futureSupportDetails = _getSupportDetails();
   }
   @override
   Widget build(BuildContext context) {
@@ -109,9 +113,39 @@ class _SupportScreenState extends State<SupportScreen> {
                         _SalesSupportSection(salesPersonList: salesPerson,),
                         const SizedBox(height: 12.0),
                       ],
+
                       SectionTitle('Need Help?', screenWidth * 0.045),
                       const SizedBox(height: 12),
                       _supportBox(screenWidth, context,careNumber,careEmail,),
+                      const SizedBox(height: 12),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          _queryActionButton(context, 'Query'),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                            child: Text(
+                              '|',
+                              style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                                color: Colors.blueAccent.shade700,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          _queryActionButton(context, 'Suggestion'),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                            child: Text(
+                              '|',
+                              style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                                color: Colors.blueAccent.shade700,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          _queryActionButton(context, 'Complaint'),
+                        ],
+                      ),
                       const SizedBox(height: 24),
                     ],
                   ),
@@ -124,6 +158,161 @@ class _SupportScreenState extends State<SupportScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _queryActionButton(BuildContext context, String type) {
+    return Row(
+      children: [
+        TextButton(
+          style: TextButton.styleFrom(
+            foregroundColor: Colors.blueAccent.shade700,
+            splashFactory: NoSplash.splashFactory,
+            overlayColor: Colors.transparent,
+            padding: EdgeInsets.zero,
+          ),
+          onPressed: () => _showQueryBottomSheet(type),
+          child: Text(type,),
+        ),
+      ],
+    );
+  }
+
+  void _showQueryBottomSheet(String selectedType) {
+    final _formKey = GlobalKey<FormState>();
+    bool _isLoading = false;
+    final TextEditingController _messageController = TextEditingController();
+    File? _attachedImage;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: EdgeInsets.only(
+            left: 16,
+            right: 16,
+            top: 16,
+            bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+          ),
+          child: StatefulBuilder(
+            builder: (context, setState) {
+              final screenWidth = MediaQuery.of(context).size.width;
+              return Form(
+                key: _formKey,
+                child: SafeArea(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      SectionTitle('Register $selectedType',  screenWidth * 0.045),
+                      const SizedBox(height: 12),
+                      TextFormField(
+                        controller: _messageController,
+                        maxLines: 4,
+                        decoration: const InputDecoration(
+                          labelText: 'Your message',
+                          border: OutlineInputBorder(),
+                        ),
+                        validator: (value) =>
+                        value == null || value.trim().isEmpty
+                            ? 'Please enter your $selectedType'
+                            : null,
+                      ),
+                      const SizedBox(height: 12),
+                      if (_attachedImage != null)
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: Image.file(
+                            File(_attachedImage!.path),
+                            height: 150,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      TextButton.icon(
+                        onPressed: (){
+                          ChooseFile.showImagePickerBottomSheet(context,(selectedFile){
+                           setState((){
+                             _attachedImage = selectedFile;
+                           });
+                          });
+                        },
+                        icon: const Icon(Icons.attach_file),
+                        label: Text(_attachedImage == null
+                            ? 'Attach Image'
+                            : 'Change Image'),
+                      ),
+                      const SizedBox(height: 12),
+                      if(!_isLoading)
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: () async {
+                            if (_formKey.currentState!.validate()) {
+                              setState((){
+                                _isLoading = true;
+                              });
+                              String? encodedImage;
+                              String? mediaType;
+                              if (_attachedImage != null) {
+                                final bytes = await File(_attachedImage!.path).readAsBytes();
+                                mediaType = lookupMimeType(_attachedImage!.path);
+                                final base64Str = base64Encode(bytes);
+
+                                encodedImage = 'data:$mediaType;base64,$base64Str';
+                              }
+
+                              final Map<String,dynamic> queryData = {
+                                'query_type': selectedType.toLowerCase(),
+                                'query': _messageController.text.trim(),
+                                'photo': encodedImage,
+                                'app_name': 'mobile'
+                              } as Map<String,dynamic>;
+
+                              final isSuccess = await _submitQuery(queryData);
+
+                              if(isSuccess){
+                                Navigator.pop(context);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text('$selectedType submitted successfully')),
+                                );
+                              }else{
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Somethings went wrong !')),
+                                );
+                              }
+                              setState((){
+                                _isLoading = false;
+                              });
+                            }
+                          },
+                          child: Text('Submit ${selectedType}'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: CustColors.nile_blue
+                          ),
+                        ),
+                      ),
+                      if(_isLoading)
+                        Center(
+                          child: SizedBox.square(
+                            dimension: 25.0,
+                            child: CircularProgressIndicator(
+                              color: CustColors.nile_blue,
+                            ),
+                          ),
+                        )
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        );
+      },
     );
   }
 
@@ -283,7 +472,7 @@ class _SupportScreenState extends State<SupportScreen> {
   Widget SectionTitle(String title, double fontSize) {
     return Text(
       title,
-      style: TextStyle(
+      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
         fontSize: fontSize,
         fontWeight: FontWeight.bold,
         color: CustColors.nile_blue,
@@ -298,7 +487,7 @@ class _SupportScreenState extends State<SupportScreen> {
     );
   }
 
-  Future<Map<String, dynamic>?> _getSupportDetais() async{
+  Future<Map<String, dynamic>?> _getSupportDetails() async{
     final userToken = Pref.instance.getString(Consts.user_token);
     try{
       final url = Uri.https(Urls.base_url,Urls.support_details);
@@ -321,9 +510,30 @@ class _SupportScreenState extends State<SupportScreen> {
     return null;
   }
 
+  Future<bool> _submitQuery(Map<String,dynamic> data)async{
+    final userToken = Pref.instance.getString(Consts.user_token);
+    print('Received Data: $data');
+    try{
+      final url = Uri.https(Urls.base_url,Urls.query_center);
+      final response = await post(url,headers: {
+        'Authorization' : 'Bearer $userToken',
+        'content-type':'Application/json'
+      },body:  json.encode(data));
+
+      print('Response Code: ${response.statusCode}, Body:${response.body} ');
+      if(response.statusCode == 200 || response.statusCode == 201){
+        return true;
+      }else{
+        handleHttpResponse(context, response);
+      }
+    }catch(exception,trace){
+      print('Exception: $exception,Trace:$trace');
+    }
+    return false;
+  }
+
 
 }
-
 
 
 

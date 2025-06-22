@@ -7,6 +7,7 @@ import 'package:krishco/dashboard_type/consumer_ui/screens/consumer_kyc_screen.d
 import 'package:krishco/screens/product_catalogues/product_catalogue.dart';
 import 'package:krishco/screens/authentication/login_screen.dart';
 import 'package:krishco/screens/splash/splash_screen.dart';
+import 'package:krishco/screens/support/query_list_screen.dart';
 import 'package:krishco/screens/support/support_screen.dart';
 import 'package:krishco/utilities/constant.dart';
 import 'package:krishco/utilities/cust_colors.dart';
@@ -215,6 +216,9 @@ class _ConsumerDashboardState extends State<ConsumerDashboard> {
                       Divider(height: 2,),
                       _buildMenu(iconData: Icons.lock, label: 'Change Password',onTap: (){
                         Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ConsumerChangePasswordScreen()));
+                      }),
+                      _buildMenu(iconData:  Icons.question_answer, label: 'Feedback & Queries',onTap: (){
+                        Navigator.of(context).push(MaterialPageRoute(builder: (context)=> QueryListScreen()));
                       }),
                       _buildMenu(iconData: Icons.logout, label: 'Logout',onTap: (){
                         Pref.instance.clear();

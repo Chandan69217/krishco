@@ -50,53 +50,72 @@ class ChannelPartnerHomeScreen extends StatelessWidget {
                     color: Color(0xFF6B7A99),
                   ),
                 ),
-                SizedBox(height: 8.0,),
-                GridView.count(
-                  shrinkWrap: true,
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 8.0,
-                  mainAxisSpacing: 8.0,
-                  childAspectRatio: 2.6,
-                  physics: NeverScrollableScrollPhysics(),
-                  children: [
-                    DashboardMenuButton(
-                      icon: Icons.list_alt,
-                      label: 'Product Catalogues',
-                      onTap: () {
-                        Navigator.push(context, MaterialPageRoute(
-                          builder: (_) => ProductCatalogueScreen(
-                            title: 'Product Catalogues'
-                          ),
-                        ));
-                      },
+                SizedBox(height: 12.0,),
+                Container(
+                  width: double.infinity,
+                  height: 200.0,
+                  padding: const EdgeInsets.fromLTRB(16,8,0,16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF0F2F66).withOpacity(0.1),
+                        blurRadius: 15,
+                        offset: const Offset(0, 0),
+                      )
+                    ],
+                  ),
+                  child: Center(
+                    child: GridView.count(
+                      shrinkWrap: true,
+                      crossAxisCount: 3,
+                      // crossAxisSpacing: 8.0,
+                      // mainAxisSpacing: 8.0,
+                      childAspectRatio: 1,
+                      // childAspectRatio: 2.6,
+                      physics: NeverScrollableScrollPhysics(),
+                      children: [
+                        DashboardMenuButton(
+                          icon: Icons.list_alt,
+                          label: 'Product Catalogues',
+                          onTap: () {
+                            Navigator.push(context, MaterialPageRoute(
+                              builder: (_) => ProductCatalogueScreen(
+                                title: 'Product Catalogues'
+                              ),
+                            ));
+                          },
+                        ),
+                        DashboardMenuButton(
+                          icon: Icons.fiber_new,
+                          label: 'New Arrivals',
+                          onTap: () {
+                            Navigator.push(context, MaterialPageRoute(
+                              builder: (_) => ProductCatalogueScreen(
+                                selectedTabIndex: 1,
+                                showNewArrivalsOnly: true,
+                                title: 'New Arrivals',
+                              ),
+                            ));
+                          },
+                        ),
+                        DashboardMenuButton(
+                          icon: Icons.card_giftcard,
+                          label: 'Redemption Catalogues',
+                          onTap: () {
+                            Navigator.push(context, MaterialPageRoute(
+                              builder: (_) => RedemptionCataloguesScreen(
+                                title: "Redemption Catalogues",
+                              ),
+                            ));
+                          },
+                        ),
+                      ],
                     ),
-                    DashboardMenuButton(
-                      icon: Icons.fiber_new,
-                      label: 'New Arrivals',
-                      onTap: () {
-                        Navigator.push(context, MaterialPageRoute(
-                          builder: (_) => ProductCatalogueScreen(
-                            selectedTabIndex: 1,
-                            showNewArrivalsOnly: true,
-                            title: 'New Arrivals',
-                          ),
-                        ));
-                      },
-                    ),
-                    DashboardMenuButton(
-                      icon: Icons.card_giftcard,
-                      label: 'Redemption Catalogues',
-                      onTap: () {
-                        Navigator.push(context, MaterialPageRoute(
-                          builder: (_) => RedemptionCataloguesScreen(
-                            title: "Redemption Catalogues",
-                          ),
-                        ));
-                      },
-                    ),
-                  ],
+                  ),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 24.0),
                 // Top Summary Cards
                 GridView.count(
                   crossAxisCount: 1,
@@ -814,63 +833,6 @@ class DateRangeMenu extends StatelessWidget {
 }
 
 
-class DashboardMenuButton extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-
-  const DashboardMenuButton({
-    super.key,
-    required this.icon,
-    required this.label,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 14),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: const Color(0xFF0F2F66).withOpacity(0.1),
-              blurRadius: 15,
-              offset: const Offset(0, 0),
-            )
-          ]
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            CircleAvatar(
-              backgroundColor: Colors.blue.shade50,
-              radius: 22,
-              child: Icon(icon, size: 24, color: Colors.blue.shade700),
-            ),
-            const SizedBox(width: 8.0),
-            Expanded(
-              flex:2,
-              child: Text(
-                label,
-                style: const TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 14,
-                  color: Colors.black87,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-
 // class DashboardMenuButton extends StatelessWidget {
 //   final IconData icon;
 //   final String label;
@@ -887,49 +849,86 @@ class DashboardMenuButton extends StatelessWidget {
 //   Widget build(BuildContext context) {
 //     return GestureDetector(
 //       onTap: onTap,
-//       child: Material(
-//         elevation: 4,
-//         borderRadius: BorderRadius.circular(16),
-//         child: Container(
-//           decoration: BoxDecoration(
-//             gradient: LinearGradient(
-//               colors: [Colors.blue.shade400, Colors.blue.shade700],
-//               begin: Alignment.topLeft,
-//               end: Alignment.bottomRight,
+//       child: Container(
+//         padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 14),
+//         decoration: BoxDecoration(
+//           color: Colors.white,
+//           borderRadius: BorderRadius.circular(12),
+//           boxShadow: [
+//             BoxShadow(
+//               color: const Color(0xFF0F2F66).withOpacity(0.1),
+//               blurRadius: 15,
+//               offset: const Offset(0, 0),
+//             )
+//           ]
+//         ),
+//         child: Row(
+//           mainAxisSize: MainAxisSize.min,
+//           children: [
+//             CircleAvatar(
+//               backgroundColor: Colors.blue.shade50,
+//               radius: 22,
+//               child: Icon(icon, size: 24, color: Colors.blue.shade700),
 //             ),
-//             borderRadius: BorderRadius.circular(12),
-//           ),
-//           padding: const EdgeInsets.all(8.0),
-//           child: Row(
-//             mainAxisAlignment: MainAxisAlignment.start,
-//             children: [
-//               Container(
-//                 padding: const EdgeInsets.all(8.0),
-//                 decoration: const BoxDecoration(
-//                   shape: BoxShape.circle,
-//                   color: Colors.white,
-//                 ),
-//                 child: Icon(icon, size: 25.0, color: Colors.blue),
-//               ),
-//               const SizedBox(width: 8.0),
-//               Expanded(
-//                 flex: 2,
-//                 child: Text(
-//                   label,
-//                   textAlign: TextAlign.start,
-//                   style: const TextStyle(
-//                     color: Colors.white,
-//                     fontWeight: FontWeight.bold,
-//                     fontSize: 14,
-//                   ),
+//             const SizedBox(width: 8.0),
+//             Expanded(
+//               flex:2,
+//               child: Text(
+//                 label,
+//                 style: const TextStyle(
+//                   fontWeight: FontWeight.w600,
+//                   fontSize: 14,
+//                   color: Colors.black87,
 //                 ),
 //               ),
-//             ],
-//           ),
+//             ),
+//           ],
 //         ),
 //       ),
 //     );
 //   }
 // }
+
+
+class DashboardMenuButton extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  const DashboardMenuButton({
+    super.key,
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          CircleAvatar(
+            radius: 26,
+            backgroundColor: Colors.blue.shade50,
+            child: Icon(icon, size: 28, color: Colors.blue.shade700),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            label,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 13,
+              color: Colors.black87,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 
 

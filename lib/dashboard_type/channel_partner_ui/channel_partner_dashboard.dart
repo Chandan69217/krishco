@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:krishco/api_services/api_service.dart';
@@ -7,6 +6,7 @@ import 'package:krishco/dashboard_type/channel_partner_ui/screens/channel_partne
 import 'package:krishco/dashboard_type/channel_partner_ui/screens/channel_partner_notification_screen.dart';
 import 'package:krishco/dashboard_type/channel_partner_ui/screens/channel_partner_edit_details_screen.dart';
 import 'package:krishco/dashboard_type/channel_partner_ui/screens/channel_partner_kyc_screen.dart';
+import 'package:krishco/screens/support/query_list_screen.dart';
 import 'package:krishco/screens/support/support_screen.dart';
 import 'package:krishco/dashboard_type/channel_partner_ui/screens/navigations/channel_partner_claim_screen.dart';
 import 'package:krishco/dashboard_type/channel_partner_ui/screens/navigations/channel_partner_home_screen.dart';
@@ -199,6 +199,9 @@ class _ChannelPartnerDashboardState extends State<ChannelPartnerDashboard> {
                       Divider(height: 2,),
                       _buildMenu(iconData: Icons.lock, label: 'Change Password',onTap: (){
                         Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ChannelPartnerChangePasswordScreen()));
+                      }),
+                      _buildMenu(iconData:  Icons.question_answer, label: 'Feedback & Queries',onTap: (){
+                        Navigator.of(context).push(MaterialPageRoute(builder: (context)=> QueryListScreen()));
                       }),
                       _buildMenu(iconData:  Icons.help_rounded, label: 'Need Help?',onTap: (){
                         Navigator.of(context).push(MaterialPageRoute(builder: (context)=> SupportScreen(showAppBar: true,)));

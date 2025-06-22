@@ -51,6 +51,9 @@ static const String consumers_group = '/api/customer-groups/';
 static const String product_catalogues = '/api/product-catalogue/';
           // Redemption Catalogues
 static const String redemptionCatalogues = '/api/redemption-catalogue/';
+        // Suggestion and Query
+static const String query_center = '/api/query-center/entry/';
+static const String query_center_list = '/api/query-center/list/';
 
 
 }
