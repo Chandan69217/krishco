@@ -12,14 +12,14 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 
-class ChannelPartnerSupportScreen extends StatefulWidget {
+class SupportScreen extends StatefulWidget {
   final bool? showAppBar;
-  ChannelPartnerSupportScreen({super.key,this.showAppBar = false});
+  SupportScreen({super.key,this.showAppBar = false});
   @override
-  State<ChannelPartnerSupportScreen> createState() => _ChannelPartnerSupportScreenState();
+  State<SupportScreen> createState() => _SupportScreenState();
 }
 
-class _ChannelPartnerSupportScreenState extends State<ChannelPartnerSupportScreen> {
+class _SupportScreenState extends State<SupportScreen> {
 
   late Future<Map<String,dynamic>?> _futureSupportDetails;
 

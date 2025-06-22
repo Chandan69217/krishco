@@ -4,16 +4,16 @@ import 'package:krishco/api_services/api_service.dart';
 import 'package:krishco/dashboard_type/channel_partner_ui/models/login_details_data.dart';
 import 'package:krishco/dashboard_type/consumer_ui/screens/consumer_change_password_screen.dart';
 import 'package:krishco/dashboard_type/consumer_ui/screens/consumer_kyc_screen.dart';
-import 'package:krishco/dashboard_type/consumer_ui/screens/consumer_product_catalogue.dart';
+import 'package:krishco/screens/product_catalogues/product_catalogue.dart';
 import 'package:krishco/screens/authentication/login_screen.dart';
 import 'package:krishco/screens/splash/splash_screen.dart';
+import 'package:krishco/screens/support/support_screen.dart';
 import 'package:krishco/utilities/constant.dart';
 import 'package:krishco/utilities/cust_colors.dart';
 import 'package:krishco/widgets/custom_network_image/custom_network_image.dart';
 import 'consumer_edit_deatils_screen.dart';
-import 'consumer_redemption_catalogues_screen.dart';
+import '../../../screens/redemeption_catalogues/redemption_catalogues.dart';
 import 'customer_notification_screen.dart';
-import 'navigations/consumer_support_screen.dart';
 import 'navigations/consumer_claim_screen.dart';
 import 'navigations/consumer_home_screen.dart';
 import 'navigations/consumer_new_arrivals_screen.dart';
@@ -30,13 +30,13 @@ class _ConsumerDashboardState extends State<ConsumerDashboard> {
   final List<Widget> _screens = [
     ConsumerHomeScreen(),
     // ConsumerNewArrivalsScreen(),
-    ConsumerProductCatalogueScreen(
+    ProductCatalogueScreen(
       showNewArrivalsOnly: true,
       selectedTabIndex: 1,
     ),
     // ConsumerRedemptionScreen(),
-    ConsumerRedemptionCataloguesScreen(),
-    ConsumerSupportScreen(),
+    RedemptionCataloguesScreen(),
+    SupportScreen(),
   ];
 
   @override

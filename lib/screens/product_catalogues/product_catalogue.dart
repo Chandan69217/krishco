@@ -236,23 +236,23 @@ import 'package:url_launcher/url_launcher.dart';
 // }
 
 
-class ConsumerProductCatalogueScreen extends StatefulWidget {
+class ProductCatalogueScreen extends StatefulWidget {
   final int? selectedTabIndex;
   final String? title;
   final bool? showNewArrivalsOnly;
 
-  const ConsumerProductCatalogueScreen({
+  const ProductCatalogueScreen({
     super.key,
     this.selectedTabIndex = 0,
-    this.title = 'Product Catalogues',
-    this.showNewArrivalsOnly = false
+    this.title,
+    this.showNewArrivalsOnly = false,
   });
 
   @override
-  State<ConsumerProductCatalogueScreen> createState() => _ConsumerProductCatalogueScreenState();
+  State<ProductCatalogueScreen> createState() => _ProductCatalogueScreenState();
 }
 
-class _ConsumerProductCatalogueScreenState extends State<ConsumerProductCatalogueScreen> {
+class _ProductCatalogueScreenState extends State<ProductCatalogueScreen> {
   int selectedTabIndex = 0;
   final List<String> tabTitles = ['All', 'New Arrival'];
   late Future<Map<String,dynamic>?> _futureProductCatalogues;
@@ -277,8 +277,8 @@ class _ConsumerProductCatalogueScreenState extends State<ConsumerProductCatalogu
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: !widget.showNewArrivalsOnly!
-          ? AppBar(title: Text(widget.title ?? 'Product Catalogues'))
+      appBar: widget.title != null
+          ? AppBar(title: Text(widget.title ?? ''))
           : null,
       body: FutureBuilder(future: _futureProductCatalogues,
           builder: (context,snapshot){
@@ -345,7 +345,7 @@ class _ConsumerProductCatalogueScreenState extends State<ConsumerProductCatalogu
                    Expanded(
                      child: filteredData.isEmpty
                          ? const Center(child: Text("No catalogue found"))
-                         : CatalogueGalleryView(dataList: filteredData),
+                         : _CatalogueGalleryView(dataList: filteredData),
                    ),
                  ],
                );
@@ -365,10 +365,10 @@ class _ConsumerProductCatalogueScreenState extends State<ConsumerProductCatalogu
   }
 }
 
-class CatalogueGalleryView extends StatelessWidget {
+class _CatalogueGalleryView extends StatelessWidget {
   final List dataList;
 
-  const CatalogueGalleryView({super.key, required this.dataList});
+  const _CatalogueGalleryView({super.key, required this.dataList});
 
   @override
   Widget build(BuildContext context) {

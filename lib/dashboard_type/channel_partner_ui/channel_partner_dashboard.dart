@@ -7,12 +7,11 @@ import 'package:krishco/dashboard_type/channel_partner_ui/screens/channel_partne
 import 'package:krishco/dashboard_type/channel_partner_ui/screens/channel_partner_notification_screen.dart';
 import 'package:krishco/dashboard_type/channel_partner_ui/screens/channel_partner_edit_details_screen.dart';
 import 'package:krishco/dashboard_type/channel_partner_ui/screens/channel_partner_kyc_screen.dart';
-import 'package:krishco/dashboard_type/channel_partner_ui/screens/channel_partner_support_screen.dart';
+import 'package:krishco/screens/support/support_screen.dart';
 import 'package:krishco/dashboard_type/channel_partner_ui/screens/navigations/channel_partner_claim_screen.dart';
 import 'package:krishco/dashboard_type/channel_partner_ui/screens/navigations/channel_partner_home_screen.dart';
 import 'package:krishco/dashboard_type/channel_partner_ui/screens/navigations/channel_partner_my_wallet.dart';
 import 'package:krishco/dashboard_type/channel_partner_ui/screens/navigations/channel_partner_orders_screen.dart';
-import 'package:krishco/dashboard_type/consumer_ui/screens/navigations/consumer_support_screen.dart';
 import 'package:krishco/screens/authentication/login_screen.dart';
 import 'package:krishco/screens/scan_code_screen.dart';
 import 'package:krishco/screens/splash/splash_screen.dart';
@@ -202,7 +201,7 @@ class _ChannelPartnerDashboardState extends State<ChannelPartnerDashboard> {
                         Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ChannelPartnerChangePasswordScreen()));
                       }),
                       _buildMenu(iconData:  Icons.help_rounded, label: 'Need Help?',onTap: (){
-                        Navigator.of(context).push(MaterialPageRoute(builder: (context)=> ChannelPartnerSupportScreen(showAppBar: true,)));
+                        Navigator.of(context).push(MaterialPageRoute(builder: (context)=> SupportScreen(showAppBar: true,)));
                       }),
                       _buildMenu(iconData: Icons.logout, label: 'Logout',onTap: (){
                         Pref.instance.clear();

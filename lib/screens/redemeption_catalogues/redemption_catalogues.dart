@@ -245,15 +245,15 @@ import 'package:krishco/widgets/custom_network_image/custom_network_image.dart';
 // }
 
 
-class ConsumerRedemptionCataloguesScreen extends StatefulWidget {
-
-  const ConsumerRedemptionCataloguesScreen({super.key,});
+class RedemptionCataloguesScreen extends StatefulWidget {
+  final String? title;
+  const RedemptionCataloguesScreen({super.key,this.title});
 
   @override
-  State<ConsumerRedemptionCataloguesScreen> createState() => _ConsumerRedemptionCataloguesScreenState();
+  State<RedemptionCataloguesScreen> createState() => _RedemptionCataloguesScreenState();
 }
 
-class _ConsumerRedemptionCataloguesScreenState extends State<ConsumerRedemptionCataloguesScreen> {
+class _RedemptionCataloguesScreenState extends State<RedemptionCataloguesScreen> {
   List<Map<String, dynamic>> allProducts = [];
   List<Map<String, dynamic>> displayedProducts = [];
   List<Map<String, dynamic>> selectedProducts = [];
@@ -340,6 +340,9 @@ class _ConsumerRedemptionCataloguesScreenState extends State<ConsumerRedemptionC
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: widget.title != null ? AppBar(
+        title: Text(widget.title??''),
+      ) : null,
       body: Column(
         children: [
           Expanded(

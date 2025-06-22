@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:krishco/api_services/api_service.dart';
 import 'package:krishco/dashboard_type/consumer_ui/screens/consumer_group_details.dart';
-import 'package:krishco/dashboard_type/consumer_ui/screens/consumer_product_catalogue.dart';
+import 'package:krishco/screens/product_catalogues/product_catalogue.dart';
 import 'package:krishco/dashboard_type/consumer_ui/screens/new_installation_req.dart';
 import 'package:krishco/dashboard_type/consumer_ui/screens/new_service_req_screen.dart';
 import 'package:krishco/screens/authentication/login_screen.dart';
@@ -78,7 +78,7 @@ class _ConsumerHomeScreenState extends State<ConsumerHomeScreen> {
                      title: 'Product Catalogue',
                      count: value,
                      onTap: (){
-                       Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ConsumerProductCatalogueScreen(
+                       Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ProductCatalogueScreen(
                        )));
                      },
                    ),
@@ -133,7 +133,7 @@ class _ConsumerHomeScreenState extends State<ConsumerHomeScreen> {
                    icon: FontAwesomeIcons.boxOpen,
                    text: 'New Arrivals',
                    onPressed: () {
-                     Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ConsumerProductCatalogueScreen(
+                     Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ProductCatalogueScreen(
                        selectedTabIndex: 1,
                        title: 'New Arrivals',
                      )));
