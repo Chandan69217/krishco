@@ -250,6 +250,7 @@ class _QueryListScreenState extends State<QueryListScreen>
     if (list.isEmpty) {
       return const Center(child: Text('No records found.'));
     }
+
     return ListView.builder(
       itemCount: list.length,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -261,90 +262,113 @@ class _QueryListScreenState extends State<QueryListScreen>
         final query = item['query'] ?? '';
         final addDate = item['add_date'] ?? '';
         final status = (item['query_status'] ?? '').toString().toUpperCase();
+        final response = item['response'];
 
-        return GestureDetector(
-          onTap: (){
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => QueryDetailsScreen(id: id),
-              ),
-            );
-          },
-          child: Container(
-            margin: const EdgeInsets.only(bottom: 12),
-            decoration: BoxDecoration(
-              border: Border(bottom: BorderSide(color: Colors.grey.shade400))
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(12),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (photoUrl != null)
-                    CustomNetworkImage(
-              width: 60,
-              height: 60,
-              imageUrl: photoUrl,
-              borderRadius: BorderRadius.circular(8),
-              fit: BoxFit.cover,),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: getTypeColor(type).withOpacity(0.1),
-                                border: Border.all(color: getTypeColor(type)),
-                                borderRadius: BorderRadius.circular(6),
+        return Container(
+          margin: const EdgeInsets.only(bottom: 12),
+          decoration: BoxDecoration(
+            border: Border(bottom: BorderSide(color: Colors.grey.shade400)),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (photoUrl != null)
+                  CustomNetworkImage(
+                    width: 60,
+                    height: 60,
+                    imageUrl: photoUrl,
+                    borderRadius: BorderRadius.circular(8),
+                    fit: BoxFit.cover,
+                  ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: getTypeColor(type).withOpacity(0.1),
+                              border: Border.all(color: getTypeColor(type)),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Text(
+                              type.toUpperCase(),
+                              style: TextStyle(
+                                color: getTypeColor(type),
+                                fontWeight: FontWeight.w600,
+                                fontSize: 12,
                               ),
-                              child: Text(
-                                type.toUpperCase(),
-                                style: TextStyle(
-                                  color: getTypeColor(type),
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 12,
+                            ),
+                          ),
+                          const Spacer(),
+                          Text(
+                            status,
+                            style: TextStyle(
+                              color: Colors.green.shade700,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        query,
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(fontSize: 14),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        formatDate(addDate),
+                        style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+                      ),
+
+                      // Show response if present
+                      if (response != null && response.toString().trim().isNotEmpty) ...[
+                        const SizedBox(height: 8),
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.blue.shade50,
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(color: Colors.blue.shade100),
+                          ),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Icon(Icons.reply, size: 16, color: Colors.blue),
+                              const SizedBox(width: 6),
+                              Expanded(
+                                child: Text(
+                                  response.toString(),
+                                  style: const TextStyle(
+                                    fontSize: 13,
+                                    color: Colors.black87,
+                                    height: 1.4,
+                                  ),
                                 ),
                               ),
-                            ),
-                            const Spacer(),
-                            Text(
-                              status,
-                              style: TextStyle(
-                                color: Colors.green.shade700,
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          query,
-                          maxLines: 3,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(fontSize: 14),
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          formatDate(addDate),
-                          style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+                            ],
+                          ),
                         ),
                       ],
-                    ),
-                  )
-                ],
-              ),
+                    ],
+                  ),
+                )
+              ],
             ),
           ),
         );
       },
     );
   }
+
 
   Color getTypeColor(String type) {
     switch (type.toLowerCase()) {
@@ -566,191 +590,191 @@ class _QueryListScreenState extends State<QueryListScreen>
 
 
 
-class QueryDetailsScreen extends StatefulWidget {
-  final String id;
+// class QueryDetailsScreen extends StatefulWidget {
+//   final String id;
+//
+//   const QueryDetailsScreen({super.key, required this.id});
+//
+//   @override
+//   State<QueryDetailsScreen> createState() => _QueryDetailsScreenState();
+// }
 
-  const QueryDetailsScreen({super.key, required this.id});
-
-  @override
-  State<QueryDetailsScreen> createState() => _QueryDetailsScreenState();
-}
-
-class _QueryDetailsScreenState extends State<QueryDetailsScreen> {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Query Details')),
-      body: FutureBuilder<Map<String, dynamic>?>(
-        future: _getQueryDetails(widget.id),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: SizedBox.square(
-                dimension: 28,
-                child: CircularProgressIndicator(),
-              ),
-            );
-          }
-
-          if (snapshot.hasData && snapshot.data != null) {
-            final data = snapshot.data!['data'];
-            return SingleChildScrollView(
-              child: _buildQueryDetails(data),
-            );
-          }
-
-          return const Center(child: Text('Something went wrong!'));
-        },
-      ),
-    );
-  }
-
-  Widget _buildQueryDetails(Map<String, dynamic> data) {
-    final String? imageUrl = data['photo'];
-    final String? query = data['query'];
-    final String? response = data['response'];
-    final String? addDate = data['add_date'];
-    final String? updateDate = data['update_date'];
-    final String status = (data['query_status'] ?? 'closed').toString();
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Image
-        CustomNetworkImage(
-          imageUrl: imageUrl,
-          height: 280,
-          width: double.infinity,
-          fit: BoxFit.cover,
-        ),
-        const SizedBox(height: 24),
-
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Message + Status Row
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Message', style: Theme.of(context).textTheme.bodyMedium!.copyWith(fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black87,)),
-                        const SizedBox(height: 6),
-                        Text(query ?? '-', style: Theme.of(context).textTheme.bodyMedium!.copyWith(  fontSize: 14,
-                          color: Colors.black87,)),
-                      ],
-                    ),
-                  ),
-                  Chip(
-                    label: Text(
-                      status.toLowerCase() == 'opened' ? 'Open' : 'Closed',
-                      style: const TextStyle(color: Colors.white),
-                    ),
-                    backgroundColor: status.toLowerCase() == 'opened'
-                        ? Colors.green
-                        : Colors.grey,
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-
-              // Added Date
-              Row(
-                children: [
-                  const Icon(Icons.calendar_today, size: 16, color: Colors.grey),
-                  const SizedBox(width: 8),
-                  Text('Added On: ', style: Theme.of(context).textTheme.bodyMedium!.copyWith(fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,)),
-                  Expanded(child: Text(_formatDate(addDate), style: Theme.of(context).textTheme.bodyMedium!.copyWith(  fontSize: 14,
-                    color: Colors.black87,))),
-                ],
-              ),
-              const SizedBox(height: 12),
-
-              // Updated Date
-              Row(
-                children: [
-                  const Icon(Icons.update, size: 16, color: Colors.grey),
-                  const SizedBox(width: 8),
-                  Text('Last Updated: ', style: Theme.of(context).textTheme.bodyMedium!.copyWith(fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,)),
-                  Expanded(child: Text(_formatDate(updateDate), style: Theme.of(context).textTheme.bodyMedium!.copyWith(  fontSize: 14,
-                    color: Colors.black87,))),
-                ],
-              ),
-              const SizedBox(height: 24),
-
-              // Response Section
-              if (response != null && response.trim().isNotEmpty) ...[
-                Text('Response', style: Theme.of(context).textTheme.bodyMedium!.copyWith(fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,)),
-                const SizedBox(height: 6),
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.blue.shade50,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.blue.shade100),
-                  ),
-                  child: Text(response, style: Theme.of(context).textTheme.bodyMedium!.copyWith(  fontSize: 14,
-    color: Colors.black87,)),
-                ),
-                const SizedBox(height: 12),
-              ],
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-
-
-  String _formatDate(String? dateStr) {
-    if (dateStr == null || dateStr.isEmpty) return '-';
-    try {
-      final parsed = DateTime.parse(dateStr);
-      return DateFormat('dd MMM yyyy • hh:mm a').format(parsed);
-    } catch (_) {
-      return dateStr;
-    }
-  }
-
-  Future<Map<String, dynamic>?> _getQueryDetails(String id) async {
-    final token = Pref.instance.getString(Consts.user_token);
-    try {
-      final url = Uri.https(Urls.base_url, '/api/query-center/$id/view/');
-      final response = await get(url, headers: {
-        'Authorization': 'Bearer $token',
-      });
-
-      if (response.statusCode == 200) {
-        final body = json.decode(response.body);
-        if (body['isScuss'] == true) {
-          return body;
-        }
-      } else {
-        handleHttpResponse(context, response);
-      }
-    } catch (e, trace) {
-      print('Exception: $e\nTrace: $trace');
-    }
-    return null;
-  }
-
-}
+// class _QueryDetailsScreenState extends State<QueryDetailsScreen> {
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(title: const Text('Query Details')),
+//       body: FutureBuilder<Map<String, dynamic>?>(
+//         future: _getQueryDetails(widget.id),
+//         builder: (context, snapshot) {
+//           if (snapshot.connectionState == ConnectionState.waiting) {
+//             return const Center(
+//               child: SizedBox.square(
+//                 dimension: 28,
+//                 child: CircularProgressIndicator(),
+//               ),
+//             );
+//           }
+//
+//           if (snapshot.hasData && snapshot.data != null) {
+//             final data = snapshot.data!['data'];
+//             return SingleChildScrollView(
+//               child: _buildQueryDetails(data),
+//             );
+//           }
+//
+//           return const Center(child: Text('Something went wrong!'));
+//         },
+//       ),
+//     );
+//   }
+//
+//   Widget _buildQueryDetails(Map<String, dynamic> data) {
+//     final String? imageUrl = data['photo'];
+//     final String? query = data['query'];
+//     final String? response = data['response'];
+//     final String? addDate = data['add_date'];
+//     final String? updateDate = data['update_date'];
+//     final String status = (data['query_status'] ?? 'closed').toString();
+//
+//     return Column(
+//       crossAxisAlignment: CrossAxisAlignment.start,
+//       children: [
+//         // Image
+//         CustomNetworkImage(
+//           imageUrl: imageUrl,
+//           height: 280,
+//           width: double.infinity,
+//           fit: BoxFit.cover,
+//         ),
+//         const SizedBox(height: 24),
+//
+//         Padding(
+//           padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+//           child: Column(
+//             crossAxisAlignment: CrossAxisAlignment.start,
+//             children: [
+//               // Message + Status Row
+//               Row(
+//                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//                 crossAxisAlignment: CrossAxisAlignment.start,
+//                 children: [
+//                   Expanded(
+//                     child: Column(
+//                       crossAxisAlignment: CrossAxisAlignment.start,
+//                       children: [
+//                         Text('Message', style: Theme.of(context).textTheme.bodyMedium!.copyWith(fontSize: 16,
+//                           fontWeight: FontWeight.bold,
+//                           color: Colors.black87,)),
+//                         const SizedBox(height: 6),
+//                         Text(query ?? '-', style: Theme.of(context).textTheme.bodyMedium!.copyWith(  fontSize: 14,
+//                           color: Colors.black87,)),
+//                       ],
+//                     ),
+//                   ),
+//                   Chip(
+//                     label: Text(
+//                       status.toLowerCase() == 'opened' ? 'Open' : 'Closed',
+//                       style: const TextStyle(color: Colors.white),
+//                     ),
+//                     backgroundColor: status.toLowerCase() == 'opened'
+//                         ? Colors.green
+//                         : Colors.grey,
+//                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+//                   ),
+//                 ],
+//               ),
+//               const SizedBox(height: 20),
+//
+//               // Added Date
+//               Row(
+//                 children: [
+//                   const Icon(Icons.calendar_today, size: 16, color: Colors.grey),
+//                   const SizedBox(width: 8),
+//                   Text('Added On: ', style: Theme.of(context).textTheme.bodyMedium!.copyWith(fontSize: 16,
+//                     fontWeight: FontWeight.bold,
+//                     color: Colors.black87,)),
+//                   Expanded(child: Text(_formatDate(addDate), style: Theme.of(context).textTheme.bodyMedium!.copyWith(  fontSize: 14,
+//                     color: Colors.black87,))),
+//                 ],
+//               ),
+//               const SizedBox(height: 12),
+//
+//               // Updated Date
+//               Row(
+//                 children: [
+//                   const Icon(Icons.update, size: 16, color: Colors.grey),
+//                   const SizedBox(width: 8),
+//                   Text('Last Updated: ', style: Theme.of(context).textTheme.bodyMedium!.copyWith(fontSize: 16,
+//                     fontWeight: FontWeight.bold,
+//                     color: Colors.black87,)),
+//                   Expanded(child: Text(_formatDate(updateDate), style: Theme.of(context).textTheme.bodyMedium!.copyWith(  fontSize: 14,
+//                     color: Colors.black87,))),
+//                 ],
+//               ),
+//               const SizedBox(height: 24),
+//
+//               // Response Section
+//               if (response != null && response.trim().isNotEmpty) ...[
+//                 Text('Response', style: Theme.of(context).textTheme.bodyMedium!.copyWith(fontSize: 16,
+//                   fontWeight: FontWeight.bold,
+//                   color: Colors.black87,)),
+//                 const SizedBox(height: 6),
+//                 Container(
+//                   width: double.infinity,
+//                   padding: const EdgeInsets.all(12),
+//                   decoration: BoxDecoration(
+//                     color: Colors.blue.shade50,
+//                     borderRadius: BorderRadius.circular(8),
+//                     border: Border.all(color: Colors.blue.shade100),
+//                   ),
+//                   child: Text(response, style: Theme.of(context).textTheme.bodyMedium!.copyWith(  fontSize: 14,
+//     color: Colors.black87,)),
+//                 ),
+//                 const SizedBox(height: 12),
+//               ],
+//             ],
+//           ),
+//         ),
+//       ],
+//     );
+//   }
+//
+//
+//
+//   String _formatDate(String? dateStr) {
+//     if (dateStr == null || dateStr.isEmpty) return '-';
+//     try {
+//       final parsed = DateTime.parse(dateStr);
+//       return DateFormat('dd MMM yyyy • hh:mm a').format(parsed);
+//     } catch (_) {
+//       return dateStr;
+//     }
+//   }
+//
+//   Future<Map<String, dynamic>?> _getQueryDetails(String id) async {
+//     final token = Pref.instance.getString(Consts.user_token);
+//     try {
+//       final url = Uri.https(Urls.base_url, '/api/query-center/$id/view/');
+//       final response = await get(url, headers: {
+//         'Authorization': 'Bearer $token',
+//       });
+//
+//       if (response.statusCode == 200) {
+//         final body = json.decode(response.body);
+//         if (body['isScuss'] == true) {
+//           return body;
+//         }
+//       } else {
+//         handleHttpResponse(context, response);
+//       }
+//     } catch (e, trace) {
+//       print('Exception: $e\nTrace: $trace');
+//     }
+//     return null;
+//   }
+//
+// }
 
 
 

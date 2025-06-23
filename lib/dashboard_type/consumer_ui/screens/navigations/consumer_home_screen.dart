@@ -79,6 +79,7 @@ class _ConsumerHomeScreenState extends State<ConsumerHomeScreen> {
                      count: value,
                      onTap: (){
                        Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ProductCatalogueScreen(
+                         title: 'Product Catalogues',
                        )));
                      },
                    ),

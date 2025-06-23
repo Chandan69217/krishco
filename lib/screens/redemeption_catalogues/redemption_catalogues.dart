@@ -295,12 +295,10 @@ class _RedemptionCataloguesScreenState extends State<RedemptionCataloguesScreen>
     final List<Map<String, dynamic>> tempProducts = [];
 
     for (var item in dataList) {
-      final List products = item['product_details'] ?? [];
+      final Map<String,dynamic> product = item['product_details'] ?? [];
       final int points = item['points'] ?? 0;
-      for (var product in products) {
-        product['points'] = points;
-        tempProducts.add(product);
-      }
+      product['points'] = points;
+      tempProducts.add(product);
     }
     WidgetsBinding.instance.addPostFrameCallback((duration){
       setState(() {

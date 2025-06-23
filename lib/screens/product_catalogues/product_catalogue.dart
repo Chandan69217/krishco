@@ -374,15 +374,15 @@ class _CatalogueGalleryView extends StatelessWidget {
   Widget build(BuildContext context) {
     final List<Map<String, dynamic>> catalogueItems = [];
     for (var item in dataList) {
-      final List catalogues = item['catalogue'] ?? [];
-      for (var url in catalogues) {
-        catalogueItems.add({
-          'url': url,
-          'isPDF': url.toString().toLowerCase().endsWith('.pdf'),
-          'company': item['add_by']?['name'] ?? 'Unknown',
-          'newArrival': item['new_arrivals'] == true,
-        });
-      }
+      // final List catalogues = item['catalogue'] ?? [];
+      // for (var url in catalogues) {
+      //
+      // }
+      catalogueItems.add({
+        'url': item['catalogue'],
+        'isPDF': item['catalogue'].toString().toLowerCase().endsWith('.pdf'),
+        'newArrival': item['new_arrivals'] == true,
+      });
     }
 
     if (catalogueItems.isEmpty) {

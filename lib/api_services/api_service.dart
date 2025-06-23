@@ -1350,10 +1350,7 @@ class _ProductCatalogues{
     final value = await getProductCatalogues();
     if(value != null){
       final data = value['data'] as List<dynamic>;
-      for(var v in data){
-        final catalogues = v['catalogue'] as List<dynamic>;
-        count += catalogues.length;
-      }
+      return data.length;
     }
     return count;
   }
