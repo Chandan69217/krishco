@@ -8,8 +8,8 @@ import 'package:krishco/screens/redemeption_catalogues/redemption_catalogues.dar
 
 
 
-class ChannelPartnerHomeScreen extends StatelessWidget {
-  ChannelPartnerHomeScreen({super.key});
+class InfluencerHomeScreen extends StatelessWidget {
+  InfluencerHomeScreen({super.key});
 
   final List<FlSpot> loyaltyPoints = [
     FlSpot(0, 30),
@@ -87,30 +87,30 @@ class ChannelPartnerHomeScreen extends StatelessWidget {
                             ));
                           },
                         ),
-                        // DashboardMenuButton(
-                        //   icon: Icons.fiber_new,
-                        //   label: 'New Arrivals',
-                        //   onTap: () {
-                        //     Navigator.push(context, MaterialPageRoute(
-                        //       builder: (_) => ProductCatalogueScreen(
-                        //         selectedTabIndex: 1,
-                        //         showNewArrivalsOnly: true,
-                        //         title: 'New Arrivals',
-                        //       ),
-                        //     ));
-                        //   },
-                        // ),
-                        // DashboardMenuButton(
-                        //   icon: Icons.card_giftcard,
-                        //   label: 'Redemption Catalogues',
-                        //   onTap: () {
-                        //     Navigator.push(context, MaterialPageRoute(
-                        //       builder: (_) => RedemptionCataloguesScreen(
-                        //         title: "Redemption Catalogues",
-                        //       ),
-                        //     ));
-                        //   },
-                        // ),
+                        DashboardMenuButton(
+                          icon: Icons.fiber_new,
+                          label: 'New Arrivals',
+                          onTap: () {
+                            Navigator.push(context, MaterialPageRoute(
+                              builder: (_) => ProductCatalogueScreen(
+                                selectedTabIndex: 1,
+                                showNewArrivalsOnly: true,
+                                title: 'New Arrivals',
+                              ),
+                            ));
+                          },
+                        ),
+                        DashboardMenuButton(
+                          icon: Icons.card_giftcard,
+                          label: 'Redemption Catalogues',
+                          onTap: () {
+                            Navigator.push(context, MaterialPageRoute(
+                              builder: (_) => RedemptionCataloguesScreen(
+                                title: "Redemption Catalogues",
+                              ),
+                            ));
+                          },
+                        ),
                       ],
                     ),
                   ),

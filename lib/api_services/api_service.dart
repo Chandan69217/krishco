@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart';
 import 'package:http/http.dart' as http;
-import 'package:krishco/dashboard_type/channel_partner_ui/models/login_details_data.dart';
+import 'package:krishco/models/login_data/login_details_data.dart';
 import 'package:krishco/models/kyc_proof_related/kyc_proof_model.dart';
 import 'package:krishco/screens/splash/splash_screen.dart';
 import 'package:krishco/api_services/api_urls.dart';

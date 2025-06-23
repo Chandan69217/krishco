@@ -11,15 +11,15 @@ import 'package:krishco/widgets/choose_file.dart';
 
 
 
-class ChannelPartnerPlaceOrderScreen extends StatefulWidget {
-  const ChannelPartnerPlaceOrderScreen({super.key,this.onSuccess});
+class PlaceOrderScreen extends StatefulWidget {
+  const PlaceOrderScreen({super.key,this.onSuccess});
   final VoidCallback? onSuccess;
   @override
-  State<ChannelPartnerPlaceOrderScreen> createState() => _ChannelPartnerPlaceOrderScreenState();
+  State<PlaceOrderScreen> createState() => _PlaceOrderScreenState();
 }
 
 
-class _ChannelPartnerPlaceOrderScreenState extends State<ChannelPartnerPlaceOrderScreen> {
+class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
   String _orderFor = 'self';
   bool _isEnterpriseNotListed = false;
   final _orderForNameController = TextEditingController();

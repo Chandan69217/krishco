@@ -3,7 +3,7 @@ import 'package:custom_refresh_indicator/custom_refresh_indicator.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:krishco/api_services/api_service.dart';
-import 'package:krishco/dashboard_type/channel_partner_ui/screens/channel_partner_place_order_screen.dart';
+import 'package:krishco/screens/orders/place_order_screen.dart';
 import 'package:krishco/models/order_related/order_list.dart';
 import 'package:krishco/models/order_related/order_product_data.dart';
 import 'package:krishco/models/order_related/order_reporting_list_data.dart';
@@ -12,12 +12,12 @@ import 'package:krishco/widgets/cust_loader.dart';
 
 
 
-class ChannelPartnerOrdersScreen extends StatefulWidget {
+class OrdersScreen extends StatefulWidget {
   @override
-  _ChannelPartnerOrdersScreenState createState() => _ChannelPartnerOrdersScreenState();
+  _OrdersScreenState createState() => _OrdersScreenState();
 }
 
-class _ChannelPartnerOrdersScreenState extends State<ChannelPartnerOrdersScreen> {
+class _OrdersScreenState extends State<OrdersScreen> {
   int selectedTabIndex = 0;
   OrderListData? orderList;
   OrderReportingListData? orderReportingList;
@@ -265,7 +265,7 @@ class _ChannelPartnerOrdersScreenState extends State<ChannelPartnerOrdersScreen>
       heroTag: 'order_fav_button',
       foregroundColor: Colors.white,
       onPressed: () {
-        Navigator.of(context).push(MaterialPageRoute(builder: (context) => ChannelPartnerPlaceOrderScreen(
+        Navigator.of(context).push(MaterialPageRoute(builder: (context) => PlaceOrderScreen(
           onSuccess: (){
             _fetchOrderData();
           },

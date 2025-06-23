@@ -12,14 +12,14 @@ import 'package:krishco/utilities/permission_handler.dart';
 import 'package:krishco/widgets/choose_file.dart';
 import 'package:krishco/widgets/cust_snack_bar.dart';
 
-class ChannelPartnerCreateClaimScreen extends StatefulWidget {
+class CreateClaimScreen extends StatefulWidget {
   final VoidCallback? onSuccess;
-  ChannelPartnerCreateClaimScreen({this.onSuccess});
+  CreateClaimScreen({this.onSuccess});
   @override
-  _ChannelPartnerCreateClaimScreenState createState() => _ChannelPartnerCreateClaimScreenState();
+  _CreateClaimScreenState createState() => _CreateClaimScreenState();
 }
 
-class _ChannelPartnerCreateClaimScreenState extends State<ChannelPartnerCreateClaimScreen> {
+class _CreateClaimScreenState extends State<CreateClaimScreen> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _invoiceNumberController = TextEditingController();
   final TextEditingController _claimAmountController = TextEditingController();

@@ -1,17 +1,17 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:krishco/api_services/api_service.dart';
-import 'package:krishco/dashboard_type/channel_partner_ui/models/login_details_data.dart';
-import 'package:krishco/dashboard_type/channel_partner_ui/screens/channel_partner_change_password_screen.dart';
+import 'package:krishco/models/login_data/login_details_data.dart';
+import 'package:krishco/screens/change_password_screen.dart';
 import 'package:krishco/dashboard_type/channel_partner_ui/screens/channel_partner_notification_screen.dart';
-import 'package:krishco/dashboard_type/channel_partner_ui/screens/channel_partner_edit_details_screen.dart';
-import 'package:krishco/dashboard_type/channel_partner_ui/screens/channel_partner_kyc_screen.dart';
+import 'package:krishco/screens/edit_details_screen.dart';
+import 'package:krishco/screens/kyc_screen.dart';
+import 'package:krishco/screens/claim_invoice/claim_invoice_screen.dart';
 import 'package:krishco/screens/support/query_list_screen.dart';
 import 'package:krishco/screens/support/support_screen.dart';
-import 'package:krishco/dashboard_type/channel_partner_ui/screens/navigations/channel_partner_claim_screen.dart';
 import 'package:krishco/dashboard_type/channel_partner_ui/screens/navigations/channel_partner_home_screen.dart';
 import 'package:krishco/dashboard_type/channel_partner_ui/screens/navigations/channel_partner_my_wallet.dart';
-import 'package:krishco/dashboard_type/channel_partner_ui/screens/navigations/channel_partner_orders_screen.dart';
+import 'package:krishco/screens/orders/orders_screen.dart';
 import 'package:krishco/screens/authentication/login_screen.dart';
 import 'package:krishco/screens/scan_code_screen.dart';
 import 'package:krishco/screens/splash/splash_screen.dart';
@@ -29,7 +29,7 @@ class ChannelPartnerDashboard extends StatefulWidget {
 class _ChannelPartnerDashboardState extends State<ChannelPartnerDashboard> {
   final List<String> _titles = ['Home', 'Claims', 'Orders', 'My Wallet'];
   int _currentIndex = 0;
-  final List<Widget> _screens = [ChannelPartnerHomeScreen(),ChannelPartnerClaimScreen(),ChannelPartnerOrdersScreen(),ChannelPartnerMyWallet()];
+  final List<Widget> _screens = [ChannelPartnerHomeScreen(),ClaimScreen(),OrdersScreen(),ChannelPartnerMyWallet()];
 
   @override
   void initState() {
@@ -187,18 +187,18 @@ class _ChannelPartnerDashboardState extends State<ChannelPartnerDashboard> {
                   child: Column(
                     children: [
                       _buildMenu(iconData:  Icons.edit, label: 'Edit Details',onTap: (){
-                        Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ChannelPartnerEditDetailsScreen(onUpdated: (){
+                        Navigator.of(context).push(MaterialPageRoute(builder: (context)=>EditDetailsScreen(onUpdated: (){
                           _init();
                         },)));
                       }),
                       _buildMenu(iconData: Icons.badge, label: 'KYC Details',onTap: (){
-                        Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ChannelPartnerKycScreen()));
+                        Navigator.of(context).push(MaterialPageRoute(builder: (context)=>KycScreen()));
                       },
                           trailing: Text(Pref.instance.getString(Consts.kyc_status)??'',style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: Colors.orange),)
                       ),
                       Divider(height: 2,),
                       _buildMenu(iconData: Icons.lock, label: 'Change Password',onTap: (){
-                        Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ChannelPartnerChangePasswordScreen()));
+                        Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ChangePasswordScreen()));
                       }),
                       _buildMenu(iconData:  Icons.question_answer, label: 'Feedback & Queries',onTap: (){
                         Navigator.of(context).push(MaterialPageRoute(builder: (context)=> QueryListScreen()));

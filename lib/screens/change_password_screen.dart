@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:krishco/api_services/api_service.dart';
 import 'package:krishco/widgets/cust_dialog_box/cust_dialog_box.dart';
 
-class ChannelPartnerChangePasswordScreen extends StatefulWidget {
-  const ChannelPartnerChangePasswordScreen({super.key});
+class ChangePasswordScreen extends StatefulWidget {
+  const ChangePasswordScreen({super.key});
 
   @override
-  State<ChannelPartnerChangePasswordScreen> createState() =>
-      _ChannelPartnerChangePasswordScreenState();
+  State<ChangePasswordScreen> createState() =>
+      _ChangePasswordScreenState();
 }
 
-class _ChannelPartnerChangePasswordScreenState
-    extends State<ChannelPartnerChangePasswordScreen> {
+class _ChangePasswordScreenState
+    extends State<ChangePasswordScreen> {
   final _formKey = GlobalKey<FormState>();
 
   bool _showCurrentPassword = false;

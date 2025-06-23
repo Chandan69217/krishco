@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:krishco/api_services/api_service.dart';
-import 'package:krishco/dashboard_type/channel_partner_ui/models/login_details_data.dart';
+import 'package:krishco/models/login_data/login_details_data.dart';
 import 'package:krishco/models/transportation_related/transportation_list_data.dart';
 import 'package:krishco/utilities/cust_colors.dart';
 import 'package:krishco/widgets/cust_dialog_box/cust_dialog_box.dart';
@@ -13,20 +13,20 @@ import 'package:krishco/widgets/cust_snack_bar.dart';
 import 'package:krishco/widgets/custom_network_image/custom_network_image.dart';
 
 
-class ConsumerEditDetailsScreen extends StatefulWidget {
+class EditDetailsScreen extends StatefulWidget {
   final VoidCallback? onUpdated;
-  const ConsumerEditDetailsScreen({super.key, required this.onUpdated});
+  const EditDetailsScreen({super.key, required this.onUpdated});
 
   @override
-  State<ConsumerEditDetailsScreen> createState() =>
-      _ConsumerEditDetailsScreenState();
+  State<EditDetailsScreen> createState() =>
+      _EditDetailsScreenState();
 }
 
-class _ConsumerEditDetailsScreenState
-    extends State<ConsumerEditDetailsScreen> {
+class _EditDetailsScreenState
+    extends State<EditDetailsScreen> {
   final _formKey = GlobalKey<FormState>();
   final GlobalKey<_EmergencyContactFormState> _contactFormKey =
-  GlobalKey<_EmergencyContactFormState>();
+      GlobalKey<_EmergencyContactFormState>();
   final GlobalKey<_TransportationDetailsState> _otherDetailsKey = GlobalKey<_TransportationDetailsState>();
   final TextEditingController _emailTextController = TextEditingController();
   final TextEditingController _firstNameController = TextEditingController();
@@ -162,20 +162,20 @@ class _ConsumerEditDetailsScreenState
 
                       _isLoading
                           ? Center(
-                        child: SizedBox.square(
-                          dimension: 25,
-                          child: CircularProgressIndicator(
-                            color: CustColors.nile_blue,
-                          ),
-                        ),
-                      )
+                            child: SizedBox.square(
+                              dimension: 25,
+                              child: CircularProgressIndicator(
+                                color: CustColors.nile_blue,
+                              ),
+                            ),
+                          )
                           : SizedBox(
-                        width: MediaQuery.of(context).size.width,
-                        child: ElevatedButton(
-                          onPressed: _onUpdate,
-                          child: Text('Update'),
-                        ),
-                      ),
+                            width: MediaQuery.of(context).size.width,
+                            child: ElevatedButton(
+                              onPressed: _onUpdate,
+                              child: Text('Update'),
+                            ),
+                          ),
                     ],
                   ),
                 ),
@@ -557,8 +557,8 @@ class _ConsumerEditDetailsScreenState
         border: const OutlineInputBorder(),
       ),
       validator:
-      validator ??
-              (value) {
+          validator ??
+          (value) {
             if (isRequired && (value == null || value.trim().isEmpty)) {
               return 'Enter $label';
             }
@@ -696,7 +696,7 @@ class _TransportationDetails extends StatefulWidget {
 
 class _TransportationDetailsState extends State<_TransportationDetails> {
   final ValueNotifier<Map<String, String>?> transportationList =
-  ValueNotifier<Map<String, String>?>(null);
+      ValueNotifier<Map<String, String>?>(null);
   String? _selectedTransporter;
   Map<String, String> savedTransporter = {};
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -710,14 +710,14 @@ class _TransportationDetailsState extends State<_TransportationDetails> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       List<TransportationData> transporterList;
       final response =
-      await APIService.getInstance(
-        context,
-      ).transportationDetails.getTransportationList();
+          await APIService.getInstance(
+            context,
+          ).transportationDetails.getTransportationList();
       if (response != null) {
         transporterList = TransportationDataList.fromJson(response).data;
         transportationList.value = Map<String, String>.fromEntries(
           transporterList.map(
-                (x) => MapEntry(x.tId.toString(), '${x.tName} - ${x.contNo}'),
+            (x) => MapEntry(x.tId.toString(), '${x.tName} - ${x.contNo}'),
           ),
         );
         if (widget.transporationIDs.isNotEmpty)
@@ -770,52 +770,52 @@ class _TransportationDetailsState extends State<_TransportationDetails> {
               const SizedBox(height: 12.0),
               Column(
                 children:
-                savedTransporter.entries
-                    .toList()
-                    .asMap()
-                    .entries
-                    .map<Widget>((entry) {
-                  int index = entry.key;
-                  MapEntry<dynamic, String?> item = entry.value;
+                    savedTransporter.entries
+                        .toList()
+                        .asMap()
+                        .entries
+                        .map<Widget>((entry) {
+                          int index = entry.key;
+                          MapEntry<dynamic, String?> item = entry.value;
 
-                  return Container(
-                    margin: const EdgeInsets.symmetric(vertical: 4.0),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.rectangle,
-                      borderRadius: BorderRadius.circular(10),
-                      boxShadow: [
-                        BoxShadow(
-                          blurRadius: 4.0,
-                          // offset: Offset(4, 4),
-                          color: Colors.black12,
-                        ),
-                      ],
-                    ),
-                    child: ListTile(
-                      contentPadding: EdgeInsets.symmetric(
-                        horizontal: 6.0,
-                      ),
-                      leading: CircleAvatar(
-                        backgroundColor: Colors.teal,
-                        child: Text(
-                          '${index + 1}',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ),
-                      title: Text(item.value ?? 'No name'),
-                      trailing: IconButton(
-                        icon: Icon(Icons.delete, color: Colors.red),
-                        onPressed: () {
-                          setState(() {
-                            savedTransporter.remove(item.key);
-                          });
-                        },
-                      ),
-                    ),
-                  );
-                })
-                    .toList(),
+                          return Container(
+                            margin: const EdgeInsets.symmetric(vertical: 4.0),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              shape: BoxShape.rectangle,
+                              borderRadius: BorderRadius.circular(10),
+                              boxShadow: [
+                                BoxShadow(
+                                  blurRadius: 4.0,
+                                  // offset: Offset(4, 4),
+                                  color: Colors.black12,
+                                ),
+                              ],
+                            ),
+                            child: ListTile(
+                              contentPadding: EdgeInsets.symmetric(
+                                horizontal: 6.0,
+                              ),
+                              leading: CircleAvatar(
+                                backgroundColor: Colors.teal,
+                                child: Text(
+                                  '${index + 1}',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                              ),
+                              title: Text(item.value ?? 'No name'),
+                              trailing: IconButton(
+                                icon: Icon(Icons.delete, color: Colors.red),
+                                onPressed: () {
+                                  setState(() {
+                                    savedTransporter.remove(item.key);
+                                  });
+                                },
+                              ),
+                            ),
+                          );
+                        })
+                        .toList(),
               ),
 
               const SizedBox(height: 12.0),
@@ -841,25 +841,25 @@ class _TransportationDetailsState extends State<_TransportationDetails> {
                         ),
                         value: _selectedTransporter,
                         items:
-                        value.entries
-                            .where(
-                              (entry) =>
-                          !savedTransporter.containsKey(entry.key),
-                        )
-                            .map<DropdownMenuItem<String>>(
-                              (item) => DropdownMenuItem(
-                            value: item.key,
-                            child: Text(item.value),
-                          ),
-                        )
-                            .toList(),
+                            value.entries
+                                .where(
+                                  (entry) =>
+                                      !savedTransporter.containsKey(entry.key),
+                                )
+                                .map<DropdownMenuItem<String>>(
+                                  (item) => DropdownMenuItem(
+                                    value: item.key,
+                                    child: Text(item.value),
+                                  ),
+                                )
+                                .toList(),
                         onChanged:
                             (value) => setState(() {
-                          _selectedTransporter = value;
-                        }),
+                              _selectedTransporter = value;
+                            }),
                         validator:
                             (value) =>
-                        value == null ? 'Select a Transporter' : null,
+                                value == null ? 'Select a Transporter' : null,
                       ),
                     ),
                     SizedBox(width: 12.0),
@@ -878,7 +878,7 @@ class _TransportationDetailsState extends State<_TransportationDetails> {
                           );
                           setState(() {
                             _selectedTransporter =
-                            null; // 🔄 Reset dropdown after add
+                                null; // 🔄 Reset dropdown after add
                           });
                         },
 
@@ -1155,8 +1155,8 @@ class _ProfileUpdateSectionState extends State<ProfileUpdateSection> {
         border: const OutlineInputBorder(),
       ),
       validator:
-      validator ??
-              (value) {
+          validator ??
+          (value) {
             if (isRequired && (value == null || value.trim().isEmpty)) {
               return 'Enter $label';
             }
@@ -1214,8 +1214,8 @@ class _EmergencyContactFormState extends State<EmergencyContactForm> {
 
   bool validateAndSave() {
     final isValid = contacts.every(
-          (contact) =>
-      contact.name.trim().isNotEmpty &&
+      (contact) =>
+          contact.name.trim().isNotEmpty &&
           contact.relationship.trim().isNotEmpty &&
           contact.contactNumber.trim().isNotEmpty,
     );
@@ -1378,14 +1378,14 @@ class _EmergencyContactFormState extends State<EmergencyContactForm> {
     required VoidCallback onCancel,
   }) {
     final availableTypes =
-    relativesName.where((r) {
-      return contacts.every(
+        relativesName.where((r) {
+          return contacts.every(
             (emergency) =>
-        emergency.relationship != r ||
-            (editingIndex != null &&
-                contacts[editingIndex!].relationship == r),
-      );
-    }).toList();
+                emergency.relationship != r ||
+                (editingIndex != null &&
+                    contacts[editingIndex!].relationship == r),
+          );
+        }).toList();
 
     if (selectedRelationship != null &&
         !availableTypes.contains(selectedRelationship)) {
@@ -1404,9 +1404,9 @@ class _EmergencyContactFormState extends State<EmergencyContactForm> {
             border: OutlineInputBorder(),
           ),
           items:
-          availableTypes
-              .map((e) => DropdownMenuItem(value: e, child: Text(e)))
-              .toList(),
+              availableTypes
+                  .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+                  .toList(),
           value: selectedRelationship,
           onChanged: (val) => setState(() => selectedRelationship = val),
           validator: (t) {
@@ -1440,12 +1440,12 @@ class _EmergencyContactFormState extends State<EmergencyContactForm> {
   }
 
   Widget _buildTextField(
-      TextEditingController controller,
-      String label,
-      IconData icon, [
-        TextInputType inputType = TextInputType.text,
-        int? maxLength,
-      ]) {
+    TextEditingController controller,
+    String label,
+    IconData icon, [
+    TextInputType inputType = TextInputType.text,
+    int? maxLength,
+  ]) {
     return TextFormField(
       controller: controller,
       keyboardType: inputType,
@@ -1481,9 +1481,9 @@ class EmergencyContact {
 class _DateFormatter extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(
-      TextEditingValue oldValue,
-      TextEditingValue newValue,
-      ) {
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
     String digitsOnly = newValue.text.replaceAll(RegExp(r'[^0-9]'), '');
 
     String formatted = '';

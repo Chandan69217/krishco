@@ -7,13 +7,13 @@ import 'package:krishco/utilities/cust_colors.dart';
 import 'package:krishco/widgets/choose_file.dart';
 
 
-class ChannelPartnerKycScreen extends StatefulWidget {
+class KycScreen extends StatefulWidget {
   @override
-  _ChannelPartnerKycScreenState createState() =>
-      _ChannelPartnerKycScreenState();
+  _KycScreenState createState() =>
+      _KycScreenState();
 }
 
-class _ChannelPartnerKycScreenState extends State<ChannelPartnerKycScreen> {
+class _KycScreenState extends State<KycScreen> {
   final _formKey = GlobalKey<FormState>();
   final GlobalKey<_ProofSectionWidgetState> _idProofKey =
       GlobalKey<_ProofSectionWidgetState>();
@@ -26,6 +26,7 @@ class _ChannelPartnerKycScreenState extends State<ChannelPartnerKycScreen> {
   String custNumber = 'N/A';
   List<ProofModel> _initSavedIDProofs = [];
   List<ProofModel> _initSavedAddressProofs = [];
+  bool _isLoading = false;
   // Controllers for text fields
   final TextEditingController accHolderNameController = TextEditingController();
   final TextEditingController accountConfNumberController = TextEditingController();
@@ -63,7 +64,6 @@ class _ChannelPartnerKycScreenState extends State<ChannelPartnerKycScreen> {
     'Gas Bill',
     'Electricity Bill',
   ];
-  bool _isLoading = false;
 
   @override
   void initState() {
@@ -499,7 +499,7 @@ class _ChannelPartnerKycScreenState extends State<ChannelPartnerKycScreen> {
       // }
 
       setState(() {
-        _isLoading = false;
+        _isLoading = true;
       });
       final response = await APIService.getInstance(context).kycDetailsAPI.updateOrCreateKYC(
           idProofs: _idProofKey.currentState?.savedProofs??[],
