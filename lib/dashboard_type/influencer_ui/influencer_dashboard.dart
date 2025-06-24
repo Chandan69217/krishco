@@ -20,6 +20,8 @@ import 'package:krishco/utilities/constant.dart';
 import 'package:krishco/utilities/cust_colors.dart';
 import 'package:krishco/widgets/custom_network_image/custom_network_image.dart';
 
+import 'screens/navigations/influencer_home_screen.dart';
+
 
 class InfluencerDashboard extends StatefulWidget {
   @override
@@ -30,7 +32,7 @@ class InfluencerDashboard extends StatefulWidget {
 class _InfluencerDashboardState extends State<InfluencerDashboard> {
   final List<String> _titles = ['Home', 'Claims', 'Orders', 'My Wallet'];
   int _currentIndex = 0;
-  final List<Widget> _screens = [ChannelPartnerHomeScreen(),ClaimScreen(),OrdersScreen(),RedemptionCataloguesScreen(
+  final List<Widget> _screens = [InfluencerHomeScreen(),ClaimScreen(),OrdersScreen(),RedemptionCataloguesScreen(
   ),];
 
   @override
@@ -175,13 +177,13 @@ class _InfluencerDashboardState extends State<InfluencerDashboard> {
                             ],
                           ),
                         )
-      
+
                       ],
                     ),
                   ),
                 ),
               ),
-      
+
               Expanded(
                 flex: 4,
                 child: Container(
