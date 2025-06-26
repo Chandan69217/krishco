@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:developer';
-
 import 'package:custom_refresh_indicator/custom_refresh_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -23,6 +22,8 @@ import 'package:krishco/widgets/custom_textfield.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 import '../utilities/cust_colors.dart';
+
+
 
 class ScanCodeScreen extends StatefulWidget {
   final String? title;
@@ -238,15 +239,13 @@ class _ScanCodeScreenState extends State<ScanCodeScreen> {
 
 
 
-
-
 class ScannerScreen extends StatefulWidget {
   const ScannerScreen({super.key});
   @override
-  State<ScannerScreen> createState() => _HomeDashboardScreenState();
+  State<ScannerScreen> createState() => _ScannerScreenState();
 }
 
-class _HomeDashboardScreenState extends State<ScannerScreen> {
+class _ScannerScreenState extends State<ScannerScreen> {
   Barcode? result;
   QRViewController? controller;
   bool _isLoading = false;
@@ -263,10 +262,6 @@ class _HomeDashboardScreenState extends State<ScannerScreen> {
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
-
-    // Define font size based on screen size
-    double titleFontSize = screenWidth * 0.05;
-    double subTitleFontSize = screenWidth * 0.04;
 
     return Stack(
       children: [
@@ -306,46 +301,38 @@ class _HomeDashboardScreenState extends State<ScannerScreen> {
           // ],
           title: Text(
             'Scan',
-            style: TextStyle(fontSize: titleFontSize),
           ),
           centerTitle: true,
         ),
         body: SafeArea(
-          child: Padding(
-          padding: EdgeInsets.all(screenWidth * 0.06),
           child: Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                SizedBox(height: screenHeight * 0.01),
-
-                SizedBox(
-                  width: screenWidth * 0.6,
-                  child: RichText(
-                    text: TextSpan(
-                      text: 'Align the QR Code with in the frame to scan',
-                      style: TextStyle(fontSize: subTitleFontSize,color: Colors.black),
-                    ),
-                    softWrap: true,
-                    textAlign: TextAlign.center,
-                  ),
+                const SizedBox(height: 12.0,),
+                Text('Align the QR Code with in the frame to scan',
+                    style: Theme.of(context).textTheme.bodyLarge!.copyWith(fontWeight: FontWeight.w600,),
+                  softWrap: true,
+                  textAlign: TextAlign.center,
                 ),
 
-                SizedBox(height: screenHeight * 0.02),
+                const SizedBox(height: 12.0),
 
                 Expanded(child: _buildQrView(context)),
-                SizedBox(height: screenHeight * 0.03),
+                const SizedBox(height: 12.0),
 
-                CustomElevatedButton(text: 'Cancel', onPressed: (){
-                  Navigator.of(context).pop();
-                },
-                  elevation: 2,
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                  child: CustomElevatedButton(text: 'Cancel', onPressed: (){
+                    Navigator.of(context).pop();
+                  },
+                    elevation: 2,
+                  ),
                 ),
-                SizedBox(height: screenHeight * 0.03),
+                const SizedBox(height: 12.0),
               ],
             ),
           ),
-                    ),
         ),
       ),
         if(_isLoading)...[
@@ -366,10 +353,10 @@ class _HomeDashboardScreenState extends State<ScannerScreen> {
       key: qrKey,
       onQRViewCreated: _onQRViewCreated,
       overlay: QrScannerOverlayShape(
-        borderColor: Theme.of(context).colorScheme.inversePrimary,
-        borderRadius: 20,
-        borderLength: 30,
-        borderWidth: 10,
+        borderColor: CustColors.nile_blue,
+        borderRadius: 12,
+        borderLength: 20,
+        borderWidth: 8.0,
         cutOutSize: scanArea,
       ),
       onPermissionSet: (ctrl, p) => _onPermissionSet(context, ctrl, p),

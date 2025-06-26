@@ -1,3 +1,5 @@
+import 'package:intl/intl.dart';
+
 class ClaimListData {
   ClaimListData({
     required this.data,
@@ -14,6 +16,7 @@ class ClaimListData {
 }
 
 class ClaimData {
+  static final dateFormatted = DateFormat('hh:mm a dd MMM yyyy');
   ClaimData({
     required this.id,
     required this.claimNumber,
@@ -40,8 +43,8 @@ class ClaimData {
   final int? id;
   final String? claimNumber;
   final dynamic invoiceId;
-  final DateTime? invoiceDate;
-  final DateTime? claimedDate;
+  final String? invoiceDate;
+  final String? claimedDate;
   final ClaimedBy? claimedBy;
   final dynamic claimedFrom;
   final ClaimedFromOthers? claimedFromOthers;
@@ -55,16 +58,16 @@ class ClaimData {
   final String? claimStatus;
   final String? claimPosition;
   final String? appName;
-  final DateTime? createdDate;
-  final DateTime? editDate;
+  final String? createdDate;
+  final String? editDate;
 
   factory ClaimData.fromJson(Map<String, dynamic> json){
     return ClaimData(
       id: json["id"],
       claimNumber: json["claim_number"],
-      invoiceId: json["invoice_id"],
-      invoiceDate: DateTime.tryParse(json["invoice_date"] ?? ""),
-      claimedDate: DateTime.tryParse(json["claimed_date"] ?? ""),
+      invoiceId: json["invoice_id"]??null,
+      invoiceDate: json["invoice_date"] != null ? dateFormatted.format(DateTime.tryParse(json["invoice_date"] ?? "")!):'-',
+      claimedDate:json["claimed_date"] != null ? dateFormatted.format(DateTime.tryParse(json["claimed_date"] ?? "")!):'-',
       claimedBy: json["claimed_by"] == null ? null : ClaimedBy.fromJson(json["claimed_by"]),
       claimedFrom: json["claimed_from"],
       claimedFromOthers: json["claimed_from_others"] == null ? null : ClaimedFromOthers.fromJson(json["claimed_from_others"]),
@@ -78,8 +81,8 @@ class ClaimData {
       claimStatus: json["claim_status"],
       claimPosition: json["claim_position"],
       appName: json["app_name"],
-      createdDate: DateTime.tryParse(json["created_date"] ?? ""),
-      editDate: DateTime.tryParse(json["edit_date"] ?? ""),
+      createdDate: json["created_date"]!= null?dateFormatted.format(DateTime.tryParse(json["created_date"] ?? "")!):'-',
+      editDate: json["edit_date"] != null ? dateFormatted.format(DateTime.tryParse(json["edit_date"] ?? "")!):'-',
     );
   }
 

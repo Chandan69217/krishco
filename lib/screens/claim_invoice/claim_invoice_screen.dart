@@ -321,7 +321,6 @@ class _ClaimScreenState extends State<ClaimScreen> {
 class _ClaimCard extends StatelessWidget {
   final ClaimData claim;
   const _ClaimCard({super.key, required this.claim});
-
   Color _getStatusColor(String? status) {
     switch (status?.toLowerCase().trim()) {
       case "approved":
@@ -334,7 +333,7 @@ class _ClaimCard extends StatelessWidget {
         return Colors.grey;
     }
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -347,7 +346,17 @@ class _ClaimCard extends StatelessWidget {
           "Claim No: ${claim.claimNumber}",
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
-        subtitle: Text("Status: ${claim.claimStatus}"),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if(claim.invoiceId != null && claim.invoiceId.toString().isNotEmpty)...[
+              const SizedBox(height: 2.0,),
+              Text('Invoice ID: ${claim.invoiceId}'),
+              const SizedBox(height: 2.0,),
+        ],
+            Text("Status: ${claim.claimStatus}"),
+          ],
+        ),
         trailing: Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           decoration: BoxDecoration(
@@ -390,7 +399,7 @@ class _ClaimCard extends StatelessWidget {
                         style: const TextStyle(fontSize: 12)),
                     Text("Claimed On: ${claim.claimedDate}",
                         style: const TextStyle(fontSize: 12)),
-                    Text("From: ${claim.claimedFrom ?? 'N/A'}",
+                    Text("From: ${claim.claimedFrom != null ? claim.claimedFrom['cust_name'] : 'N/A'}",
                         style: const TextStyle(fontSize: 12)),
                     Text("Amount: ₹${claim.claimAmount}",
                         style: const TextStyle(fontWeight: FontWeight.bold)),
@@ -479,6 +488,8 @@ class _ClaimDetailsScreen extends StatelessWidget {
                 _infoRow("Claim No", claim.claimNumber),
                 _infoRow("Claimed Date", claim.claimedDate?.toString()),
                 _infoRow("Status", claim.claimStatus, highlight: true),
+                _infoRow("Invoice ID", claim.invoiceId!= null && claim.invoiceId.toString().isNotEmpty?claim.invoiceId:'-',),
+                _infoRow("Invoice Date", claim.invoiceDate,),
                 _infoRow("Position", claim.claimPosition),
                 _infoRow("App", claim.appName),
                 _infoRow("Claim Amount", "₹${claim.claimAmount}"),
