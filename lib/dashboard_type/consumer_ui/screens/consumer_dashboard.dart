@@ -218,6 +218,9 @@ class _ConsumerDashboardState extends State<ConsumerDashboard> {
                       _buildMenu(iconData:  Icons.question_answer, label: 'Feedback & Queries',onTap: (){
                         Navigator.of(context).push(MaterialPageRoute(builder: (context)=> QueryListScreen()));
                       }),
+                      _buildMenu(iconData:  Icons.help_rounded, label: 'Need Help?',onTap: (){
+                        Navigator.of(context).push(MaterialPageRoute(builder: (context)=> SupportScreen(showAppBar: true,)));
+                      }),
                       _buildMenu(iconData: Icons.logout, label: 'Logout',onTap: (){
                         Pref.instance.clear();
                         Navigator.of(context).pushAndRemoveUntil(

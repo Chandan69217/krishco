@@ -252,7 +252,7 @@ class _KycScreenState extends State<KycScreen> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(8),
         boxShadow: const [
-          BoxShadow(color: Colors.black12, blurRadius: 8, offset: Offset(0, 4)),
+          BoxShadow(color: Colors.black12, blurRadius: 8, offset: Offset(0, 2)),
         ],
       ),
       padding: const EdgeInsets.all(16),
@@ -320,13 +320,13 @@ class _KycScreenState extends State<KycScreen> {
   Widget _buildBankDetails() {
     return Column(
       children: [
-        GridView.count(
-          crossAxisCount: 2,
+        ListView(
+          // crossAxisCount: 2,
           shrinkWrap: true,
-          mainAxisSpacing: 16.0,
-          crossAxisSpacing: 8.0,
+          // mainAxisSpacing: 8.0,
+          // crossAxisSpacing: 8.0,
           physics: NeverScrollableScrollPhysics(),
-          childAspectRatio: 2.5,
+          // childAspectRatio: 2.5,
           children: [
             _buildTextFormField(
               controller: bankNameController,
@@ -336,6 +336,7 @@ class _KycScreenState extends State<KycScreen> {
                   (value) =>
                       value == null || value.isEmpty ? 'Enter Bank Name' : null,
             ),
+            const SizedBox(height: 16.0,),
             _buildTextFormField(
               controller: accHolderNameController,
               label: 'Acc. Holder Name *',
@@ -346,6 +347,7 @@ class _KycScreenState extends State<KycScreen> {
                           ? 'Enter Acc. Holder Name'
                           : null,
             ),
+            const SizedBox(height: 16.0,),
             _buildTextFormField(
               controller: accountNumberController,
               label: 'Account No *',
@@ -357,6 +359,7 @@ class _KycScreenState extends State<KycScreen> {
                           ? 'Enter Account Number'
                           : null,
             ),
+            const SizedBox(height: 16.0,),
             _buildTextFormField(
               controller: accountConfNumberController,
               label: 'Confirm Acc. No *',
@@ -368,6 +371,7 @@ class _KycScreenState extends State<KycScreen> {
                           ? 'Enter Confirm Acc. No'
                           : null,
             ),
+            const SizedBox(height: 16.0,),
             _buildTextFormField(
               controller: ifscController,
               label: 'IFSC Code *',
@@ -378,7 +382,7 @@ class _KycScreenState extends State<KycScreen> {
             ),
           ],
         ),
-        const SizedBox(height: 12.0),
+        const SizedBox(height: 16.0),
         _BankProofUploadSection(
           proofTypes: bankProofTypes,
           imageUrl: bankUploadedDocumentImage,
@@ -635,13 +639,12 @@ class _ProofSectionWidgetState extends State<_ProofSectionWidget> {
           ...savedProofs.asMap().entries.map((entry) {
             int index = entry.key;
             ProofModel proof = entry.value;
-            return Card(
+            return Container(
               color: Colors.white,
               margin: EdgeInsets.only(bottom: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              elevation: 2,
+              // shape: RoundedRectangleBorder(
+              //   borderRadius: BorderRadius.circular(12),
+              // ),
               child: ListTile(
                 leading: CircleAvatar(child: Icon(Icons.badge)),
                 contentPadding: EdgeInsets.symmetric(horizontal: 10.0),
@@ -756,8 +759,7 @@ class _ProofSectionWidgetState extends State<_ProofSectionWidget> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         DropdownButtonFormField<String>(
-          style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-            fontSize: 14,
+          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
             color: Colors.black87,
           ),
           decoration: InputDecoration(
@@ -1125,7 +1127,7 @@ class _BankProofUploadSectionState extends State<_BankProofUploadSection> {
           },
           validator: (value) => value == null ? 'Select a proof type' : null,
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 16.0),
         _buildImageSelector(
           controller: fileController,
           label: 'upload \n${selectedType}',

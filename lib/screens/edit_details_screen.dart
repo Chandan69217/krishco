@@ -307,7 +307,7 @@ class _EditDetailsScreenState
         const SizedBox(height: 24.0),
         GridView.count(
           crossAxisCount: 2,
-          mainAxisSpacing: 16.0,
+          // mainAxisSpacing: 16.0,
           crossAxisSpacing: 8,
           childAspectRatio: 2.6,
           physics: NeverScrollableScrollPhysics(),
@@ -342,12 +342,6 @@ class _EditDetailsScreenState
               textInputType: TextInputType.phone,
             ),
             _buildTextFormField(
-              controller: _emailTextController,
-              label: 'Email-Id (Optional)',
-              iconData: Icons.email,
-              textInputType: TextInputType.emailAddress,
-            ),
-            _buildTextFormField(
               controller: _dobController,
               isRequired: true,
               label: 'DOB (YYYY-MM-DD)*',
@@ -358,12 +352,19 @@ class _EditDetailsScreenState
           ],
         ),
         // const SizedBox(height: 8),
+        _buildTextFormField(
+          controller: _emailTextController,
+          label: 'Email-Id (Optional)',
+          iconData: Icons.email,
+          textInputType: TextInputType.emailAddress,
+        ),
+        const SizedBox(height: 16.0),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'Gender *',
-              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
+              style: Theme.of(context).textTheme.bodySmall!.copyWith(fontWeight: FontWeight.w600,),
             ),
             StatefulBuilder(
               builder: (context, refresh) {
@@ -390,9 +391,9 @@ class _EditDetailsScreenState
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'Marital Status *',
-              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
+              style: Theme.of(context).textTheme.bodySmall!.copyWith(fontWeight: FontWeight.w600,),
             ),
             StatefulBuilder(
               builder: (context, refresh) {
@@ -453,8 +454,8 @@ class _EditDetailsScreenState
       children: [
         GridView.count(
           crossAxisCount: 2,
-          mainAxisSpacing: 16.0,
-          crossAxisSpacing: 8,
+          mainAxisSpacing: 8.0,
+          crossAxisSpacing: 8.0,
           childAspectRatio: 2.6,
           physics: NeverScrollableScrollPhysics(),
           shrinkWrap: true,
@@ -502,7 +503,7 @@ class _EditDetailsScreenState
             ),
           ],
         ),
-        const SizedBox(height: 14.0,),
+        const SizedBox(height: 8.0,),
         // _buildTextFormField(controller: _addressController, label: 'Address *', iconData: Icons.home,maxLength: 100,maxLines: 3,),
         TextFormField(
           style: Theme.of(context).textTheme.bodySmall,
@@ -578,8 +579,13 @@ class _EditDetailsScreenState
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(8),
+        // border: Border.all(color: Colors.black12,width: 1.0),
         boxShadow: const [
-          BoxShadow(color: Colors.black12, blurRadius: 8, offset: Offset(0, 4)),
+          BoxShadow(
+              color: Colors.black12,
+              blurRadius: 8,
+              offset: Offset(0, 2),
+          ),
         ],
       ),
       padding: const EdgeInsets.all(16),
@@ -781,16 +787,17 @@ class _TransportationDetailsState extends State<_TransportationDetails> {
                           return Container(
                             margin: const EdgeInsets.symmetric(vertical: 4.0),
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              // color: Colors.white,
                               shape: BoxShape.rectangle,
-                              borderRadius: BorderRadius.circular(10),
-                              boxShadow: [
-                                BoxShadow(
-                                  blurRadius: 4.0,
-                                  // offset: Offset(4, 4),
-                                  color: Colors.black12,
-                                ),
-                              ],
+                              borderRadius: BorderRadius.circular(10.0),
+                              border: Border.all(color: Colors.black12,),
+                              // boxShadow: [
+                              //   BoxShadow(
+                              //     // blurRadius: 4.0,
+                              //     // // offset: Offset(4, 4),
+                              //     // color: Colors.black12,
+                              //   ),
+                              // ],
                             ),
                             child: ListTile(
                               contentPadding: EdgeInsets.symmetric(
@@ -1071,65 +1078,59 @@ class _ProfileUpdateSectionState extends State<ProfileUpdateSection> {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    return Row(
+    return Column(
       children: [
         // Profile Picture
-        Expanded(
-          flex: 2,
-          child: Center(
-            child: Stack(
-              children: [
-                CustomNetworkImage(
-                  placeHolder: 'assets/logo/dummy_profile.webp',
-                  width: screenWidth > 360 ? 130.0:115.0,
-                  height:screenWidth > 360 ? 130.0:115.0,
-                  selectedFile:  widget.selectedImageFile,
-                  borderRadius: BorderRadius.circular(80.0),
-                  imageUrl: widget.imageUrl,
-                ),
-                Positioned(
-                  bottom: 0,
-                  right: 4,
-                  child: GestureDetector(
-                    onTap: widget.onEditImage,
-                    child: Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.blue,
-                      ),
-                      child: const Icon(
-                        Icons.edit,
-                        color: Colors.white,
-                        size: 20,
-                      ),
+        Center(
+          child: Stack(
+            children: [
+              CustomNetworkImage(
+                placeHolder: 'assets/logo/dummy_profile.webp',
+                width: screenWidth > 360 ? 150.0:135.0,
+                height:screenWidth > 360 ? 150.0:135.0,
+                selectedFile:  widget.selectedImageFile,
+                borderRadius: BorderRadius.circular(80.0),
+                imageUrl: widget.imageUrl,
+              ),
+              Positioned(
+                bottom: 0,
+                right: 4,
+                child: GestureDetector(
+                  onTap: widget.onEditImage,
+                  child: Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.blue,
+                    ),
+                    child: const Icon(
+                      Icons.edit,
+                      color: Colors.white,
+                      size: 20,
                     ),
                   ),
                 ),
-              ],
-            ),
-          ),
-        ),
-        SizedBox(width: 8.0,),
-        // First & Last Name Fields
-        Expanded(
-          flex: 3,
-          child: Column(
-            children: [
-              _buildTextFormField(
-                controller: widget.firstNameController,
-                label: 'First name *',
-                isRequired: true,
-                iconData: Icons.person,
-              ),
-              const SizedBox(height: 16),
-              _buildTextFormField(
-                controller: widget.lastNameController,
-                label: 'Last name (Optional)',
-                iconData: Icons.person,
               ),
             ],
           ),
+        ),
+        SizedBox(height: 20.0,),
+        // First & Last Name Fields
+        Column(
+          children: [
+            _buildTextFormField(
+              controller: widget.firstNameController,
+              label: 'First name *',
+              isRequired: true,
+              iconData: Icons.person,
+            ),
+            const SizedBox(height: 16),
+            _buildTextFormField(
+              controller: widget.lastNameController,
+              label: 'Last name (Optional)',
+              iconData: Icons.person,
+            ),
+          ],
         ),
       ],
     );
