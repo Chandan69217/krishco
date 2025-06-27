@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:krishco/screens/redemeption_catalogues/redemption_catalogues.dart';
 
 class MyEarningsScreen extends StatelessWidget {
   final int earnedPoints;
@@ -15,6 +16,9 @@ class MyEarningsScreen extends StatelessWidget {
     double screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
+      appBar: AppBar(
+        title: Text('My Earnings'),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -43,7 +47,7 @@ class MyEarningsScreen extends StatelessWidget {
             /// Claim Button
             ElevatedButton.icon(
               onPressed: () {
-                // Trigger claim flow
+                Navigator.of(context).push(MaterialPageRoute(builder: (context)=>RedemptionCataloguesScreen(title: 'Redemption Catalogues',) ));
               },
               icon: const Icon(Icons.redeem,color: Colors.white,),
               label: const Text('Claim Now'),

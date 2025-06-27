@@ -203,36 +203,41 @@ class _InfluencerDashboardState extends State<InfluencerDashboard> {
                   decoration: BoxDecoration(color: CustColors.white),
                   child: Column(
                     children: [
-                      _buildMenu(iconData:  'assets/icons/edit.webp', label: 'Edit Details',onTap: (){
-                        Navigator.of(context).push(MaterialPageRoute(builder: (context)=>EditDetailsScreen(onUpdated: (){
-                          _init();
-                        },)));
-                      }),
-                      _buildMenu(iconData: 'assets/icons/id-card-clip-alt.webp', label: 'KYC Details',onTap: (){
-                        Navigator.of(context).push(MaterialPageRoute(builder: (context)=>KycScreen()));
-                      },
-                          trailing: Text(Pref.instance.getString(Consts.kyc_status)??'',style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: Colors.orange),)
-                      ),
-                      Divider(height: 2,),
-                      _buildMenu(iconData: 'assets/icons/lock.webp', label: 'Change Password',onTap: (){
-                        Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ChangePasswordScreen()));
-                      }),
-                      _buildMenu(iconData:  'assets/icons/comment_icons.webp', label: 'Feedback & Queries',onTap: (){
-                        Navigator.of(context).push(MaterialPageRoute(builder: (context)=> QueryListScreen()));
-                      }),
-                      _buildMenu(iconData:  'assets/icons/headset_icon.webp', label: 'Need Help?',onTap: (){
-                        Navigator.of(context).push(MaterialPageRoute(builder: (context)=> SupportScreen(showAppBar: true,)));
-                      }),
-                      _buildMenu(iconData: 'assets/icons/logout_icon.webp', label: 'Logout',onTap: (){
-                        Pref.instance.clear();
-                        Navigator.of(context).pushAndRemoveUntil(
-                          MaterialPageRoute(builder: (context) => LoginScreen()),
-                              (route) => false,
-                        );
-                      }),
-                      Spacer(),
-                      SafeArea(child: Text('Version: 1.32.0',style: TextStyle(color: Colors.grey),)),
-                      const SizedBox(height: 12.0,),
+                      Expanded(child: ListView(
+                        shrinkWrap: true,
+                        padding: EdgeInsets.zero,
+                        children: [
+                          _buildMenu(iconData:  'assets/icons/edit.webp', label: 'Edit Details',onTap: (){
+                            Navigator.of(context).push(MaterialPageRoute(builder: (context)=>EditDetailsScreen(onUpdated: (){
+                              _init();
+                            },)));
+                          }),
+                          _buildMenu(iconData: 'assets/icons/id-card-clip-alt.webp', label: 'KYC Details',onTap: (){
+                            Navigator.of(context).push(MaterialPageRoute(builder: (context)=>KycScreen()));
+                          },
+                              trailing: Text(Pref.instance.getString(Consts.kyc_status)??'',style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: Colors.orange),)
+                          ),
+                          Divider(height: 2,),
+                          _buildMenu(iconData: 'assets/icons/lock.webp', label: 'Change Password',onTap: (){
+                            Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ChangePasswordScreen()));
+                          }),
+                          _buildMenu(iconData:  'assets/icons/comment_icons.webp', label: 'Suggestions & Queries',onTap: (){
+                            Navigator.of(context).push(MaterialPageRoute(builder: (context)=> QueryListScreen()));
+                          }),
+                          _buildMenu(iconData:  'assets/icons/headset_icon.webp', label: 'Need Help?',onTap: (){
+                            Navigator.of(context).push(MaterialPageRoute(builder: (context)=> SupportScreen(showAppBar: true,)));
+                          }),
+                          _buildMenu(iconData: 'assets/icons/logout_icon.webp', label: 'Logout',onTap: (){
+                            Pref.instance.clear();
+                            Navigator.of(context).pushAndRemoveUntil(
+                              MaterialPageRoute(builder: (context) => LoginScreen()),
+                                  (route) => false,
+                            );
+                          }),
+                        ],
+                      )),
+                      SafeArea(child: Text('Version: ${Consts.app_version}',style: TextStyle(color: Colors.grey),)),
+                      const SizedBox(height: 4.0,),
                     ],
                   ),
                 ),

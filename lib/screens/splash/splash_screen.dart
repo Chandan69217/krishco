@@ -1,10 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:krishco/dashboard_type/channel_partner_ui/channel_partner_dashboard.dart';
-import 'package:krishco/dashboard_type/consumer_ui/screens/consumer_dashboard.dart';
+import 'package:krishco/dashboard_type/consumer_ui/consumer_dashboard.dart';
 import 'package:krishco/dashboard_type/dashboard_types.dart';
 import 'package:krishco/dashboard_type/influencer_ui/influencer_dashboard.dart';
-import 'package:krishco/dashboard_type/user_ui/screens/user_dashboard.dart';
+import 'package:krishco/dashboard_type/user_ui/user_dashboard.dart';
 import 'package:krishco/utilities/constant.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../authentication/login_screen.dart';

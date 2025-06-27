@@ -4,10 +4,10 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:krishco/dashboard_type/channel_partner_ui/channel_partner_dashboard.dart';
-import 'package:krishco/dashboard_type/consumer_ui/screens/consumer_dashboard.dart';
+import 'package:krishco/dashboard_type/consumer_ui/consumer_dashboard.dart';
 import 'package:krishco/dashboard_type/dashboard_types.dart';
 import 'package:krishco/dashboard_type/influencer_ui/influencer_dashboard.dart';
-import 'package:krishco/dashboard_type/user_ui/screens/user_dashboard.dart';
+import 'package:krishco/dashboard_type/user_ui/user_dashboard.dart';
 import 'package:krishco/screens/authentication/registration_screen.dart';
 import 'package:krishco/utilities/cust_colors.dart';
 import 'package:krishco/widgets/cust_loader.dart';
@@ -417,9 +417,10 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen>
     with TickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
-  final _mobileController = TextEditingController();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
+  final _mobileController = TextEditingController(text: '1234567891');
+  final _emailController = TextEditingController(text: 'channelpartner@example.com');
+  final _mobilePasswordController = TextEditingController(text: 'Shivamraj@1950');
+  final _emailPasswordController = TextEditingController(text: 'Shivamraj@1950');
 
   late TabController _tabController;
   bool _passwordVisibility = false;
@@ -444,7 +445,8 @@ class _LoginScreenState extends State<LoginScreen>
   void dispose() {
     _mobileController.dispose();
     _emailController.dispose();
-    _passwordController.dispose();
+    _mobilePasswordController.dispose();
+    _emailPasswordController.dispose();
     _tabController.dispose();
     super.dispose();
   }
@@ -455,7 +457,7 @@ class _LoginScreenState extends State<LoginScreen>
     final screenHeight = MediaQuery.of(context).size.height;
     double fontSize = screenWidth * 0.085;
     return Scaffold(
-      backgroundColor: CustColors.cyan,
+      // backgroundColor: CustColors.cyan,
       body: Form(
         key: _formKey,
         child: SingleChildScrollView(
@@ -548,7 +550,9 @@ class _LoginScreenState extends State<LoginScreen>
                                       index == 0
                                           ? LoginMode.mobile
                                           : LoginMode.email;
-                                      _mobileController.clear();
+                                      // _mobileController.clear();
+                                      // _emailController.clear();
+                                      // _passwordController.clear();
                                     });
                                   },
                                 ),
@@ -559,61 +563,127 @@ class _LoginScreenState extends State<LoginScreen>
                                     left: screenWidth * 0.05,
                                     right: screenWidth * 0.05,
                                   ),
-                                  height: screenWidth * 0.7,
-                                  child: TabBarView(
-                                    physics:
-                                    const NeverScrollableScrollPhysics(),
+                                  height: screenWidth * 0.85,
+                                  child: Column(
                                     children: [
-                                      Column(
+                                      Expanded(
+                                        child: TabBarView(
+                                          physics:
+                                          const NeverScrollableScrollPhysics(),
+                                          children: [
+                                            Column(
+                                              children: [
+                                                const SizedBox(height: 8.0,),
+                                                CustomFormTextField(
+                                                  controller: _mobileController,
+                                                  validator: (value) {
+                                                    if(_loginMode == LoginMode.email){
+                                                      return null;
+                                                    }
+                                                    if (value == null ||
+                                                        value.isEmpty) {
+                                                      return 'Enter mobile number';
+                                                    }
+                                                    if (value.length != 10) {
+                                                      return 'Mobile number must be 10 digits';
+                                                    }
+                                                    return null;
+                                                  },
+                                                  keyboardType: TextInputType.phone,
+                                                  maxLength: 10,
+                                                  hintText: 'Mobile',
+                                                  prefixIcon: const Icon(Icons.phone),
+                                                ),
+                                                const SizedBox(height: 30.0),
+                                                _buildPasswordFieldAndForgetButton(
+                                                  controller: _mobilePasswordController,
+                                                    validator: (value){
+                                                    if(_loginMode == LoginMode.email){
+                                                      return null;
+                                                    }
+                                                    return value == null || value.isEmpty ? 'Enter password' : null;
+                                                    }
+                                                ),
+                                        
+                                              ],
+                                            ),
+                                            Column(
+                                              children: [
+                                                const SizedBox(height: 8.0,),
+                                                CustomFormTextField(
+                                                  controller: _emailController,
+                                                  validator: (value) {
+                                                    if(_loginMode == LoginMode.mobile){
+                                                      return null;
+                                                    }
+                                                    if (value == null ||
+                                                        value.isEmpty) {
+                                                      return 'Enter email address';
+                                                    }
+                                                    if (!RegExp(
+                                                      r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                                                    ).hasMatch(value)) {
+                                                      return 'Invalid email format';
+                                                    }
+                                                    return null;
+                                                  },
+                                                  keyboardType:
+                                                  TextInputType.emailAddress,
+                                                  hintText: 'Email',
+                                                  prefixIcon: const Icon(Icons.email),
+                                                ),
+                                                const SizedBox(height: 30.0),
+                                                _buildPasswordFieldAndForgetButton(
+                                                    controller: _emailPasswordController,
+                                                    validator: (value){
+                                                      if(_loginMode == LoginMode.mobile){
+                                                        return null;
+                                                      }
+                                                      return value == null || value.isEmpty ? 'Enter password' : null;
+                                                    }
+                                                )
+                                              ],
+                                            )
+                                          ],
+                                        ),
+                                      ),
+                                      // Terms checkbox
+                                      Row(
                                         children: [
-
-                                          CustomFormTextField(
-                                            controller: _mobileController,
-                                            validator: (value) {
-                                              if (value == null ||
-                                                  value.isEmpty) {
-                                                return 'Enter mobile number';
-                                              }
-                                              if (value.length != 10) {
-                                                return 'Mobile number must be 10 digits';
-                                              }
-                                              return null;
+                                          Checkbox(
+                                            activeColor: CustColors.nile_blue,
+                                            value: _isChecked,
+                                            onChanged: (val) {
+                                              setState(() {
+                                                _isChecked = val ?? false;
+                                              });
                                             },
-                                            keyboardType: TextInputType.phone,
-                                            maxLength: 10,
-                                            label: 'Mobile',
-                                            prefixIcon: const Icon(Icons.phone),
                                           ),
-                                          const SizedBox(height: 12),
-                                          _buildPasswordFieldAndForgetButton(),
-
+                                          Expanded(
+                                            child: Text(
+                                              'I accept the Terms & Conditions',
+                                              style: TextStyle(
+                                                color: _isChecked ? Colors.black : Colors.red,
+                                              ),
+                                            ),
+                                          ),
                                         ],
                                       ),
-                                      Column(
-                                        children: [
-                                          CustomFormTextField(
-                                            controller: _emailController,
-                                            validator: (value) {
-                                              if (value == null ||
-                                                  value.isEmpty) {
-                                                return 'Enter email address';
-                                              }
-                                              if (!RegExp(
-                                                r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
-                                              ).hasMatch(value)) {
-                                                return 'Invalid email format';
-                                              }
-                                              return null;
-                                            },
-                                            keyboardType:
-                                            TextInputType.emailAddress,
-                                            label: 'Email',
-                                            prefixIcon: const Icon(Icons.email),
-                                          ),
-                                          const SizedBox(height: 12),
-                                          _buildPasswordFieldAndForgetButton()
-                                        ],
-                                      )
+                                      const SizedBox(height: 16),
+                                      // Login Button
+                                      _isLoading ? CustLoader(
+                                        color: CustColors.nile_blue,
+                                      ):
+                                      SizedBox(
+                                        width: double.infinity,
+                                        child: CustomElevatedButton(
+                                          backgroundColor: CustColors.nile_blue,
+                                          forgroundColor: Colors.white,
+                                          onPressed: _login,
+                                          text: "Log In",
+                                        ),
+                                      ),
+                                      const SizedBox(height: 16),
                                     ],
                                   ),
                                 ),
@@ -622,46 +692,6 @@ class _LoginScreenState extends State<LoginScreen>
                           ),
                         ),
 
-                        const SizedBox(height: 16),
-
-                        // Terms checkbox
-                        Row(
-                          children: [
-                            Checkbox(
-                              activeColor: CustColors.nile_blue,
-                              value: _isChecked,
-                              onChanged: (val) {
-                                setState(() {
-                                  _isChecked = val ?? false;
-                                });
-                              },
-                            ),
-                            Expanded(
-                              child: Text(
-                                'I accept the Terms & Conditions',
-                                style: TextStyle(
-                                  color: _isChecked ? Colors.black : Colors.red,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-
-                        const SizedBox(height: 16),
-
-                        // Login Button
-                        _isLoading ? CustLoader(
-                          color: CustColors.nile_blue,
-                        ):
-                        SizedBox(
-                          width: double.infinity,
-                          child: CustomElevatedButton(
-                            backgroundColor: CustColors.nile_blue,
-                            forgroundColor: Colors.white,
-                            onPressed: _login,
-                            text: "Log In",
-                          ),
-                        ),
                       ],
                     ),
                   ),
@@ -674,13 +704,13 @@ class _LoginScreenState extends State<LoginScreen>
     );
   }
 
-  Widget _buildPasswordFieldAndForgetButton() {
+  Widget _buildPasswordFieldAndForgetButton({required TextEditingController controller,String? Function(String? value)? validator}) {
     return Column(
       children: [
         CustomFormTextField(
-          controller: _passwordController,
-          validator: (value) => value == null || value.isEmpty ? 'Enter password' : null,
-          label: 'Password',
+          controller: controller,
+          validator: validator,
+          hintText: 'Password',
           prefixIcon: const Icon(Icons.lock),
           obscureText: !_passwordVisibility,
           suffixIcon: IconButton(
@@ -695,7 +725,6 @@ class _LoginScreenState extends State<LoginScreen>
             },
           ),
         ),
-        const SizedBox(height: 8.0,),
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
@@ -721,7 +750,7 @@ class _LoginScreenState extends State<LoginScreen>
   _login() async {
     if (_formKey.currentState!.validate()) {
       String username = _loginMode == LoginMode.mobile ? _mobileController.text : _emailController.text;
-      String password = _passwordController.text;
+      String password = _loginMode == LoginMode.mobile ? _mobilePasswordController.text : _emailPasswordController.text;
 
       final List<ConnectivityResult> connectivityResult =
       await Connectivity().checkConnectivity();

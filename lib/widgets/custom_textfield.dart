@@ -112,6 +112,7 @@ class CustomFormTextField extends StatelessWidget {
             labelText: hintText,
             hintText: labelText,
             counterText: '',
+            filled: false,
             errorStyle: TextStyle(
                 fontSize: screenWidth * 0.03,
                 fontWeight: FontWeight.normal

@@ -9,4 +9,5 @@ class Consts {
   static const String name = 'name';
   static const String number = 'number';
   static const String email = 'email';
+  static const String app_version = '1.32.0';
 }
