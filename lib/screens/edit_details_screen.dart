@@ -304,12 +304,11 @@ class _EditDetailsScreenState
           lastNameController: _lastNameController,
           selectedImageFile: _selectedProfile,
         ),
-        const SizedBox(height: 24.0),
-        GridView.count(
-          crossAxisCount: 2,
-          // mainAxisSpacing: 16.0,
-          crossAxisSpacing: 8,
-          childAspectRatio: 2.6,
+        const SizedBox(height: 16.0),
+        ListView(
+          // crossAxisCount: 2,
+          // crossAxisSpacing: 8,
+          // childAspectRatio: 2.6,
           physics: NeverScrollableScrollPhysics(),
           shrinkWrap: true,
           children: [
@@ -334,6 +333,7 @@ class _EditDetailsScreenState
               readOnly: true,
               textInputType: TextInputType.phone,
             ),
+            const SizedBox(height: 16,),
             _buildTextFormField(
               controller: _altContactNoController,
               label: 'Alt. Contact No. (Optional)',
@@ -341,6 +341,7 @@ class _EditDetailsScreenState
               maxLength: 10,
               textInputType: TextInputType.phone,
             ),
+            const SizedBox(height: 16,),
             _buildTextFormField(
               controller: _dobController,
               isRequired: true,
@@ -351,7 +352,7 @@ class _EditDetailsScreenState
             ),
           ],
         ),
-        // const SizedBox(height: 8),
+        const SizedBox(height: 16),
         _buildTextFormField(
           controller: _emailTextController,
           label: 'Email-Id (Optional)',
@@ -827,51 +828,48 @@ class _TransportationDetailsState extends State<_TransportationDetails> {
 
               const SizedBox(height: 12.0),
               if (savedTransporter.length < 3)
-                Row(
+                Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      flex: 4,
-                      child: DropdownButtonFormField(
-                        isExpanded: true,
-                        style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                          fontSize: 14,
-                          color: Colors.black87,
-                        ),
-                        decoration: InputDecoration(
-                          labelText: 'Select Transporter (Optional)',
-                          border: OutlineInputBorder(),
-                          contentPadding: EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 12,
-                          ),
-                        ),
-                        value: _selectedTransporter,
-                        items:
-                            value.entries
-                                .where(
-                                  (entry) =>
-                                      !savedTransporter.containsKey(entry.key),
-                                )
-                                .map<DropdownMenuItem<String>>(
-                                  (item) => DropdownMenuItem(
-                                    value: item.key,
-                                    child: Text(item.value),
-                                  ),
-                                )
-                                .toList(),
-                        onChanged:
-                            (value) => setState(() {
-                              _selectedTransporter = value;
-                            }),
-                        validator:
-                            (value) =>
-                                value == null ? 'Select a Transporter' : null,
+                    DropdownButtonFormField(
+                      isExpanded: true,
+                      style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                        fontSize: 14,
+                        color: Colors.black87,
                       ),
+                      decoration: InputDecoration(
+                        labelText: 'Select Transporter (Optional)',
+                        border: OutlineInputBorder(),
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 12,
+                        ),
+                      ),
+                      value: _selectedTransporter,
+                      items:
+                          value.entries
+                              .where(
+                                (entry) =>
+                                    !savedTransporter.containsKey(entry.key),
+                              )
+                              .map<DropdownMenuItem<String>>(
+                                (item) => DropdownMenuItem(
+                                  value: item.key,
+                                  child: Text(item.value),
+                                ),
+                              )
+                              .toList(),
+                      onChanged:
+                          (value) => setState(() {
+                            _selectedTransporter = value;
+                          }),
+                      validator:
+                          (value) =>
+                              value == null ? 'Select a Transporter' : null,
                     ),
-                    SizedBox(width: 12.0),
-                    Expanded(
-                      flex: 2,
+                    const SizedBox(height: 12.0,),
+                    SizedBox(
+                      width: double.infinity,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blue,
@@ -885,7 +883,7 @@ class _TransportationDetailsState extends State<_TransportationDetails> {
                           );
                           setState(() {
                             _selectedTransporter =
-                                null; // 🔄 Reset dropdown after add
+                            null; // 🔄 Reset dropdown after add
                           });
                         },
 

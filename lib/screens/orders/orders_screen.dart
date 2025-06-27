@@ -152,7 +152,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Row(
                 children: [
-                  const Icon(Icons.receipt, color: Colors.black54),
+                  Image.asset('assets/icons/task-checklist.webp',width: 20.0,height: 20.0, color: Colors.black54),
                   const SizedBox(width: 8),
                   Text(
                     selectedTabIndex == 0 ? "List of Orders" : "List of Reporting Messages",

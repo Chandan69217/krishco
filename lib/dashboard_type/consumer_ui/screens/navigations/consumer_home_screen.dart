@@ -110,14 +110,14 @@ class _ConsumerHomeScreenState extends State<ConsumerHomeScreen> {
                physics: NeverScrollableScrollPhysics(),
                children: [
                  ButtonWidget(
-                   icon: FontAwesomeIcons.plus,
+                   icon: 'assets/icons/add.webp',
                    text: 'Add Service Req.',
                    onPressed: () {
                      Navigator.of(context).push(MaterialPageRoute(builder: (context)=> NewServiceReqScreen()));
                    },
                  ),
                  ButtonWidget(
-                   icon: FontAwesomeIcons.cogs,
+                   icon: 'assets/icons/gears.webp',
                    text: 'Add Installation Req.',
                    onPressed: () {
                      Navigator.of(context).push(MaterialPageRoute(builder: (context)=> NewInstallationReqScreen()));
@@ -131,7 +131,7 @@ class _ConsumerHomeScreenState extends State<ConsumerHomeScreen> {
                  //   },
                  // ),
                  ButtonWidget(
-                   icon: FontAwesomeIcons.boxOpen,
+                   icon: 'assets/icons/gift.webp',
                    text: 'New Arrivals',
                    onPressed: () {
                      Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ProductCatalogueScreen(
@@ -141,7 +141,7 @@ class _ConsumerHomeScreenState extends State<ConsumerHomeScreen> {
                    },
                  ),
                  ButtonWidget(
-                   icon: Icons.verified_user,
+                   icon: 'assets/icons/warranty.webp',
                    text: 'Warranty Registration',
                    onPressed: () {
                      Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ScanCodeScreen(
@@ -150,7 +150,7 @@ class _ConsumerHomeScreenState extends State<ConsumerHomeScreen> {
                    },
                  ),
                  ButtonWidget(
-                   icon: Icons.group,
+                   icon: 'assets/icons/users-alt.webp',
                    text: 'Others Consumers',
                    onPressed: () {
                      Navigator.push(
@@ -339,7 +339,7 @@ class _MyCustomPainter extends CustomPainter {
 
 // Button Widget
 class ButtonWidget extends StatelessWidget {
-  final IconData icon;
+  final String icon;
   final String text;
   final VoidCallback onPressed;
 
@@ -354,7 +354,7 @@ class ButtonWidget extends StatelessWidget {
     double screenWidth = MediaQuery.of(context).size.width;
     return ElevatedButton.icon(
       onPressed: onPressed,
-      icon: Icon(icon),
+      icon: Image.asset(icon,height: 20.0,width: 20.0,color: Colors.white,),
       label: Text(text),
       style: ElevatedButton.styleFrom(
         alignment: Alignment.centerLeft,

@@ -77,7 +77,7 @@ class InfluencerHomeScreen extends StatelessWidget {
                       physics: NeverScrollableScrollPhysics(),
                       children: [
                         DashboardMenuButton(
-                          icon: Icons.list_alt,
+                          icon: 'assets/icons/box-open-full.webp',
                           label: 'Product Catalogues',
                           onTap: () {
                             Navigator.push(context, MaterialPageRoute(
@@ -867,7 +867,7 @@ class DateRangeMenu extends StatelessWidget {
 
 
 class DashboardMenuButton extends StatelessWidget {
-  final IconData icon;
+  final String icon;
   final String label;
   final VoidCallback onTap;
 
@@ -888,7 +888,7 @@ class DashboardMenuButton extends StatelessWidget {
           CircleAvatar(
             radius: 26,
             backgroundColor: Colors.blue.shade50,
-            child: Icon(icon, size: 28, color: Colors.blue.shade700),
+            child: Image.asset(icon, width: 28,height: 28, color: Colors.blue.shade700),
           ),
           const SizedBox(height: 10),
           Text(

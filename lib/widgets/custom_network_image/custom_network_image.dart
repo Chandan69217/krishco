@@ -1,6 +1,8 @@
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:krishco/utilities/cust_colors.dart';
 
 class CustomNetworkImage extends StatelessWidget {
   final String? imageUrl;
@@ -38,21 +40,54 @@ class CustomNetworkImage extends StatelessWidget {
         width: width,
         height: height,
         fit: fit,
-      ): FadeInImage.assetNetwork(
+      ): CachedNetworkImage(
+        imageUrl: imageUrl ?? '',
         width: width,
         height: height,
-        placeholder: placeHolder??'assets/logo/Placeholder_image.webp',
-        image: imageUrl!,
         fit: fit,
-        imageErrorBuilder: (context, error, stackTrace) {
-          return Image.asset(
-            placeHolder??'assets/logo/Placeholder_image.webp',
-            width: width,
-            height: height,
-            fit: fit,
-          );
-        },
-      ),
+        imageBuilder: (context, imageProvider) => Container(
+          width: width,
+          height: height,
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: imageProvider,
+              fit: fit,
+            ),
+          ),
+        ),
+        placeholder: (context, url) => Container(
+          width: width,
+          height: height,
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage(placeHolder??'assets/logo/Placeholder_image.webp',),
+              fit: fit,
+            ),
+          ),
+          child: Center(
+            child: CircularProgressIndicator(strokeWidth: 2,color: Colors.white,),
+          ),
+        ),
+        errorWidget: (context, url, error) => placeHolder != null
+            ? Image.asset(placeHolder!, width: width, height: height, fit: fit)
+            : const Icon(Icons.broken_image, size: 40),
+      )
+
+      // FadeInImage.assetNetwork(
+      //   width: width,
+      //   height: height,
+      //   placeholder: placeHolder??'assets/logo/Placeholder_image.webp',
+      //   image: imageUrl!,
+      //   fit: fit,
+      //   imageErrorBuilder: (context, error, stackTrace) {
+      //     return Image.asset(
+      //       placeHolder??'assets/logo/Placeholder_image.webp',
+      //       width: width,
+      //       height: height,
+      //       fit: fit,
+      //     );
+      //   },
+      // ),
     );
   }
 }

@@ -173,7 +173,7 @@ class _ClaimScreenState extends State<ClaimScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Row(
                 children: [
-                  Icon(Icons.receipt, color: Colors.black54),
+                  Image.asset('assets/icons/features.webp',width: 20,height: 20, color: Colors.black54),
                   SizedBox(width: 8),
                   Text(
                     selectedTabIndex == 0 ? "List of Claim Invoices" : "List of Reporting Claims",

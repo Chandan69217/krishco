@@ -58,22 +58,34 @@ class _ChannelPartnerDashboardState extends State<ChannelPartnerDashboard> {
         });
       },
       currentIndex: _currentIndex,
+      selectedItemColor: CustColors.nile_blue,
+      unselectedLabelStyle: TextStyle(fontSize: 12.0,fontWeight: FontWeight.w800),
+      selectedLabelStyle: TextStyle(fontSize: 12.0,fontWeight: FontWeight.w800),
       items: <BottomNavigationBarItem>[
-        _bottomNavBarItem(iconData: Icons.home, label: 'Home'),
-        _bottomNavBarItem(iconData: Icons.receipt_long, label: 'Claim'),
-        _bottomNavBarItem(iconData: Icons.inventory_2, label: 'Orders'),
-        _bottomNavBarItem(iconData: Icons.wallet, label: 'My Wallet'),
+        _bottomNavBarItem(iconData: 'assets/icons/home_icon.webp', label: 'Home'),
+        _bottomNavBarItem(iconData: 'assets/icons/point-of-sale-bill.webp', label: 'Claim'),
+        _bottomNavBarItem(iconData: 'assets/icons/dolly-flatbed-alt.webp', label: 'Orders'),
+        _bottomNavBarItem(iconData: 'assets/icons/wallet.webp', label: 'My Wallet'),
       ],
     );
   }
 
   BottomNavigationBarItem _bottomNavBarItem({
-    required IconData iconData,
+    required String iconData,
     required String label,
   }) {
-    return BottomNavigationBarItem(icon: Icon(iconData), label: label);
+    return BottomNavigationBarItem(
+        icon: Image.asset(iconData,width: 20,height: 20,color: Colors.grey,),
+        label: label,
+        activeIcon: Container(
+            padding: EdgeInsets.symmetric(horizontal: 16.0,vertical: 6.0),
+            decoration: BoxDecoration(
+              color: CustColors.cyan,
+              borderRadius: BorderRadius.circular(20.0),
+            ),
+            child: Image.asset(iconData,width: 20,height: 20,color: CustColors.nile_blue,))
+    );
   }
-
   AppBar _appBar() {
     return AppBar(
       shape: _currentIndex == 3 ? const RoundedRectangleBorder(
@@ -186,27 +198,27 @@ class _ChannelPartnerDashboardState extends State<ChannelPartnerDashboard> {
                   decoration: BoxDecoration(color: CustColors.white),
                   child: Column(
                     children: [
-                      _buildMenu(iconData:  Icons.edit, label: 'Edit Details',onTap: (){
+                      _buildMenu(iconData:  'assets/icons/edit.webp', label: 'Edit Details',onTap: (){
                         Navigator.of(context).push(MaterialPageRoute(builder: (context)=>EditDetailsScreen(onUpdated: (){
                           _init();
                         },)));
                       }),
-                      _buildMenu(iconData: Icons.badge, label: 'KYC Details',onTap: (){
+                      _buildMenu(iconData: 'assets/icons/id-card-clip-alt.webp', label: 'KYC Details',onTap: (){
                         Navigator.of(context).push(MaterialPageRoute(builder: (context)=>KycScreen()));
                       },
                           trailing: Text(Pref.instance.getString(Consts.kyc_status)??'',style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: Colors.orange),)
                       ),
                       Divider(height: 2,),
-                      _buildMenu(iconData: Icons.lock, label: 'Change Password',onTap: (){
+                      _buildMenu(iconData: 'assets/icons/lock.webp', label: 'Change Password',onTap: (){
                         Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ChangePasswordScreen()));
                       }),
-                      _buildMenu(iconData:  Icons.question_answer, label: 'Feedback & Queries',onTap: (){
+                      _buildMenu(iconData:  'assets/icons/comment_icons.webp', label: 'Feedback & Queries',onTap: (){
                         Navigator.of(context).push(MaterialPageRoute(builder: (context)=> QueryListScreen()));
                       }),
-                      _buildMenu(iconData:  Icons.help_rounded, label: 'Need Help?',onTap: (){
+                      _buildMenu(iconData:  'assets/icons/headset_icon.webp', label: 'Need Help?',onTap: (){
                         Navigator.of(context).push(MaterialPageRoute(builder: (context)=> SupportScreen(showAppBar: true,)));
                       }),
-                      _buildMenu(iconData: Icons.logout, label: 'Logout',onTap: (){
+                      _buildMenu(iconData: 'assets/icons/logout_icon.webp', label: 'Logout',onTap: (){
                         Pref.instance.clear();
                         Navigator.of(context).pushAndRemoveUntil(
                           MaterialPageRoute(builder: (context) => LoginScreen()),
@@ -228,12 +240,12 @@ class _ChannelPartnerDashboardState extends State<ChannelPartnerDashboard> {
   }
 
 
-  Widget _buildMenu({required IconData iconData, required String label,VoidCallback? onTap,Widget? trailing}){
+  Widget _buildMenu({required String iconData, required String label,VoidCallback? onTap,Widget? trailing}){
     return ListTile(
       trailing: trailing,
       contentPadding: EdgeInsets.symmetric(horizontal: 8.0),
       minLeadingWidth: 0,
-      leading: Icon(iconData, color: Colors.black54,),
+      leading: Image.asset(iconData, color: Colors.black54,width: 22.0,height: 22.0,),
       title: Text(label,
         style: Theme.of(context).textTheme.bodyLarge,),
       onTap: onTap,
