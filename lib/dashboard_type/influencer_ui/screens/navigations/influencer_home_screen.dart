@@ -2,14 +2,15 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:krishco/screens/claim_invoice/create_claim_screen.dart';
+import 'package:krishco/screens/orders/place_order_screen.dart';
 import 'package:krishco/screens/product_catalogues/product_catalogue.dart';
 import 'package:krishco/screens/redemeption_catalogues/redemption_catalogues.dart';
 
 
-
-
 class InfluencerHomeScreen extends StatelessWidget {
-  InfluencerHomeScreen({super.key});
+  final VoidCallback? onRefresh;
+  InfluencerHomeScreen({super.key,this.onRefresh});
 
   final List<FlSpot> loyaltyPoints = [
     FlSpot(0, 30),
@@ -53,8 +54,7 @@ class InfluencerHomeScreen extends StatelessWidget {
                 SizedBox(height: 12.0,),
                 Container(
                   width: double.infinity,
-                  height: 200.0,
-                  padding: const EdgeInsets.fromLTRB(16,8,0,16),
+                  padding: const EdgeInsets.symmetric(horizontal: 8,vertical: 24),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(12),
@@ -69,9 +69,9 @@ class InfluencerHomeScreen extends StatelessWidget {
                   child: Center(
                     child: GridView.count(
                       shrinkWrap: true,
-                      crossAxisCount: 3,
+                      crossAxisCount: 4,
                       // crossAxisSpacing: 8.0,
-                      // mainAxisSpacing: 8.0,
+                      mainAxisSpacing: 18.0,
                       childAspectRatio: 1,
                       // childAspectRatio: 2.6,
                       physics: NeverScrollableScrollPhysics(),
@@ -84,6 +84,26 @@ class InfluencerHomeScreen extends StatelessWidget {
                               builder: (_) => ProductCatalogueScreen(
                                 title: 'Product Catalogues'
                               ),
+                            ));
+                          },
+                        ),
+                        DashboardMenuButton(
+                          icon: 'assets/icons/features.webp',
+                          label: 'Submit Claim',
+                          onTap: () {
+                            Navigator.push(context, MaterialPageRoute(
+                              builder: (_) => CreateClaimScreen(
+                                 onSuccess: onRefresh,
+                              ),
+                            ));
+                          },
+                        ),
+                        DashboardMenuButton(
+                          icon: 'assets/icons/dolly-flatbed-alt.webp',
+                          label: 'Place Order',
+                          onTap: () {
+                            Navigator.push(context, MaterialPageRoute(
+                                builder: (_) => PlaceOrderScreen()
                             ));
                           },
                         ),
@@ -101,7 +121,7 @@ class InfluencerHomeScreen extends StatelessWidget {
                   crossAxisSpacing: 16,
                   mainAxisSpacing: 16,
                   children: const [
-                    SummaryCard(
+                    _SummaryCard(
                       title: 'QR Scanned',
                       subtitle: '| Today',
                       value: '0',
@@ -110,7 +130,7 @@ class InfluencerHomeScreen extends StatelessWidget {
                       icon: Icons.qr_code_2_outlined,
                       bgColor: Color(0xFFE6E9FF),
                     ),
-                    SummaryCard(
+                    _SummaryCard(
                       title: 'Redemption Points',
                       subtitle: '| This Month',
                       value: '0',
@@ -119,7 +139,7 @@ class InfluencerHomeScreen extends StatelessWidget {
                       icon: Icons.currency_rupee,
                       bgColor: Color(0xFFD9F0D9),
                     ),
-                    SummaryCard(
+                    _SummaryCard(
                       title: 'Customers',
                       subtitle: '| This Year',
                       value: '5',
@@ -169,19 +189,19 @@ class InfluencerHomeScreen extends StatelessWidget {
                             ),
                           ),
                           Spacer(),
-                          DateRangeMenu(
+                          _DateRangeMenu(
                             onSelected: (option) {
                               switch (option) {
-                                case DateRangeOption.today:
+                                case _DateRangeOption.today:
                                 // handle today
                                   break;
-                                case DateRangeOption.thisMonth:
+                                case _DateRangeOption.thisMonth:
                                 // handle this month
                                   break;
-                                case DateRangeOption.thisYear:
+                                case _DateRangeOption.thisYear:
                                 // handle this year
                                   break;
-                                case DateRangeOption.custom:
+                                case _DateRangeOption.custom:
                                 // show custom date picker
                                   break;
                               }
@@ -193,7 +213,7 @@ class InfluencerHomeScreen extends StatelessWidget {
 
                       Padding(
                         padding: EdgeInsets.only(right: 16.0),
-                        child: LoyaltyRedeemLineChart(
+                        child: _LoyaltyRedeemLineChart(
                           loyaltyPoints: loyaltyPoints,
                           redeemPoints: redeemPoints,
                         ),
@@ -239,19 +259,19 @@ class InfluencerHomeScreen extends StatelessWidget {
                             ),
                           ),
                           Spacer(),
-                          DateRangeMenu(
+                          _DateRangeMenu(
                             onSelected: (option) {
                               switch (option) {
-                                case DateRangeOption.today:
+                                case _DateRangeOption.today:
                                 // handle today
                                   break;
-                                case DateRangeOption.thisMonth:
+                                case _DateRangeOption.thisMonth:
                                 // handle this month
                                   break;
-                                case DateRangeOption.thisYear:
+                                case _DateRangeOption.thisYear:
                                 // handle this year
                                   break;
-                                case DateRangeOption.custom:
+                                case _DateRangeOption.custom:
                                 // show custom date picker
                                   break;
                               }
@@ -310,19 +330,19 @@ class InfluencerHomeScreen extends StatelessWidget {
                             ),
                           ),
                           Spacer(),
-                          DateRangeMenu(
+                          _DateRangeMenu(
                             onSelected: (option) {
                               switch (option) {
-                                case DateRangeOption.today:
+                                case _DateRangeOption.today:
                                 // handle today
                                   break;
-                                case DateRangeOption.thisMonth:
+                                case _DateRangeOption.thisMonth:
                                 // handle this month
                                   break;
-                                case DateRangeOption.thisYear:
+                                case _DateRangeOption.thisYear:
                                 // handle this year
                                   break;
-                                case DateRangeOption.custom:
+                                case _DateRangeOption.custom:
                                 // show custom date picker
                                   break;
                               }
@@ -381,19 +401,19 @@ class InfluencerHomeScreen extends StatelessWidget {
                             ),
                           ),
                           Spacer(),
-                          DateRangeMenu(
+                          _DateRangeMenu(
                             onSelected: (option) {
                               switch (option) {
-                                case DateRangeOption.today:
+                                case _DateRangeOption.today:
                                 // handle today
                                   break;
-                                case DateRangeOption.thisMonth:
+                                case _DateRangeOption.thisMonth:
                                 // handle this month
                                   break;
-                                case DateRangeOption.thisYear:
+                                case _DateRangeOption.thisYear:
                                 // handle this year
                                   break;
-                                case DateRangeOption.custom:
+                                case _DateRangeOption.custom:
                                 // show custom date picker
                                   break;
                               }
@@ -402,7 +422,7 @@ class InfluencerHomeScreen extends StatelessWidget {
                         ],
                       ),
                       SizedBox(height: 16),
-                      Center(child: StatusDonutChart()),
+                      Center(child: _StatusDonutChart()),
                     ],
                   ),
                 ),
@@ -415,7 +435,7 @@ class InfluencerHomeScreen extends StatelessWidget {
   }
 }
 
-class SummaryCard extends StatelessWidget {
+class _SummaryCard extends StatelessWidget {
   final String title;
   final String subtitle;
   final String value;
@@ -424,7 +444,7 @@ class SummaryCard extends StatelessWidget {
   final IconData icon;
   final Color bgColor;
 
-  const SummaryCard({
+  const _SummaryCard({
     super.key,
     required this.title,
     required this.subtitle,
@@ -484,19 +504,19 @@ class SummaryCard extends StatelessWidget {
                       ),
                     ),
                     // Spacer(),
-                    DateRangeMenu(
+                    _DateRangeMenu(
                       onSelected: (option) {
                         switch (option) {
-                          case DateRangeOption.today:
+                          case _DateRangeOption.today:
                           // handle today
                             break;
-                          case DateRangeOption.thisMonth:
+                          case _DateRangeOption.thisMonth:
                           // handle this month
                             break;
-                          case DateRangeOption.thisYear:
+                          case _DateRangeOption.thisYear:
                           // handle this year
                             break;
-                          case DateRangeOption.custom:
+                          case _DateRangeOption.custom:
                           // show custom date picker
                             break;
                         }
@@ -537,20 +557,11 @@ class SummaryCard extends StatelessWidget {
 }
 
 
-
-
-
-
-
-
-
-
-
-class LoyaltyRedeemLineChart extends StatelessWidget {
+class _LoyaltyRedeemLineChart extends StatelessWidget {
   final List<FlSpot> loyaltyPoints;
   final List<FlSpot> redeemPoints;
 
-  const LoyaltyRedeemLineChart({
+  const _LoyaltyRedeemLineChart({
     super.key,
     required this.loyaltyPoints,
     required this.redeemPoints,
@@ -669,9 +680,8 @@ class _LegendDot extends StatelessWidget {
 }
 
 
-
-class StatusDonutChart extends StatelessWidget {
-  const StatusDonutChart({super.key});
+class _StatusDonutChart extends StatelessWidget {
+  const _StatusDonutChart({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -759,12 +769,12 @@ class _LegendItem extends StatelessWidget {
 
 
 
-enum DateRangeOption { today, thisMonth, thisYear, custom }
+enum _DateRangeOption { today, thisMonth, thisYear, custom }
 
-class DateRangeMenu extends StatelessWidget {
-  final void Function(DateRangeOption) onSelected;
+class _DateRangeMenu extends StatelessWidget {
+  final void Function(_DateRangeOption) onSelected;
 
-  const DateRangeMenu({super.key, required this.onSelected});
+  const _DateRangeMenu({super.key, required this.onSelected});
 
   @override
   Widget build(BuildContext context) {
@@ -773,7 +783,7 @@ class DateRangeMenu extends StatelessWidget {
         splashColor: Colors.transparent,
         highlightColor: Colors.transparent,
       ),
-      child: PopupMenuButton<DateRangeOption>(
+      child: PopupMenuButton<_DateRangeOption>(
         style: ButtonStyle(
           foregroundColor: WidgetStatePropertyAll(Colors.grey.shade600),
           iconSize: const WidgetStatePropertyAll(22),
@@ -787,19 +797,19 @@ class DateRangeMenu extends StatelessWidget {
         onSelected: onSelected,
         itemBuilder: (context) => const [
           PopupMenuItem(
-            value: DateRangeOption.today,
+            value: _DateRangeOption.today,
             child: Text('Today'),
           ),
           PopupMenuItem(
-            value: DateRangeOption.thisMonth,
+            value: _DateRangeOption.thisMonth,
             child: Text('This Month'),
           ),
           PopupMenuItem(
-            value: DateRangeOption.thisYear,
+            value: _DateRangeOption.thisYear,
             child: Text('This Year'),
           ),
           PopupMenuItem(
-            value: DateRangeOption.custom,
+            value: _DateRangeOption.custom,
             child: Text('Custom'),
           ),
         ],
@@ -891,13 +901,15 @@ class DashboardMenuButton extends StatelessWidget {
             child: Image.asset(icon, width: 28,height: 28, color: Colors.blue.shade700),
           ),
           const SizedBox(height: 10),
-          Text(
-            label,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontWeight: FontWeight.w600,
-              fontSize: 13,
-              color: Colors.black87,
+          Expanded(
+            child: Text(
+              label,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 13,
+                color: Colors.black87,
+              ),
             ),
           ),
         ],

@@ -4,6 +4,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:krishco/api_services/api_service.dart';
+import 'package:krishco/dashboard_type/dashboard_types.dart';
+import 'package:krishco/models/define_roles/define_roles.dart';
+import 'package:krishco/models/login_data/login_details_data.dart';
 import 'package:krishco/screens/claim_invoice/create_claim_screen.dart';
 import 'package:krishco/models/invoice_claim/claim_list_data.dart';
 import 'package:krishco/models/invoice_claim/claim_reporting_list_data.dart';
@@ -14,12 +17,13 @@ import 'package:krishco/widgets/file_viewer/image_viewer.dart';
 
 
 class ClaimScreen extends StatefulWidget {
+  ClaimScreen({Key? key}):super(key:key);
   @override
-  _ClaimScreenState createState() => _ClaimScreenState();
+  ClaimScreenState createState() => ClaimScreenState();
 }
 
 
-class _ClaimScreenState extends State<ClaimScreen> {
+class ClaimScreenState extends State<ClaimScreen> {
   int selectedTabIndex = 0;
   ClaimListData?  claimList;
   ClaimReportingListData? claimReportingList;
@@ -79,7 +83,7 @@ class _ClaimScreenState extends State<ClaimScreen> {
     });
   }
 
-  Future<void> _onRefresh()async{
+  Future<void> onRefresh()async{
     final invoiceClaimObj = APIService.getInstance(context).invoiceClaim;
     if(selectedTabIndex == 0){
       final data = await invoiceClaimObj.getClaimList();
@@ -138,7 +142,7 @@ class _ClaimScreenState extends State<ClaimScreen> {
                             tabTitles[index],
                             style: TextStyle(
                               color: isSelected ? Colors.white : Colors.black87,
-                              fontWeight: FontWeight.bold,
+                              fontWeight: isSelected ? FontWeight.bold : null ,
                             ),
                           ),
                         ),
@@ -190,7 +194,7 @@ class _ClaimScreenState extends State<ClaimScreen> {
             // List
             Expanded(
               child: CustomRefreshIndicator(
-                onRefresh: _onRefresh,
+                onRefresh: onRefresh,
                 builder: (context, child, controller) {
                   return Stack(
                     alignment: Alignment.topCenter,
@@ -290,7 +294,7 @@ class _ClaimScreenState extends State<ClaimScreen> {
           ],
         ),
       ),
-      floatingActionButton: _fabButton(),
+      floatingActionButton: GroupRoles.dashboardType == DashboardTypes.User ? GroupRoles.roles.contains(DefineRoles.user.Who_can_claim_points_by_uploading_invoice)?_fabButton():null:_fabButton(),
     );
   }
 
@@ -399,7 +403,7 @@ class _ClaimCard extends StatelessWidget {
                         style: const TextStyle(fontSize: 12)),
                     Text("Claimed On: ${claim.claimedDate}",
                         style: const TextStyle(fontSize: 12)),
-                    Text("From: ${claim.claimedFrom != null ? claim.claimedFrom['cust_name'] : 'N/A'}",
+                    Text("From: ${claim.claimedFrom != null ? claim.claimedFrom!.custName: 'N/A'}",
                         style: const TextStyle(fontSize: 12)),
                     Text("Amount: ₹${claim.claimAmount}",
                         style: const TextStyle(fontWeight: FontWeight.bold)),
@@ -473,7 +477,8 @@ class _ClaimDetailsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final claimedBy = claim.claimedBy;
-    final claimedFrom = claim.claimedFromOthers;
+    final claimedFromOthers = claim.claimedFromOthers;
+    final claimedForm = claim.claimedFrom;
     final isUnregistered = claim.isRegistered == false;
 
     return Scaffold(
@@ -487,10 +492,10 @@ class _ClaimDetailsScreen extends StatelessWidget {
               children: [
                 _infoRow("Claim No", claim.claimNumber),
                 _infoRow("Claimed Date", claim.claimedDate?.toString()),
-                _infoRow("Status", claim.claimStatus, highlight: true),
                 _infoRow("Invoice ID", claim.invoiceId!= null && claim.invoiceId.toString().isNotEmpty?claim.invoiceId:'-',),
                 _infoRow("Invoice Date", claim.invoiceDate,),
-                _infoRow("Position", claim.claimPosition),
+                _infoRow("Status", claim.claimStatus, highlight: true),
+                _infoRow("Message", claim.claimPosition),
                 _infoRow("App", claim.appName),
                 _infoRow("Claim Amount", "₹${claim.claimAmount}"),
                 _infoRow("Final Amount", "₹${claim.finalClaimAmount}"),
@@ -502,26 +507,41 @@ class _ClaimDetailsScreen extends StatelessWidget {
 
             const SizedBox(height: 12),
 
+            if (claimedForm != null)
+              _buildCard(
+                title: "Claimed From (Registered)",
+                children: [
+                  _infoRow("Name", claimedForm.custName),
+                  _infoRow("Contact", claimedForm.contNo),
+                  _infoRow("email", claimedForm.email),
+                  _infoRow("Group", claimedForm.group_type),
+                  _infoRow("Group Name", claimedForm.group_name),
+                  _infoRow("Status", claimedForm.status == true ? "Active" : "Inactive"),
+                ],
+              ),
+            const SizedBox(height: 12),
+
             if (claimedBy != null)
               _buildCard(
                 title: "Claimed By",
                 children: [
                   _infoRow("Name", claimedBy.custName),
                   _infoRow("Contact", claimedBy.contNo),
-                  _infoRow("Group Category", claimedBy.groupCat),
-                  _infoRow("Category", claimedBy.custCategory),
+                  _infoRow("email", claimedBy.email),
+                  _infoRow("Group", claimedBy.group_type),
+                  _infoRow("Group Name", claimedBy.group_name),
                   _infoRow("Status", claimedBy.status == true ? "Active" : "Inactive"),
                 ],
               ),
 
-            if (isUnregistered && claimedFrom != null) ...[
+            if (isUnregistered && claimedFromOthers != null) ...[
               const SizedBox(height: 12),
               _buildCard(
                 title: "Claimed From (Unregistered)",
                 children: [
-                  _infoRow("Name", claimedFrom.name),
-                  _infoRow("Number", claimedFrom.number.toString()),
-                  _infoRow("Address", claimedFrom.address),
+                  _infoRow("Name", claimedFromOthers.name),
+                  _infoRow("Number", claimedFromOthers.number.toString()),
+                  _infoRow("Address", claimedFromOthers.address),
                 ],
               ),
             ],
@@ -656,7 +676,7 @@ class _ClaimReportingCard extends StatelessWidget {
                   const SizedBox(width: 6),
                   Expanded(
                     child: Text(
-                      "By: ${claimedBy?.custName ?? 'N/A'} (${claimedBy?.groupCat ?? ''})",
+                      "By: ${claimedBy?.custName ?? 'N/A'} (${claimedBy?.group_type ?? ''})",
                       style: const TextStyle(fontSize: 14),
                     ),
                   ),
@@ -669,7 +689,7 @@ class _ClaimReportingCard extends StatelessWidget {
                   const SizedBox(width: 6),
                   Expanded(
                     child: Text(
-                      "From: ${claimedFrom?.custName ?? 'N/A'} (${claimedFrom?.groupCat ?? ''})",
+                      "From: ${claimedFrom?.custName ?? 'N/A'} (${claimedFrom?.group_type ?? ''})",
                       style: const TextStyle(fontSize: 14),
                     ),
                   ),
@@ -737,7 +757,11 @@ class _ClaimReportingDetailsScreen extends StatelessWidget {
   const _ClaimReportingDetailsScreen({Key? key, required this.claimData,this.onActionResponse}) : super(key: key);
 
   String formatDate(DateTime? date) {
-    return date != null ? DateFormat('yyyy-MM-dd').format(date) : '-';
+    return date != null ? DateFormat('dd-MMM-yyyy').format(date) : '-';
+  }
+
+  String formatDate1(DateTime? date) {
+    return date != null ? DateFormat('hh:mm a dd-MMM-yyyy').format(date) : '-';
   }
 
   @override
@@ -745,17 +769,18 @@ class _ClaimReportingDetailsScreen extends StatelessWidget {
     final claim = claimData.value.claim;
     if (claim == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text("Claim Details")),
+        appBar: AppBar(title: const Text("Claim Reporting Details")),
         body: const Center(child: Text("Claim data not available")),
       );
     }
 
     final claimedBy = claim.claimedBy;
-    final claimedFrom = claim.claimedFromOthers;
+    final claimedFromOthers = claim.claimedFromOthers;
+    final claimedFrom = claim.claimedFrom;
     final isUnregistered = claim.isRegistered == false;
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Claim Details")),
+      appBar: AppBar(title: const Text("Claim Reporting Details")),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: ValueListenableBuilder(
@@ -767,10 +792,12 @@ class _ClaimReportingDetailsScreen extends StatelessWidget {
                   title: "Claim Info",
                   children: [
                     _infoRow("Claim No", claim.claimNumber),
-                    _infoRow("Reported Date", formatDate(claimData.value.addDate)),
-                    _infoRow("Claimed Date", formatDate(claim.claimedDate)),
+                    _infoRow("Reported Date", formatDate1(claimData.value.addDate)),
+                    _infoRow("Invoice ID", claim.invoiceId),
+                    _infoRow("Invoice Date", formatDate(claim.invoiceDate)),
+                    _infoRow("Claimed Date", formatDate1(claim.claimedDate)),
                     _infoRow("Status", claim.claimStatus, highlight: true),
-                    _infoRow("Position", claim.claimPosition),
+                    _infoRow("Status Remark", claim.claimPosition),
                     _infoRow("App", claim.appName),
                     _infoRow("Claim Amount", "₹${claim.claimAmount ?? 0}"),
                     _infoRow("Final Amount", "₹${claim.finalClaimAmount ?? 0}"),
@@ -781,13 +808,12 @@ class _ClaimReportingDetailsScreen extends StatelessWidget {
 
                 const SizedBox(height: 12),
 
-                _buildCard(
-                  title: "Invoice Details",
-                  children: [
-                    _infoRow("Invoice ID", claim.invoiceId),
-                    _infoRow("Invoice Date", formatDate(claim.invoiceDate)),
-                  ],
-                ),
+                // _buildCard(
+                //   title: "Invoice Details",
+                //   children: [
+                //
+                //   ],
+                // ),
 
                 const SizedBox(height: 12),
 
@@ -797,33 +823,47 @@ class _ClaimReportingDetailsScreen extends StatelessWidget {
                     children: [
                       _infoRow("Name", claimedBy.custName),
                       _infoRow("Contact", claimedBy.contNo),
-                      _infoRow("Group", claimedBy.groupCat),
-                      _infoRow("Category", claimedBy.custCategory),
+                      _infoRow("email", claimedBy.email??'-'),
+                      _infoRow("Group", claimedBy.group_type),
+                      _infoRow("Group Name", claimedBy.group_name),
                       _infoRow("Status", claimedBy.status == true ? "Active" : "Inactive"),
                     ],
                   ),
+                const SizedBox(height: 12),
+                if (claimedFrom != null)
+                  _buildCard(
+                    title: "Claimed From (Registered)",
+                    children: [
+                      _infoRow("Name", claimedFrom.custName),
+                      _infoRow("Contact", claimedFrom.contNo),
+                      _infoRow("email", claimedFrom.email??'-'),
+                      _infoRow("Group", claimedFrom.group_type),
+                      _infoRow("Group Name", claimedFrom.group_name),
+                      _infoRow("Status", claimedFrom.status == true ? "Active" : "Inactive"),
+                    ],
+                  ),
 
-                if (isUnregistered && claimedFrom != null) ...[
+                if (isUnregistered && claimedFromOthers != null) ...[
                   const SizedBox(height: 12),
                   _buildCard(
                     title: "Claimed From (Unregistered)",
                     children: [
-                      _infoRow("Name", claimedFrom.name),
-                      _infoRow("Number", claimedFrom.number.toString()),
-                      _infoRow("Address", claimedFrom.address),
+                      _infoRow("Name", claimedFromOthers.name),
+                      _infoRow("Number", claimedFromOthers.number.toString()),
+                      _infoRow("Address", claimedFromOthers.address),
                     ],
                   ),
                 ],
 
-                const SizedBox(height: 12),
-
-                _buildCard(
-                  title: "Meta Info",
-                  children: [
-                    _infoRow("Created Date", formatDate(claim.createdDate)),
-                    _infoRow("Last Edited", formatDate(claim.editDate)),
-                  ],
-                ),
+                // const SizedBox(height: 12),
+                //
+                // _buildCard(
+                //   title: "Meta Info",
+                //   children: [
+                //     _infoRow("Created Date", formatDate(claim.createdDate)),
+                //     _infoRow("Last Edited", formatDate(claim.editDate)),
+                //   ],
+                // ),
 
                 if ((claim.claimCopy ?? '').isNotEmpty) ...[
                   const SizedBox(height: 12),

@@ -29,7 +29,8 @@ class ChannelPartnerDashboard extends StatefulWidget {
 class _ChannelPartnerDashboardState extends State<ChannelPartnerDashboard> {
   final List<String> _titles = ['Home', 'Claims', 'Orders', 'My Wallet'];
   int _currentIndex = 0;
-  final List<Widget> _screens = [ChannelPartnerHomeScreen(),ClaimScreen(),OrdersScreen(),ChannelPartnerMyWallet()];
+  final GlobalKey<ClaimScreenState> _claimKey = GlobalKey<ClaimScreenState>();
+  late final List<Widget> _screens;
 
   @override
   void initState() {
@@ -64,7 +65,7 @@ class _ChannelPartnerDashboardState extends State<ChannelPartnerDashboard> {
       items: <BottomNavigationBarItem>[
         _bottomNavBarItem(iconData: 'assets/icons/home_icon.webp', label: 'Home'),
         _bottomNavBarItem(iconData: 'assets/icons/point-of-sale-bill.webp', label: 'Claim'),
-        _bottomNavBarItem(iconData: 'assets/icons/dolly-flatbed-alt.webp', label: 'Orders'),
+        _bottomNavBarItem(iconData: 'assets/icons/order-history.webp', label: 'Orders'),
         _bottomNavBarItem(iconData: 'assets/icons/wallet.webp', label: 'My Wallet'),
       ],
     );
@@ -258,6 +259,9 @@ class _ChannelPartnerDashboardState extends State<ChannelPartnerDashboard> {
   }
 
   void _init()async {
+    _screens = [ChannelPartnerHomeScreen(onRefresh: (){
+      _claimKey.currentState?.onRefresh();
+    },),ClaimScreen(key: _claimKey,),OrdersScreen(),ChannelPartnerMyWallet()];
     WidgetsBinding.instance.addPostFrameCallback((duration)async{
       final data = await APIService.getInstance(context).getUserDetails.getUserLoginData();
       if(data != null){

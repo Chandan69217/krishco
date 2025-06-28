@@ -32,8 +32,8 @@ class InfluencerDashboard extends StatefulWidget {
 class _InfluencerDashboardState extends State<InfluencerDashboard> {
   final List<String> _titles = ['Home', 'Claims', 'Orders', 'My Wallet'];
   int _currentIndex = 0;
-  final List<Widget> _screens = [InfluencerHomeScreen(),ClaimScreen(),OrdersScreen(),RedemptionCataloguesScreen(
-  ),];
+  late final List<Widget> _screens;
+  final GlobalKey<ClaimScreenState> _claimKey = GlobalKey<ClaimScreenState>();
 
   @override
   void initState() {
@@ -68,7 +68,7 @@ class _InfluencerDashboardState extends State<InfluencerDashboard> {
       items: <BottomNavigationBarItem>[
         _bottomNavBarItem(iconData: 'assets/icons/home_icon.webp', label: 'Home'),
         _bottomNavBarItem(iconData: 'assets/icons/point-of-sale-bill.webp', label: 'Claim'),
-        _bottomNavBarItem(iconData: 'assets/icons/dolly-flatbed-alt.webp', label: 'Orders'),
+        _bottomNavBarItem(iconData: 'assets/icons/order-history.webp', label: 'Orders'),
         _bottomNavBarItem(iconData: 'assets/icons/shop_icon.webp', label: 'Redemption'),
       ],
     );
@@ -263,6 +263,10 @@ class _InfluencerDashboardState extends State<InfluencerDashboard> {
   }
 
   void _init()async {
+    _screens = [InfluencerHomeScreen(onRefresh: (){
+      _claimKey.currentState?.onRefresh();
+    },),ClaimScreen(key: _claimKey,),OrdersScreen(),RedemptionCataloguesScreen(
+    ),];
     WidgetsBinding.instance.addPostFrameCallback((duration)async{
       final data = await APIService.getInstance(context).getUserDetails.getUserLoginData();
       if(data != null){

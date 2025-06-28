@@ -17,6 +17,7 @@ class ClaimListData {
 
 class ClaimData {
   static final dateFormatted = DateFormat('hh:mm a dd MMM yyyy');
+  static final dateFormatForInvoiceDate = DateFormat('dd MMM yyyy');
   ClaimData({
     required this.id,
     required this.claimNumber,
@@ -46,7 +47,7 @@ class ClaimData {
   final String? invoiceDate;
   final String? claimedDate;
   final ClaimedBy? claimedBy;
-  final dynamic claimedFrom;
+  final ClaimedFrom? claimedFrom;
   final ClaimedFromOthers? claimedFromOthers;
   final bool? isTagged;
   final bool? isRegistered;
@@ -66,10 +67,10 @@ class ClaimData {
       id: json["id"],
       claimNumber: json["claim_number"],
       invoiceId: json["invoice_id"]??null,
-      invoiceDate: json["invoice_date"] != null ? dateFormatted.format(DateTime.tryParse(json["invoice_date"] ?? "")!):'-',
+      invoiceDate: json["invoice_date"] != null ? dateFormatForInvoiceDate.format(DateTime.tryParse(json["invoice_date"] ?? "")!):'-',
       claimedDate:json["claimed_date"] != null ? dateFormatted.format(DateTime.tryParse(json["claimed_date"] ?? "")!):'-',
       claimedBy: json["claimed_by"] == null ? null : ClaimedBy.fromJson(json["claimed_by"]),
-      claimedFrom: json["claimed_from"],
+      claimedFrom: json["claimed_from"] == null ? null:ClaimedFrom.fromJson(json['claimed_from']),
       claimedFromOthers: json["claimed_from_others"] == null ? null : ClaimedFromOthers.fromJson(json["claimed_from_others"]),
       isTagged: json["is_tagged"],
       isRegistered: json["is_registered"],
@@ -93,8 +94,9 @@ class ClaimedBy {
     required this.id,
     required this.custName,
     required this.contNo,
-    required this.groupCat,
-    required this.custCategory,
+    required this.email,
+    required this.group_type,
+    required this.group_name,
     required this.photo,
     required this.status,
     required this.deleteRec,
@@ -103,19 +105,60 @@ class ClaimedBy {
   final int? id;
   final String? custName;
   final String? contNo;
-  final String? groupCat;
-  final String? custCategory;
+  final String? group_type;
+  final String? group_name;
   final dynamic photo;
   final bool? status;
+  final String email;
   final bool? deleteRec;
 
   factory ClaimedBy.fromJson(Map<String, dynamic> json){
     return ClaimedBy(
       id: json["id"],
-      custName: json["cust_name"],
-      contNo: json["cont_no"],
-      groupCat: json["group_cat"],
-      custCategory: json["cust_category"],
+      custName: json["name"],
+      contNo: json["number"],
+      email: json["email"],
+      group_type: json["group_type"],
+      group_name: json["group_name"],
+      photo: json["photo"],
+      status: json["status"],
+      deleteRec: json["delete_rec"],
+    );
+  }
+
+}
+
+class ClaimedFrom {
+  ClaimedFrom({
+    required this.id,
+    required this.custName,
+    required this.contNo,
+    this.email,
+    required this.group_type,
+    required this.group_name,
+    required this.photo,
+    required this.status,
+    required this.deleteRec,
+  });
+
+  final int? id;
+  final String? custName;
+  final String? contNo;
+  final String? group_type;
+  final String? group_name;
+  final dynamic photo;
+  final bool? status;
+  final String? email;
+  final bool? deleteRec;
+
+  factory ClaimedFrom.fromJson(Map<String, dynamic> json){
+    return ClaimedFrom(
+      id: json["id"],
+      custName: json["name"],
+      contNo: json["number"],
+      email: json["email"],
+      group_type: json["group_type"],
+      group_name: json["group_name"],
       photo: json["photo"],
       status: json["status"],
       deleteRec: json["delete_rec"],

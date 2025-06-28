@@ -7,7 +7,9 @@ import 'package:krishco/dashboard_type/channel_partner_ui/channel_partner_dashbo
 import 'package:krishco/dashboard_type/consumer_ui/consumer_dashboard.dart';
 import 'package:krishco/dashboard_type/dashboard_types.dart';
 import 'package:krishco/dashboard_type/influencer_ui/influencer_dashboard.dart';
+import 'package:krishco/dashboard_type/user_ui/screens/default_screen/default_screen.dart';
 import 'package:krishco/dashboard_type/user_ui/user_dashboard.dart';
+import 'package:krishco/models/login_data/login_details_data.dart';
 import 'package:krishco/screens/authentication/registration_screen.dart';
 import 'package:krishco/utilities/cust_colors.dart';
 import 'package:krishco/widgets/cust_loader.dart';
@@ -418,9 +420,15 @@ class _LoginScreenState extends State<LoginScreen>
     with TickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final _mobileController = TextEditingController(text: '1234567891');
-  final _emailController = TextEditingController(text: 'channelpartner@example.com');
-  final _mobilePasswordController = TextEditingController(text: 'Shivamraj@1950');
-  final _emailPasswordController = TextEditingController(text: 'Shivamraj@1950');
+  final _emailController = TextEditingController(
+    text: 'channelpartner@example.com',
+  );
+  final _mobilePasswordController = TextEditingController(
+    text: 'Shivamraj@1950',
+  );
+  final _emailPasswordController = TextEditingController(
+    text: 'Shivamraj@1950',
+  );
 
   late TabController _tabController;
   bool _passwordVisibility = false;
@@ -458,29 +466,26 @@ class _LoginScreenState extends State<LoginScreen>
     double fontSize = screenWidth * 0.085;
     return Scaffold(
       // backgroundColor: CustColors.cyan,
-      body: Form(
-        key: _formKey,
-        child: SingleChildScrollView(
-          child: FormField(
-            initialValue: _isChecked,
-            validator: (value) {
-              if (value != true) {
-                showSnackBar(
-                  context: context,
-                  message: 'Accept the terms and conditions',
-                  title: 'Check the box',
-                  contentType: ContentType.warning,
-                );
-                return 'Please accept the terms and conditions';
-              }
-              return null;
-            },
-            builder: (state) {
-              return ConstrainedBox(
-                  constraints: BoxConstraints(
-                    maxHeight: MediaQuery.of(context).size.height
-                  ),
-                child: Padding(
+      body: SafeArea(
+        child: Form(
+          key: _formKey,
+          child: SingleChildScrollView(
+            child: FormField(
+              initialValue: _isChecked,
+              validator: (value) {
+                if (value != true) {
+                  showSnackBar(
+                    context: context,
+                    message: 'Accept the terms and conditions',
+                    title: 'Check the box',
+                    contentType: ContentType.warning,
+                  );
+                  return 'Please accept the terms and conditions';
+                }
+                return null;
+              },
+              builder: (state) {
+                return Padding(
                   padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
                   child: SafeArea(
                     child: Column(
@@ -494,23 +499,25 @@ class _LoginScreenState extends State<LoginScreen>
                         ),
 
                         const SizedBox(height: 8.0),
-                                              Text(
-                        'PARTNER LOYALTY PROGRAM',
-                        style: TextStyle(
-                          fontSize: fontSize * 0.4,
-                          color: Colors.grey,
+                        Text(
+                          'PARTNER LOYALTY PROGRAM',
+                          style: TextStyle(
+                            fontSize: fontSize * 0.4,
+                            color: Colors.grey,
+                          ),
                         ),
-                      ),
                         const SizedBox(height: 20),
                         Text(
                           'Login',
-                          style:Theme.of(context).textTheme.bodyMedium!.copyWith(
-                              fontSize: fontSize,
-                              fontWeight: FontWeight.bold,
-                              color: CustColors.nile_blue
+                          style: Theme.of(
+                            context,
+                          ).textTheme.bodyMedium!.copyWith(
+                            fontSize: fontSize,
+                            fontWeight: FontWeight.bold,
+                            color: CustColors.nile_blue,
                           ),
                         ),
-                        const SizedBox(height: 12.0,),
+                        const SizedBox(height: 12.0),
                         // Tab UI
                         Container(
                           padding: EdgeInsets.only(top: 16.0),
@@ -528,7 +535,7 @@ class _LoginScreenState extends State<LoginScreen>
                           child: DefaultTabController(
                             length: 2,
                             initialIndex:
-                            _loginMode == LoginMode.mobile ? 0 : 1,
+                                _loginMode == LoginMode.mobile ? 0 : 1,
                             child: Column(
                               children: [
                                 // SizedBox(height: screenHeight * 0.035),
@@ -537,9 +544,10 @@ class _LoginScreenState extends State<LoginScreen>
                                   labelColor: CustColors.nile_blue,
                                   unselectedLabelColor: Colors.grey,
                                   dividerColor: Colors.grey.shade300,
-                                  labelStyle: Theme.of(context).textTheme.bodySmall!.copyWith(
-                                    fontWeight: FontWeight.w500,
-                                  ),
+                                  labelStyle: Theme.of(context)
+                                      .textTheme
+                                      .bodySmall!
+                                      .copyWith(fontWeight: FontWeight.w500),
                                   tabs: const [
                                     Tab(text: 'Mobile'),
                                     Tab(text: 'Email'),
@@ -547,9 +555,9 @@ class _LoginScreenState extends State<LoginScreen>
                                   onTap: (index) {
                                     setState(() {
                                       _loginMode =
-                                      index == 0
-                                          ? LoginMode.mobile
-                                          : LoginMode.email;
+                                          index == 0
+                                              ? LoginMode.mobile
+                                              : LoginMode.email;
                                       // _mobileController.clear();
                                       // _emailController.clear();
                                       // _passwordController.clear();
@@ -569,15 +577,16 @@ class _LoginScreenState extends State<LoginScreen>
                                       Expanded(
                                         child: TabBarView(
                                           physics:
-                                          const NeverScrollableScrollPhysics(),
+                                              const NeverScrollableScrollPhysics(),
                                           children: [
                                             Column(
                                               children: [
-                                                const SizedBox(height: 8.0,),
+                                                const SizedBox(height: 8.0),
                                                 CustomFormTextField(
                                                   controller: _mobileController,
                                                   validator: (value) {
-                                                    if(_loginMode == LoginMode.email){
+                                                    if (_loginMode ==
+                                                        LoginMode.email) {
                                                       return null;
                                                     }
                                                     if (value == null ||
@@ -589,31 +598,39 @@ class _LoginScreenState extends State<LoginScreen>
                                                     }
                                                     return null;
                                                   },
-                                                  keyboardType: TextInputType.phone,
+                                                  keyboardType:
+                                                      TextInputType.phone,
                                                   maxLength: 10,
                                                   hintText: 'Mobile',
-                                                  prefixIcon: const Icon(Icons.phone),
+                                                  prefixIcon: const Icon(
+                                                    Icons.phone,
+                                                  ),
                                                 ),
                                                 const SizedBox(height: 30.0),
                                                 _buildPasswordFieldAndForgetButton(
-                                                  controller: _mobilePasswordController,
-                                                    validator: (value){
-                                                    if(_loginMode == LoginMode.email){
+                                                  controller:
+                                                      _mobilePasswordController,
+                                                  validator: (value) {
+                                                    if (_loginMode ==
+                                                        LoginMode.email) {
                                                       return null;
                                                     }
-                                                    return value == null || value.isEmpty ? 'Enter password' : null;
-                                                    }
+                                                    return value == null ||
+                                                            value.isEmpty
+                                                        ? 'Enter password'
+                                                        : null;
+                                                  },
                                                 ),
-                                        
                                               ],
                                             ),
                                             Column(
                                               children: [
-                                                const SizedBox(height: 8.0,),
+                                                const SizedBox(height: 8.0),
                                                 CustomFormTextField(
                                                   controller: _emailController,
                                                   validator: (value) {
-                                                    if(_loginMode == LoginMode.mobile){
+                                                    if (_loginMode ==
+                                                        LoginMode.mobile) {
                                                       return null;
                                                     }
                                                     if (value == null ||
@@ -628,22 +645,30 @@ class _LoginScreenState extends State<LoginScreen>
                                                     return null;
                                                   },
                                                   keyboardType:
-                                                  TextInputType.emailAddress,
+                                                      TextInputType
+                                                          .emailAddress,
                                                   hintText: 'Email',
-                                                  prefixIcon: const Icon(Icons.email),
+                                                  prefixIcon: const Icon(
+                                                    Icons.email,
+                                                  ),
                                                 ),
                                                 const SizedBox(height: 30.0),
                                                 _buildPasswordFieldAndForgetButton(
-                                                    controller: _emailPasswordController,
-                                                    validator: (value){
-                                                      if(_loginMode == LoginMode.mobile){
-                                                        return null;
-                                                      }
-                                                      return value == null || value.isEmpty ? 'Enter password' : null;
+                                                  controller:
+                                                      _emailPasswordController,
+                                                  validator: (value) {
+                                                    if (_loginMode ==
+                                                        LoginMode.mobile) {
+                                                      return null;
                                                     }
-                                                )
+                                                    return value == null ||
+                                                            value.isEmpty
+                                                        ? 'Enter password'
+                                                        : null;
+                                                  },
+                                                ),
                                               ],
-                                            )
+                                            ),
                                           ],
                                         ),
                                       ),
@@ -663,7 +688,10 @@ class _LoginScreenState extends State<LoginScreen>
                                             child: Text(
                                               'I accept the Terms & Conditions',
                                               style: TextStyle(
-                                                color: _isChecked ? Colors.black : Colors.red,
+                                                color:
+                                                    _isChecked
+                                                        ? Colors.black
+                                                        : Colors.red,
                                               ),
                                             ),
                                           ),
@@ -671,18 +699,20 @@ class _LoginScreenState extends State<LoginScreen>
                                       ),
                                       const SizedBox(height: 16),
                                       // Login Button
-                                      _isLoading ? CustLoader(
-                                        color: CustColors.nile_blue,
-                                      ):
-                                      SizedBox(
-                                        width: double.infinity,
-                                        child: CustomElevatedButton(
-                                          backgroundColor: CustColors.nile_blue,
-                                          forgroundColor: Colors.white,
-                                          onPressed: _login,
-                                          text: "Log In",
-                                        ),
-                                      ),
+                                      _isLoading
+                                          ? CustLoader(
+                                            color: CustColors.nile_blue,
+                                          )
+                                          : SizedBox(
+                                            width: double.infinity,
+                                            child: CustomElevatedButton(
+                                              backgroundColor:
+                                                  CustColors.nile_blue,
+                                              forgroundColor: Colors.white,
+                                              onPressed: _login,
+                                              text: "Log In",
+                                            ),
+                                          ),
                                       const SizedBox(height: 16),
                                     ],
                                   ),
@@ -691,20 +721,38 @@ class _LoginScreenState extends State<LoginScreen>
                             ),
                           ),
                         ),
-
+                        const SizedBox(height: 24.0),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => RegistrationScreen(),
+                              ),
+                            );
+                          },
+                          style: ButtonStyle(
+                            foregroundColor: MaterialStateProperty.all(
+                              CustColors.blue,
+                            ),
+                          ),
+                          child: Text('Create new account?'),
+                        ),
                       ],
                     ),
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildPasswordFieldAndForgetButton({required TextEditingController controller,String? Function(String? value)? validator}) {
+  Widget _buildPasswordFieldAndForgetButton({
+    required TextEditingController controller,
+    String? Function(String? value)? validator,
+  }) {
     return Column(
       children: [
         CustomFormTextField(
@@ -732,10 +780,7 @@ class _LoginScreenState extends State<LoginScreen>
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                    builder:
-                        (_) => ForgetPasswordScreen(),
-                  ),
+                  MaterialPageRoute(builder: (_) => ForgetPasswordScreen()),
                 );
               },
               label: 'Forgot Password?',
@@ -749,18 +794,25 @@ class _LoginScreenState extends State<LoginScreen>
 
   _login() async {
     if (_formKey.currentState!.validate()) {
-      String username = _loginMode == LoginMode.mobile ? _mobileController.text : _emailController.text;
-      String password = _loginMode == LoginMode.mobile ? _mobilePasswordController.text : _emailPasswordController.text;
+      String username =
+          _loginMode == LoginMode.mobile
+              ? _mobileController.text
+              : _emailController.text;
+      String password =
+          _loginMode == LoginMode.mobile
+              ? _mobilePasswordController.text
+              : _emailPasswordController.text;
 
       final List<ConnectivityResult> connectivityResult =
-      await Connectivity().checkConnectivity();
+          await Connectivity().checkConnectivity();
       if (!(connectivityResult.contains(ConnectivityResult.mobile) ||
           connectivityResult.contains(ConnectivityResult.wifi) ||
           connectivityResult.contains(ConnectivityResult.ethernet))) {
         showSnackBar(
-            context: context,
-            title: 'No Internet',
-            message: 'Your are not connected to any internet provider');
+          context: context,
+          title: 'No Internet',
+          message: 'Your are not connected to any internet provider',
+        );
         return;
       }
       setState(() {
@@ -768,21 +820,20 @@ class _LoginScreenState extends State<LoginScreen>
       });
 
       try {
-        var uri = Uri.https(Urls.base_url,Urls.login);
-        var body = json.encode({
-          'username': username,
-          'password': password,
-        });
+        var uri = Uri.https(Urls.base_url, Urls.login);
+        var body = json.encode({'username': username, 'password': password});
 
-        var response = await post(uri, body: body, headers: {
-          'Content-Type': 'application/json',
-        });
+        var response = await post(
+          uri,
+          body: body,
+          headers: {'Content-Type': 'application/json'},
+        );
 
         // Check status code
         if (response.statusCode == 200) {
           var rawData = json.decode(response.body);
           String token = rawData['data']['token'];
-          String? group_type = rawData['data']['group_type'];
+          String group_type = rawData['data']['group_type']??'';
           String? approval_status = rawData['data']['approval_status'];
           String? kyc_status = rawData['data']['kyc_status'];
           String? group_name = rawData['data']['group_name'];
@@ -791,32 +842,49 @@ class _LoginScreenState extends State<LoginScreen>
           String? email = rawData['data']['email'];
           String? photo = rawData['data']['photo'];
           bool? orderForCompany = rawData['data']['order_from_company'];
-          Pref.instance.setString('photo', photo??'');
-          Pref.instance.setBool('order_from_company', orderForCompany??false);
+          List<dynamic> roles = rawData['data']['role'] != null ? rawData['data']['role']:[];
+          Pref.instance.setString('photo', photo ?? '');
+          Pref.instance.setBool('order_from_company', orderForCompany ?? false);
           Pref.instance.setBool(Consts.isLogin, true);
           Pref.instance.setString(Consts.user_token, token);
-          Pref.instance.setString(Consts.group_type,group_type??'');
-          Pref.instance.setString(Consts.group_name,group_name??'');
-          Pref.instance.setString(Consts.approval_status,approval_status??'');
-          Pref.instance.setString(Consts.kyc_status,kyc_status??'');
-          Pref.instance.setString(Consts.name,name??'');
-          Pref.instance.setString(Consts.number,number??'');
-          Pref.instance.setString(Consts.email,email??'');
+          Pref.instance.setString(Consts.group_type, group_type ?? '');
+          Pref.instance.setString(Consts.group_name, group_name ?? '');
+          List<String> tempRole = roles.map<String>((e){
+            return e;
+          }).toList();
+          GroupRoles.dashboardType  = group_type;
+          GroupRoles.roles = tempRole;
+              Pref.instance.setStringList(Consts.roles, tempRole);
+          Pref.instance.setString(
+            Consts.approval_status,
+            approval_status ?? '',
+          );
+          Pref.instance.setString(Consts.kyc_status, kyc_status ?? '');
+          Pref.instance.setString(Consts.name, name ?? '');
+          Pref.instance.setString(Consts.number, number ?? '');
+          Pref.instance.setString(Consts.email, email ?? '');
           showSnackBar(
-              context: context,
-              title: 'Login Success',
-              message: "Thank you for login !!",
-              contentType: ContentType.success);
-          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>_getScreenByGroup(group_type!)!));
+            context: context,
+            title: 'Login Success',
+            message: "Thank you for login !!",
+            contentType: ContentType.success,
+          );
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => _getScreenByGroup(group_type!)!,
+            ),
+          );
         } else {
           await handleHttpResponse(context, response);
         }
       } catch (exception, trace) {
         print('Exception: $exception, Trace: $trace');
         showSnackBar(
-            context: context,
-            title: 'Opps!',
-            message: 'Network or server error, please check your connection.');
+          context: context,
+          title: 'Opps!',
+          message: 'Something went wrong, Please retry after sometime.',
+        );
       }
 
       setState(() {
@@ -825,8 +893,8 @@ class _LoginScreenState extends State<LoginScreen>
     }
   }
 
-  Widget? _getScreenByGroup(String group_type){
-    switch(group_type){
+  Widget? _getScreenByGroup(String group_type) {
+    switch (group_type) {
       case DashboardTypes.User:
         return UserDashboard();
       case DashboardTypes.customer:
@@ -835,15 +903,11 @@ class _LoginScreenState extends State<LoginScreen>
         return ChannelPartnerDashboard();
       case DashboardTypes.influencer:
         return InfluencerDashboard();
-      default: return null;
+      default:
+        return DefaultScreen();
     }
   }
-
 }
-
-
-
-
 
 // class LoginScreen extends StatefulWidget {
 //   LoginScreen({super.key,});

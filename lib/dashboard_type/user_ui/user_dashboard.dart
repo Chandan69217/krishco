@@ -255,7 +255,8 @@ class UserDashboard extends StatefulWidget {
 class _UserDashboardState extends State<UserDashboard> {
   final List<String> _titles = ['Home', 'Claims', 'Orders', 'Rules Book'];
   int _currentIndex = 0;
-  final List<Widget> _screens = [ChannelPartnerHomeScreen(),ClaimScreen(),OrdersScreen(),UserRulesScreen()];
+  late final List<Widget> _screens;
+  final GlobalKey<ClaimScreenState> _claimKey = GlobalKey<ClaimScreenState>();
 
   @override
   void initState() {
@@ -290,7 +291,7 @@ class _UserDashboardState extends State<UserDashboard> {
       items: <BottomNavigationBarItem>[
         _bottomNavBarItem(iconData: 'assets/icons/home_icon.webp', label: 'Home'),
         _bottomNavBarItem(iconData: 'assets/icons/point-of-sale-bill.webp', label: 'Claim'),
-        _bottomNavBarItem(iconData: 'assets/icons/dolly-flatbed-alt.webp', label: 'Orders'),
+        _bottomNavBarItem(iconData: 'assets/icons/order-history.webp', label: 'Orders'),
         _bottomNavBarItem(iconData: 'assets/icons/rules-alt.webp', label: 'Rules Book'),
       ],
     );
@@ -496,6 +497,11 @@ class _UserDashboardState extends State<UserDashboard> {
   }
 
   void _init()async {
+    _screens = [UserHomeScreen(
+      onRefresh: (){
+        _claimKey.currentState?.onRefresh();
+      },
+    ),ClaimScreen(key:_claimKey),OrdersScreen(),UserRulesScreen()];
     WidgetsBinding.instance.addPostFrameCallback((duration)async{
       final data = await APIService.getInstance(context).getUserDetails.getUserLoginData();
       if(data != null){

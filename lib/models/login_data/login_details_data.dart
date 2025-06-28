@@ -119,3 +119,10 @@ class UserState {
     userData.value = null;
   }
 }
+
+
+class GroupRoles {
+  GroupRoles._();
+  static List<String> roles = [];
+  static late String dashboardType;
+}

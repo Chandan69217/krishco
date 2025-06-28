@@ -26,7 +26,7 @@ Future<Map<String, dynamic>> handleHttpResponse(BuildContext context,Response re
     case 403:
       errorTitle = 'Forbidden';
       errorDesc = 'You do not have permission to access this resource.';
-      type = ContentType.failure;
+      type = ContentType.warning;
       break;
     case 404:
       errorTitle = 'Not Found';
@@ -36,13 +36,16 @@ Future<Map<String, dynamic>> handleHttpResponse(BuildContext context,Response re
     case 500:
       errorTitle = 'Server Error';
       errorDesc = 'Something went wrong on the server. Please login again.';
-      type = ContentType.warning;
-      Pref.instance.clear();
-      Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (context) => LoginScreen()),
-            (route) => false,
-      );
       type = ContentType.failure;
+      WidgetsBinding.instance.addPostFrameCallback((duration){
+        if(context.mounted){
+          Pref.instance.clear();
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (context) => LoginScreen()),
+                (route) => false,
+          );
+        }
+      });
       break;
     case 502:
       errorTitle = 'Bad Gateway';
@@ -57,7 +60,9 @@ Future<Map<String, dynamic>> handleHttpResponse(BuildContext context,Response re
       break;
   }
 
-  showSnackBar(context: context, title: errorTitle, message: errorDesc,contentType: type);
+  if(context.mounted){
+    showSnackBar(context: context, title: errorTitle, message: errorDesc,contentType: type);
+  }
 
   return {
     'title': errorTitle,

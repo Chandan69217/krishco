@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart';
 import 'package:http/http.dart' as http;
+import 'package:krishco/dashboard_type/dashboard_types.dart';
 import 'package:krishco/models/login_data/login_details_data.dart';
 import 'package:krishco/models/kyc_proof_related/kyc_proof_model.dart';
 import 'package:krishco/screens/splash/splash_screen.dart';
@@ -150,15 +151,15 @@ class _TaggedEnterprise{
     try{
       final url = Uri.https(Urls.base_url,Urls.tagged_enterprise_of_login_customer);
       final response = await post(url,headers: {
-        'Authorization' : 'Bearer ${userToken}'
+        'Authorization' : 'Bearer ${userToken}',
+        'content-type':'Application/json'
       },body: json.encode(
           {
             "number": number
           }
       ));
-
       if(response.statusCode == 200){
-        final body = response.body as Map<String,dynamic>;
+        final body = json.decode(response.body) as Map<String,dynamic>;
         return body;
       }else{
         handleHttpResponse(context, response);
@@ -549,6 +550,7 @@ class _InvoiceClaim{
     required String amount,
     required String claimCopy,
     Map<String, dynamic>? claimFromOthers,
+    String? claimedBy
   }) async {
     final userToken = Pref.instance.getString(Consts.user_token);
 
@@ -558,12 +560,15 @@ class _InvoiceClaim{
       final request = http.MultipartRequest('POST', url)
         ..headers['Authorization'] = 'Bearer $userToken'
         ..fields['invoice_id'] = invoiceNo ?? ''
-        ..fields['invoice_date'] = invoiceData
         ..fields['claimed_from'] = claimFrom ?? ''
+        ..fields['invoice_date'] = invoiceData
         ..fields['claim_amount'] = amount
         ..fields['app_name'] = 'mobile'
         ..fields['claimed_from_others'] = jsonEncode(claimFromOthers);
 
+      if(GroupRoles.dashboardType == DashboardTypes.User && claimedBy != null){
+        request.fields['claimed_by'] = claimedBy;
+      }
       final mimeType = claimCopy.endsWith('.png')
           ? MediaType('image', 'png')
           : MediaType('image', 'jpeg');
@@ -577,13 +582,13 @@ class _InvoiceClaim{
       final streamedResponse = await request.send();
 
       final response = await http.Response.fromStream(streamedResponse);
-
+      print('Failed: ${response.statusCode} -> ${response.body}');
       if (response.statusCode == 200) {
         return jsonDecode(response.body) as Map<String, dynamic>;
       }else if(response.statusCode == 201){
         return jsonDecode(response.body) as Map<String,dynamic>;
       } else {
-        print('Failed: ${response.statusCode} -> ${response.body}');
+        handleHttpResponse(context, response);
       }
     } catch (exception, trace) {
       print('Exception: $exception\nTrace: $trace');

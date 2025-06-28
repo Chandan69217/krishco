@@ -69,7 +69,7 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
         Scaffold(
         appBar: AppBar(
           title: const Text(
-            'Order Details',
+            'Place Order',
           ),
         ),
 

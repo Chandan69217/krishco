@@ -68,7 +68,7 @@ class Claim {
   final DateTime? claimedDate;
   final Claimed? claimedBy;
   final Claimed? claimedFrom;
-  final dynamic claimedFromOthers;
+  final ClaimedFromOthers? claimedFromOthers;
   final bool? isTagged;
   final bool? isRegistered;
   final int? claimAmount;
@@ -91,7 +91,7 @@ class Claim {
       claimedDate: DateTime.tryParse(json["claimed_date"] ?? ""),
       claimedBy: json["claimed_by"] == null ? null : Claimed.fromJson(json["claimed_by"]),
       claimedFrom: json["claimed_from"] == null ? null : Claimed.fromJson(json["claimed_from"]),
-      claimedFromOthers: json["claimed_from_others"],
+      claimedFromOthers: json["claimed_from_others"] == null ? null: ClaimedFromOthers.fromJson( json["claimed_from_others"]),
       isTagged: json["is_tagged"],
       isRegistered: json["is_registered"],
       claimAmount: json["claim_amount"],
@@ -114,8 +114,9 @@ class Claimed {
     required this.id,
     required this.custName,
     required this.contNo,
-    required this.groupCat,
-    required this.custCategory,
+    this.email,
+    required this.group_type,
+    required this.group_name,
     required this.photo,
     required this.status,
     required this.deleteRec,
@@ -124,8 +125,9 @@ class Claimed {
   final int? id;
   final String? custName;
   final String? contNo;
-  final String? groupCat;
-  final String? custCategory;
+  final String? email;
+  final String? group_type;
+  final String? group_name;
   final dynamic photo;
   final bool? status;
   final bool? deleteRec;
@@ -133,13 +135,35 @@ class Claimed {
   factory Claimed.fromJson(Map<String, dynamic> json){
     return Claimed(
       id: json["id"],
-      custName: json["cust_name"],
-      contNo: json["cont_no"],
-      groupCat: json["group_cat"],
-      custCategory: json["cust_category"],
+      custName: json["name"],
+      contNo: json["number"],
+      email: json["email"],
+      group_type: json["group_type"],
+      group_name: json["group_name"],
       photo: json["photo"],
       status: json["status"],
       deleteRec: json["delete_rec"],
+    );
+  }
+
+}
+
+class ClaimedFromOthers {
+  ClaimedFromOthers({
+    required this.name,
+    required this.number,
+    required this.address,
+  });
+
+  final String? name;
+  final int? number;
+  final String? address;
+
+  factory ClaimedFromOthers.fromJson(Map<String, dynamic> json){
+    return ClaimedFromOthers(
+      name: json["name"],
+      number: json["number"],
+      address: json["address"],
     );
   }
 

@@ -328,9 +328,9 @@ class _ProductCatalogueScreenState extends State<ProductCatalogueScreen> {
                                    alignment: Alignment.center,
                                    child: Text(
                                      tabTitles[index],
-                                     style: TextStyle(
+                                     style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                                        color: isSelected ? Colors.white : Colors.black87,
-                                       fontWeight: FontWeight.bold,
+                                       fontWeight: isSelected ? FontWeight.bold : null,
                                      ),
                                    ),
                                  ),
