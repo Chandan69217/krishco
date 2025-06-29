@@ -3,7 +3,7 @@ class EnterpriseDetailsListData {
     required this.data,
   });
 
-  final List<Datum> data;
+  final List<Datum?> data;
 
   factory EnterpriseDetailsListData.fromJson(Map<String, dynamic> json){
     return EnterpriseDetailsListData(

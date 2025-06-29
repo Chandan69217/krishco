@@ -1,9 +1,7 @@
 import 'dart:io';
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:krishco/api_services/api_service.dart';
 import 'package:krishco/dashboard_type/dashboard_types.dart';
@@ -41,7 +39,8 @@ class _CreateClaimScreenState extends State<CreateClaimScreen> {
   bool _isLoading = false;
   ValueNotifier<EnterpriseDetailsListData?> taggedEnterprise = ValueNotifier<EnterpriseDetailsListData?>(null);
   DateTime? _invoiceDate = DateTime.now();
-  String? _enterpriseDetails;
+  String? _enterpriseID;
+  String? _claimBy;
   bool _notInList = false;
   File? _selectedFile;
 
@@ -58,7 +57,7 @@ class _CreateClaimScreenState extends State<CreateClaimScreen> {
   Future<void> _getEnterprisesByNumber(String number) async {
     try {
       final taggedEnterpriseObj = APIService.getInstance(context).taggedEnterprise;
-      final data = await taggedEnterpriseObj.getTaggedEnterprisedByNumber(number);
+      final data = await taggedEnterpriseObj.getTaggedEnterpriseByNumber(number);
 
       if (data != null) {
         final bool status = data['isScuss'] ?? false;
@@ -67,17 +66,32 @@ class _CreateClaimScreenState extends State<CreateClaimScreen> {
           taggedEnterprise.value = EnterpriseDetailsListData.fromJson(data);
         } else {
           taggedEnterprise.value = null;
-          final String message = data['messages'] ?? 'Something went wrong!';
-          CustDialog.show(context: context, message: message);
+          // final String message = data['messages'] ?? 'Something went wrong!';
+          // CustDialog.show(context: context, message: message);
         }
       } else {
         taggedEnterprise.value = null;
-        CustDialog.show(context: context, message: 'No data received from server.');
+        // CustDialog.show(context: context, message: 'No data received from server.');
       }
     } catch (e, trace) {
       debugPrint('Error in _getEnterprisesByNumber: $e\n$trace');
-      CustDialog.show(context: context, message: 'Failed to fetch data. Please try again later.');
+      // CustDialog.show(context: context, message: 'Failed to fetch data. Please try again later.');
     }
+  }
+
+  Future<String?> _getConsumerDetailsByNumber(String number)async{
+    String? claimBy;
+    final data = await APIService.getInstance(context).groupDetails.getCustomerDetailsByNumber(int.tryParse(number,)??0);
+    if(data != null){
+      final status = data['isScuss'];
+      if(status){
+        claimBy = data['data']['id'].toString();
+      }else{
+        final message = data['messages'].toString();
+        CustDialog.show(context: context, message: message);
+      }
+    }
+    return claimBy;
   }
 
 
@@ -93,7 +107,10 @@ class _CreateClaimScreenState extends State<CreateClaimScreen> {
             final number = _consumerPhoneNumberController.text.trim();
             if (number.isNotEmpty) {
               setState(() => _isLoading = true);
-              await _getEnterprisesByNumber(number);
+              _claimBy = await _getConsumerDetailsByNumber(number);
+              if(_claimBy != null){
+                await _getEnterprisesByNumber(number);
+              }
               if (mounted) {
                 setState(() => _isLoading = false);
               }
@@ -260,12 +277,12 @@ class _CreateClaimScreenState extends State<CreateClaimScreen> {
                           labelText: 'Enterprise Details *',
                           border: OutlineInputBorder(),
                         ),
-                        value: _enterpriseDetails,
+                        value: _enterpriseID,
                         items: [
                           DropdownMenuItem(child: Text("Select Enterprise Details"), value: null),
                           if(value != null)...[
                             ...value.data.map((datum) {
-                              final customer = datum.customer;
+                              final customer = datum?.customer;
                               if (customer == null) return null;
 
                               final displayText =
@@ -278,7 +295,12 @@ class _CreateClaimScreenState extends State<CreateClaimScreen> {
                             }).whereType<DropdownMenuItem<String>>().toList(),
                           ]
                         ],
-                        onChanged: !_notInList ? (value) => setState(() => _enterpriseDetails = value):null,
+                        onChanged: !_notInList ? (value) {
+                          setState(() {
+                            _enterpriseID = value;
+                          });
+                        }
+                        :null,
                       );
                     },
                   ),
@@ -436,7 +458,7 @@ class _CreateClaimScreenState extends State<CreateClaimScreen> {
     _enterpriseNumberController.clear();
     _enterpriseAddressController.clear();
     setState(() {
-      _enterpriseDetails = null;
+      _enterpriseID = null;
       _notInList = false;
       _invoiceDate = DateTime.now();
       _selectedFile = null;
@@ -465,13 +487,20 @@ class _CreateClaimScreenState extends State<CreateClaimScreen> {
       });
 
 
+      // if(GroupRoles.dashboardType == DashboardTypes.User && _claimBy == null){
+      //   setState(() {
+      //     _isLoading = false;
+      //   });
+      //   return;
+      // }
+
       final response = await APIService.getInstance( context).invoiceClaim.createInvoiceClaim(
           invoiceNo: _invoiceNumberController.text,
-          claimFrom: !_notInList ? _enterpriseDetails :null,
+          claimFrom: !_notInList ? _enterpriseID :null,
           invoiceData: _invoiceDate != null ? DateFormat('yyyy-MM-dd').format(_invoiceDate!) : '',
           amount: _claimAmountController.text,
           claimCopy: _selectedFile != null ? _selectedFile!.path: '',
-          claimedBy: GroupRoles.dashboardType == DashboardTypes.User ? '107' :null,
+          claimedBy: GroupRoles.dashboardType == DashboardTypes.User ? _claimBy :null,
           claimFromOthers: _notInList ? {
             "name": _enterpriseNameController.text,
             "number":_enterpriseNumberController.text,

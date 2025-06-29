@@ -146,7 +146,7 @@ class _TaggedEnterprise{
     return null;
   }
 
-  Future<Map<String,dynamic>?> getTaggedEnterprisedByNumber(String number)async{
+  Future<Map<String,dynamic>?> getTaggedEnterpriseByNumber(String number)async{
     final userToken = Pref.instance.getString(Consts.user_token);
     try{
       final url = Uri.https(Urls.base_url,Urls.tagged_enterprise_of_login_customer);
@@ -179,17 +179,18 @@ class _GroupDetails{
     required this.context
   });
 
-  Future<Map<String,dynamic>?> getCustomerDetailsByNumber(String number)async{
+  Future<Map<String,dynamic>?> getCustomerDetailsByNumber(int number)async{
     final userToken = Pref.instance.getString(Consts.user_token);
-    final url = Uri.https(Urls.base_url,Urls.get_customer_details_by_number,);
+    final url = Uri.https(Urls.base_url,Urls.get_group_details_by_number,);
     final response = await post(url,headers: {
-      'Authorization':'Bearer ${userToken}'
+      'Authorization':'Bearer ${userToken}',
+      'content-type':'Application/json'
     },body: json.encode({
       "number": number
     }));
 
     if(response.statusCode == 200){
-      final body = response.body as Map<String,dynamic>;
+      final body = json.decode(response.body) as Map<String,dynamic>;
       return body;
     }else{
       handleHttpResponse(context, response);
@@ -199,7 +200,7 @@ class _GroupDetails{
 
   Future<Map<String,dynamic>?> getGroupCategory()async{
     final userToken = Pref.instance.getString(Consts.user_token);
-    final url = Uri.https(Urls.base_url,Urls.get_customer_details_by_number,);
+    final url = Uri.https(Urls.base_url,Urls.get_group_details_by_number,);
     final response = await get(url,headers: {
       'Authorization' : 'Bearer ${userToken}'
     });
@@ -212,11 +213,12 @@ class _GroupDetails{
     return null;
   }
 
-  Future<Map<String,dynamic>?> getGroupByCategoryId()async{
+  Future<Map<String,dynamic>?> getGroupByCategoryId(String id)async{
     final userToken = Pref.instance.getString(Consts.user_token);
-    final url = Uri.https(Urls.base_url,Urls.get_group_by_category_id,);
+    final url = Uri.https(Urls.base_url,"${Urls.get_group_by_category_id}$id/",);
     final response = await get(url,headers: {
-      'Authorization' : 'Bearer ${userToken}'
+      'Authorization' : 'Bearer ${userToken}',
+      'content-type':'Application/json'
     });
     if(response.statusCode == 200){
       final body = response.body as Map<String,dynamic>;
@@ -600,17 +602,19 @@ class _InvoiceClaim{
   Future<Map<String,dynamic>?> cancelClaim({
     required int claimID,
     required String claimStatus,
-    required String remakrs,
+    required String? remakrs,
 })async{
     final userToken = Pref.instance.getString(Consts.user_token);
     try{
       final url = Uri.https(Urls.base_url,'${Urls.invoice_claim_drop_out}${claimID}/drop-out/');
       final response = await post(url,headers: {
-        'Authorization':'Bearer ${userToken}'
+        'Authorization':'Bearer ${userToken}',
+        'content-type':'Application/json'
       },body: json.encode({
         'claim_status':'${claimStatus}',
         'claim_remarks' : '${remakrs}'
       }));
+      print('Response code: ${response.statusCode} Body: ${response.body}');
       if(response.statusCode == 200){
         final data = json.decode(response.body) as Map<String,dynamic>;
         return data;
@@ -651,6 +655,27 @@ class _InvoiceClaim{
       }
     }catch(exception,trace){
       print('Exception: ${exception}, trace: ${trace}');
+    }
+    return null;
+  }
+
+  Future<Map<String,dynamic>?> getClaimDetailsByID(String id)async{
+    final userToken = Pref.instance.getString(Consts.user_token);
+    try{
+      final url = Uri.https(Urls.base_url, '${Urls.invoice_claim_view}$id/view/');
+      final response = await get(url,headers: {
+        'Authorization': 'Bearer ${userToken}',
+        'content-type' : 'Application/json'
+      });
+      print('Response Code: ${response.statusCode} Body: ${response.body}');
+      if(response.statusCode == 200){
+        final body = json.decode(response.body) as Map<String,dynamic>;
+        return body;
+      }else{
+        handleHttpResponse(context, response);
+      }
+    }catch(exception,trace){
+     print('Exception: ${exception}, Trace: ${trace}');
     }
     return null;
   }
@@ -1321,6 +1346,7 @@ class  _ConsumersGroup{
     }
     return null;
   }
+
 }
 
 class _ProductCatalogues{

@@ -293,7 +293,7 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
                   DropdownMenuItem(child: Text("Select Enterprise Details"), value: null),
                   if(value != null)...[
                     ...value.data.map((datum) {
-                      final customer = datum.customer;
+                      final customer = datum?.customer;
                       if (customer == null) return null;
 
                       final displayText =

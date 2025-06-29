@@ -14,9 +14,9 @@ class Urls {
   static const String tagged_enterprise_of_login_customer = '/api/tagged-enterprise/';
   static const String tagged_enterprise_of_given_number = '/api/tagged-enterprise/';
             // Group Details
-  static const String get_customer_details_by_number = '/api/tagged-enterprise/';
-  static const String get_group_category = '/api/tagged-enterprise/';
-  static const String get_group_by_category_id = '/api/tagged-enterprise/';
+  static const String get_group_details_by_number = '/api/customer-details/';
+  static const String get_group_category = '/api/customer-details/';
+  static const String get_group_by_category_id = '/api/customer-details/';
             // Order Related
   static const String order_entry_for_self = '/api/place-order/create/';
   static const String order_list = '/api/place-order/list/';
@@ -28,7 +28,7 @@ class Urls {
             // Claim Invoice
   static const String invoice_claim_list = '/api/invoice/claim/list/';
   static const String invoice_claim_entry = '/api/invoice/claim/create/';
-  static const String invoice_claim_view = '/api/invoice/claim/2/view/';
+  static const String invoice_claim_view = '/api/invoice/claim/';
   static const String invoice_claim_drop_out = '/api/invoice/claim/';
   static const String invoice_claim_reporting_list = '/api/invoice/claim/reporting-message/';
   static const String invoice_claim_recall = '/api/invoice/claim/';
