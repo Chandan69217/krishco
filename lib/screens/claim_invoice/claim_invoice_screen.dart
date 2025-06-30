@@ -10,11 +10,18 @@ import 'package:krishco/models/login_data/login_details_data.dart';
 import 'package:krishco/screens/claim_invoice/create_claim_screen.dart';
 import 'package:krishco/models/invoice_claim/claim_list_data.dart';
 import 'package:krishco/models/invoice_claim/claim_reporting_list_data.dart';
+import 'package:krishco/screens/splash/splash_screen.dart';
+import 'package:krishco/utilities/constant.dart';
 import 'package:krishco/utilities/cust_colors.dart';
+import 'package:krishco/widgets/cust_dialog_box/cust_dialog_box.dart';
 import 'package:krishco/widgets/cust_loader.dart';
 import 'package:krishco/widgets/cust_snack_bar.dart';
 import 'package:krishco/widgets/file_viewer/image_viewer.dart';
 
+import 'claim_actions/approval_permissions.dart';
+import 'claim_actions/claim_actions.dart';
+import 'claim_details/claim_details_screen.dart';
+import 'claim_details/claim_reporting_details.dart';
 
 
 class ClaimScreen extends StatefulWidget {
@@ -22,7 +29,6 @@ class ClaimScreen extends StatefulWidget {
   @override
   ClaimScreenState createState() => ClaimScreenState();
 }
-
 
 class ClaimScreenState extends State<ClaimScreen> {
   int selectedTabIndex = 0;
@@ -50,8 +56,6 @@ class ClaimScreenState extends State<ClaimScreen> {
           : invoiceClaimObj.getClaimReportingList();
     });
   }
-
-
 
   void _updateFilteredClaims() {
     if(selectedTabIndex == 0){
@@ -256,7 +260,7 @@ class ClaimScreenState extends State<ClaimScreen> {
                                     onTap: (){
                                       Navigator.of(context).push(
                                         MaterialPageRoute(
-                                          builder: (_) => _ClaimDetailsScreen(claimId: claim[index].id.toString(),onActionResponse: onRefresh,),
+                                          builder: (_) => ClaimDetailsScreen(claimId: claim[index].id.toString(),onActionResponse: onRefresh,),
                                         ),
                                       );
                                     },
@@ -285,7 +289,8 @@ class ClaimScreenState extends State<ClaimScreen> {
                                 itemBuilder: (context, index) {
                                   return _ClaimReportingCard(data: claimRepo[index],
                                     onTap: (){
-                                    Navigator.of(context).push(MaterialPageRoute(builder: (_)=>_ClaimReportingDetailsScreen(claimReporId: claimRepo[index].id.toString(),onActionResponse: onRefresh)));
+                                    // Navigator.of(context).push(MaterialPageRoute(builder: (_)=>_ClaimReportingDetailsScreen(claimReporId: claimRepo[index].id.toString(),onActionResponse: onRefresh)));
+                                    Navigator.of(context).push(MaterialPageRoute(builder: (_)=> ClaimReportingDetailsScreen(claimReporId: claimRepo[index].id.toString(),onActionResponse: onRefresh)));
                                     },
                                   );
                                 },
@@ -298,7 +303,6 @@ class ClaimScreenState extends State<ClaimScreen> {
                 ),
               ),
             ),
-
           ],
         ),
       ),
@@ -325,8 +329,6 @@ class ClaimScreenState extends State<ClaimScreen> {
   }
 
 }
-
-
 
 
 
@@ -366,7 +368,7 @@ class _ClaimCard extends StatelessWidget {
               const SizedBox(height: 2.0,),
               Text('Invoice ID: ${claim.invoiceId}'),
               const SizedBox(height: 2.0,),
-        ],
+            ],
             Text("Status: ${claim.claimStatus}"),
           ],
         ),
@@ -440,7 +442,7 @@ class _ClaimCard extends StatelessWidget {
                         ),
                         TextButton(
                           style: Theme.of(context).textButtonTheme.style!.copyWith(
-                            foregroundColor: WidgetStatePropertyAll(Colors.blue.shade600)
+                              foregroundColor: WidgetStatePropertyAll(Colors.blue.shade600)
                           ),
                           onPressed:onTap,
                           child: const Text("More Details"),
@@ -469,352 +471,6 @@ class _ClaimCard extends StatelessWidget {
     );
   }
 }
-
-
-
-class _ClaimDetailsScreen extends StatefulWidget {
-  final String claimId;
-  final VoidCallback? onActionResponse;
-  const _ClaimDetailsScreen({super.key, required this.claimId,this.onActionResponse});
-
-  @override
-  State<_ClaimDetailsScreen> createState() => _ClaimDetailsScreenState();
-}
-
-class _ClaimDetailsScreenState extends State<_ClaimDetailsScreen> {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("Claim Details")),
-      body: Padding(
-        padding: const EdgeInsets.all(12),
-        child: FutureBuilder<Map<String,dynamic>?>(
-          future: APIService.getInstance(context).invoiceClaim.getClaimDetailsByID(widget.claimId),
-            builder: (context,snapshot){
-            if(snapshot.connectionState == ConnectionState.waiting){
-              return Center(
-                child: SizedBox.square(
-                  dimension: 25.0,
-                  child: CircularProgressIndicator(
-                    color: CustColors.nile_blue,
-                  ),
-                ),
-              );
-            }
-            if(snapshot.hasData){
-              final data = snapshot.data?['data'];
-              final claim = ClaimData.fromJson(data!);
-              final claimedBy = claim.claimedBy;
-              final claimedFromOthers = claim.claimedFromOthers;
-              final claimedForm = claim.claimedFrom;
-              final isUnregistered = claim.isRegistered == false;
-              return  ListView(
-                shrinkWrap: true,
-                children: [
-                  _buildCard(
-                    title: "Claim Info",
-                    children: [
-                      _infoRow("Claim No", claim.claimNumber),
-                      _infoRow("Claimed Date", claim.claimedDate?.toString()),
-                      _infoRow("Invoice ID", claim.invoiceId!= null && claim.invoiceId.toString().isNotEmpty?claim.invoiceId:'-',),
-                      _infoRow("Invoice Date", claim.invoiceDate,),
-                      _infoRow("Status", claim.claimStatus, highlight: true),
-                      _infoRow("Message", claim.claimPosition),
-                      _infoRow("App", claim.appName),
-                      _infoRow("Claim Amount", "₹${claim.claimAmount}"),
-                      _infoRow("Final Amount", "₹${claim.finalClaimAmount}"),
-                      _infoRow("Points", claim.claimPoints?.toString()),
-                      if ((claim.claimRemarks ?? '').isNotEmpty)
-                        _infoRow("Remarks", claim.claimRemarks, isWarning: true),
-                    ],
-                  ),
-
-                  const SizedBox(height: 12),
-
-                  if (claimedForm != null)
-                    _buildCard(
-                      title: "Claimed From (Registered)",
-                      children: [
-                        _infoRow("Name", claimedForm.custName),
-                        _infoRow("Contact", claimedForm.contNo),
-                        _infoRow("email", claimedForm.email),
-                        _infoRow("Group", claimedForm.group_type),
-                        _infoRow("Group Name", claimedForm.group_name),
-                        _infoRow("Status", claimedForm.status == true ? "Active" : "Inactive"),
-                      ],
-                    ),
-                  const SizedBox(height: 12),
-
-                  if (claimedBy != null)
-                    _buildCard(
-                      title: "Claimed By",
-                      children: [
-                        _infoRow("Name", claimedBy.custName),
-                        _infoRow("Contact", claimedBy.contNo),
-                        _infoRow("email", claimedBy.email),
-                        _infoRow("Group", claimedBy.group_type),
-                        _infoRow("Group Name", claimedBy.group_name),
-                        _infoRow("Status", claimedBy.status == true ? "Active" : "Inactive"),
-                      ],
-                    ),
-
-                  if (isUnregistered && claimedFromOthers != null) ...[
-                    const SizedBox(height: 12),
-                    _buildCard(
-                      title: "Claimed From (Unregistered)",
-                      children: [
-                        _infoRow("Name", claimedFromOthers.name),
-                        _infoRow("Number", claimedFromOthers.number.toString()),
-                        _infoRow("Address", claimedFromOthers.address),
-                      ],
-                    ),
-                  ],
-
-                  if ((claim.claimCopy ?? '').isNotEmpty) ...[
-                    const SizedBox(height: 12),
-                    _buildCard(
-                      title: "Claim Copy",
-                      children: [
-                        GestureDetector(
-                          onTap: (){
-                            Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ImageViewerScreen(imageUrl: claim.claimCopy!)));
-                          },
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(10),
-                            child: CachedNetworkImage(
-                              imageUrl: claim.claimCopy!,
-                              width: double.infinity,
-                              height: 180,
-                              fit: BoxFit.cover,
-                              placeholder: (context, url) =>
-                              const Center(child: CircularProgressIndicator()),
-                              errorWidget: (context, url, error) =>
-                                  Image.asset('assets/logo/Placeholder_image.webp'),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-
-                  const SizedBox(height: 12),
-                  if(claim.claimStatus?.toLowerCase() == 'pending')
-                    _buildCard(title: 'Action Required', children: [
-                      _ClaimActions(
-                        claimId: claim.id??0,
-                        onSuccess: (){
-                          setState(() {
-                            widget.onActionResponse?.call();
-                          });
-                        },
-                      ),
-                    ])
-                ],
-              );
-            }else{
-              return Center(
-                child: Text('Something went wrong!!'),
-              );
-            }
-        }),
-      ),
-    );
-  }
-
-  Widget _buildCard({required String title, required List<Widget> children}) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.grey.shade100,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)],
-      ),
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(title,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.blue)),
-          const SizedBox(height: 8),
-          ...children,
-        ],
-      ),
-    );
-  }
-
-  Widget _infoRow(String key, String? value, {bool highlight = false, bool isWarning = false}) {
-    final textStyle = TextStyle(
-      fontSize: 14,
-      fontWeight: highlight ? FontWeight.bold : FontWeight.normal,
-      color: isWarning ? Colors.red : Colors.black87,
-    );
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(width: 130, child: Text("$key:", style: const TextStyle(fontWeight: FontWeight.w500))),
-          Expanded(child: Text(value ?? "-", style: textStyle)),
-        ],
-      ),
-    );
-  }
-}
-
-class _ClaimActions extends StatefulWidget {
-  // final int claimAmount;
-  final int claimId;
-  final VoidCallback? onSuccess;
-  _ClaimActions({this.onSuccess,required this.claimId});
-  @override
-  _ClaimActionsState createState() => _ClaimActionsState();
-}
-
-class _ClaimActionsState extends State<_ClaimActions> {
-  final TextEditingController _claimAmountController = TextEditingController();
-  final TextEditingController _remarkController = TextEditingController();
-  final _formKey = GlobalKey<FormState>();
-  String? _selectedAction;
-  bool _isLoading = false;
-  @override
-  void initState() {
-    super.initState();
-    // WidgetsBinding.instance.addPostFrameCallback((_){
-    //   _claimAmountController.text = widget.claimAmount.toString();
-    // });
-  }
-  @override
-  Widget build(BuildContext context) {
-    return _isLoading?Center(child: CustLoader()):Form(
-      key: _formKey,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // TextFormField(
-          //   key: Key('Claim_Amount_Text'),
-          //   validator: (v){
-          //     if(v!=null){
-          //       final amount = int.tryParse(v)??0;
-          //       if(!(amount<= widget.claimAmount|| amount==0)){
-          //         return 'Enter Claim amount less ${widget.claimAmount}';
-          //       }else if(amount==0){
-          //         return 'Enter Claim amount';
-          //       }
-          //     }
-          //     return null;
-          //   },
-          //   onChanged: (x){
-          //     _formKey.currentState!.validate();
-          //   },
-          //   controller: _claimAmountController,
-          //   style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-          //       fontWeight: FontWeight.bold
-          //   ),
-          //   keyboardType: TextInputType.number,
-          //   decoration: InputDecoration(
-          //       labelText: 'Claim Amount',
-          //       prefixIcon: Icon(Icons.currency_rupee_rounded,size: 20,)
-          //   ),
-          // ),
-          // const SizedBox(height: 8.0,),
-          // TextFormField(
-          //   key: Key('Remark_Text'),
-          //   validator: (v){
-          //     if(_selectedAction!.toLowerCase().contains('rejected')){
-          //       if(v == null || v.isEmpty){
-          //         return 'Please enter remarks';
-          //       }
-          //     }
-          //     return null;
-          //   },
-          //   controller: _remarkController,
-          //   decoration: InputDecoration(
-          //       labelText: 'Remarks'
-          //   ),
-          //   maxLines: 3,
-          // ),
-          // const SizedBox(height: 16.0,),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(onPressed: _onRejected, child: Text('Cancel'),
-              style: Theme.of(context).elevatedButtonTheme.style!.copyWith(
-                  backgroundColor: WidgetStatePropertyAll(
-                      Colors.red
-                  )
-              ),
-            ),
-          ),
-          // Row(
-          //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          //   children: [
-          //     Expanded(flex:1,child: ElevatedButton(onPressed: _onRejected, child: Text('Cancel'),
-          //       style: Theme.of(context).elevatedButtonTheme.style!.copyWith(
-          //           backgroundColor: WidgetStatePropertyAll(
-          //               Colors.red
-          //           )
-          //       ),
-          //     )),
-          //     SizedBox(width: 8.0,),
-          //     Expanded(flex:1,child: ElevatedButton(onPressed: _onApprove, child: Text('Approve'),
-          //       style: Theme.of(context).elevatedButtonTheme.style!.copyWith(
-          //           backgroundColor: WidgetStatePropertyAll(
-          //               Colors.green
-          //           )
-          //       ),
-          //     ))
-          //   ],
-          // ),
-        ],
-      ),
-    );
-  }
-
-  void _onApprove()async {
-    _selectedAction = 'Approved';
-    if(!_formKey.currentState!.validate()){
-      return;
-    }
-    setState(() {
-      _isLoading = true;
-    });
-    final response = await APIService.getInstance(context).invoiceClaim.claimRecall(claimID: widget.claimId, finalClaimAmount: int.tryParse(_claimAmountController.text)??0, status: 'confirmed');
-    if(response != null){
-      final status = response['isScuss'];
-      showSimpleSnackBar(context: context, message: response['messages'],status: status);
-      if(status){
-        widget.onSuccess?.call();
-      }
-    }
-    setState(() {
-      _isLoading = false;
-    });
-  }
-
-  void _onRejected()async {
-    _selectedAction = 'rejected';
-    if(!_formKey.currentState!.validate()){
-      return;
-    }
-    setState(() {
-      _isLoading = true;
-    });
-    final resopnse = await APIService.getInstance(context).invoiceClaim.cancelClaim(claimID: widget.claimId, claimStatus: 'cancelled', remakrs: _remarkController.text);
-    if(resopnse != null){
-      final status = resopnse['isScuss'];
-      showSimpleSnackBar(context:context,message: resopnse['messages'],status: status);
-      if(status){
-        widget.onSuccess?.call();
-      }
-    }
-    setState(() {
-      _isLoading = false;
-    });
-  }
-
-
-}
-
-
 
 class _ClaimReportingCard extends StatelessWidget {
   final ClaimReportingData data;
@@ -946,365 +602,7 @@ class _ClaimReportingCard extends StatelessWidget {
 
 }
 
-class _ClaimReportingDetailsScreen extends StatelessWidget {
-  final String claimReporId;
-  final VoidCallback? onActionResponse;
-
-  const _ClaimReportingDetailsScreen({Key? key, required this.claimReporId,this.onActionResponse}) : super(key: key);
-
-  String formatDate(DateTime? date) {
-    return date != null ? DateFormat('dd-MMM-yyyy').format(date) : '-';
-  }
-
-  String formatDate1(DateTime? date) {
-    return date != null ? DateFormat('hh:mm a dd-MMM-yyyy').format(date) : '-';
-  }
-
-  @override
-  Widget build(BuildContext context) {
 
 
-    // if (claim == null) {
-    //   return Scaffold(
-    //     appBar: AppBar(title: const Text("Claim Reporting Details")),
-    //     body: const Center(child: Text("Claim data not available")),
-    //   );
-    // }
-
-    return Scaffold(
-      appBar: AppBar(title: const Text("Claim Reporting Details")),
-      body: FutureBuilder<Map<String,dynamic>?>(
-        future: APIService.getInstance(context).invoiceClaim.getClaimDetailsByID(claimReporId),
-        builder:(context,snapshot){
-          if(snapshot.connectionState == ConnectionState.waiting){
-            return Center(
-              child: SizedBox.square(
-                dimension: 25.0,
-                child: CircularProgressIndicator(
-                  color: CustColors.nile_blue,
-                ),
-              ),
-            );
-          }
-          if(snapshot.hasData){
-            final data = snapshot.data?['data'];
-            final claimData = ClaimReportingData.fromJson(data);
-            final claim = ClaimReportingData.fromJson(data).claim;
-            final claimedBy = claim?.claimedBy;
-            final claimedFromOthers = claim?.claimedFromOthers;
-            final claimedFrom = claim?.claimedFrom;
-            final isUnregistered = claim?.isRegistered == false;
-            return ListView(
-              children: [
-                _buildCard(
-                  title: "Claim Info",
-                  children: [
-                    _infoRow("Claim No", claim?.claimNumber),
-                    _infoRow("Reported Date", formatDate1(claimData.addDate)),
-                    _infoRow("Invoice ID", claim?.invoiceId),
-                    _infoRow("Invoice Date", formatDate(claim?.invoiceDate)),
-                    _infoRow("Claimed Date", formatDate1(claim?.claimedDate)),
-                    _infoRow("Status", claim?.claimStatus, highlight: true),
-                    _infoRow("Status Remark", claim?.claimPosition),
-                    _infoRow("App", claim?.appName),
-                    _infoRow("Claim Amount", "₹${claim?.claimAmount ?? 0}"),
-                    _infoRow("Final Amount", "₹${claim?.finalClaimAmount ?? 0}"),
-                    _infoRow("Points", "${claim?.claimPoints ?? 0}"),
-                    _infoRow("Remarks", claim?.claimRemarks, isWarning: true),
-                  ],
-                ),
-
-                const SizedBox(height: 12),
-
-                // _buildCard(
-                //   title: "Invoice Details",
-                //   children: [
-                //
-                //   ],
-                // ),
-
-                const SizedBox(height: 12),
-
-                if (claimedBy != null)
-                  _buildCard(
-                    title: "Claimed By",
-                    children: [
-                      _infoRow("Name", claimedBy.custName),
-                      _infoRow("Contact", claimedBy.contNo),
-                      _infoRow("email", claimedBy.email??'-'),
-                      _infoRow("Group", claimedBy.group_type),
-                      _infoRow("Group Name", claimedBy.group_name),
-                      _infoRow("Status", claimedBy.status == true ? "Active" : "Inactive"),
-                    ],
-                  ),
-                const SizedBox(height: 12),
-                if (claimedFrom != null)
-                  _buildCard(
-                    title: "Claimed From (Registered)",
-                    children: [
-                      _infoRow("Name", claimedFrom.custName),
-                      _infoRow("Contact", claimedFrom.contNo),
-                      _infoRow("email", claimedFrom.email??'-'),
-                      _infoRow("Group", claimedFrom.group_type),
-                      _infoRow("Group Name", claimedFrom.group_name),
-                      _infoRow("Status", claimedFrom.status == true ? "Active" : "Inactive"),
-                    ],
-                  ),
-
-                if (isUnregistered && claimedFromOthers != null) ...[
-                  const SizedBox(height: 12),
-                  _buildCard(
-                    title: "Claimed From (Unregistered)",
-                    children: [
-                      _infoRow("Name", claimedFromOthers.name),
-                      _infoRow("Number", claimedFromOthers.number.toString()),
-                      _infoRow("Address", claimedFromOthers.address),
-                    ],
-                  ),
-                ],
-
-                // const SizedBox(height: 12),
-                //
-                // _buildCard(
-                //   title: "Meta Info",
-                //   children: [
-                //     _infoRow("Created Date", formatDate(claim.createdDate)),
-                //     _infoRow("Last Edited", formatDate(claim.editDate)),
-                //   ],
-                // ),
-
-                if ((claim?.claimCopy ?? '').isNotEmpty) ...[
-                  const SizedBox(height: 12),
-                  _buildCard(
-                    title: "Claim Copy",
-                    children: [
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.of(context).push(MaterialPageRoute(
-                            builder: (_) => ImageViewerScreen(imageUrl: claim.claimCopy!),
-                          ));
-                        },
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(10),
-                          child: CachedNetworkImage(
-                            imageUrl: claim!.claimCopy!,
-                            width: double.infinity,
-                            height: 180,
-                            fit: BoxFit.cover,
-                            placeholder: (context, url) =>
-                            const Center(child: CircularProgressIndicator()),
-                            errorWidget: (context, url, error) =>
-                                Image.asset('assets/logo/Placeholder_image.webp'),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 12),
-                  if(claim.claimStatus!.toLowerCase() == 'pending')
-                    _buildCard(title: 'Action Required', children: [
-                      _ClaimReportingActions(
-                        claimId: claim.id??0,
-                        claimAmount: claim.claimAmount??0,
-                        onSuccess: onActionResponse,
-                      ),
-                    ])
-                ],
-              ],
-            );
-          }else{
-            return Center(
-              child: Text('Something went wrong !!'),
-            );
-          }
-        }
-      ),
-    );
-
-  }
-
-  Widget _buildCard({required String title, required List<Widget> children}) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.grey.shade100,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)],
-      ),
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(title,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.blue)),
-          const SizedBox(height: 8),
-          ...children,
-        ],
-      ),
-    );
-  }
-
-  Widget _infoRow(String label, String? value, {bool highlight = false, bool isWarning = false}) {
-    final textStyle = TextStyle(
-      fontSize: 14,
-      fontWeight: highlight ? FontWeight.bold : FontWeight.normal,
-      color: isWarning ? Colors.red : Colors.black87,
-    );
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(width: 130, child: Text("$label:", style: const TextStyle(fontWeight: FontWeight.w500))),
-          Expanded(child: Text(value?.isNotEmpty == true ? value! : '-', style: textStyle)),
-        ],
-      ),
-    );
-  }
-
-}
 
 
-class _ClaimReportingActions extends StatefulWidget {
-  final int claimAmount;
-  final int claimId;
-  final VoidCallback? onSuccess;
-  _ClaimReportingActions({required this.claimAmount,this.onSuccess,required this.claimId});
-  @override
-  _ClaimReportingActionsState createState() => _ClaimReportingActionsState();
-}
-
-class _ClaimReportingActionsState extends State<_ClaimReportingActions> {
-  final TextEditingController _claimAmountController = TextEditingController();
-  final TextEditingController _remarkController = TextEditingController();
-  final _formKey = GlobalKey<FormState>();
-  String? _selectedAction;
-  bool _isLoading = false;
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_){
-      _claimAmountController.text = widget.claimAmount.toString();
-    });
-  }
-  @override
-  Widget build(BuildContext context) {
-    return _isLoading?Center(child: CustLoader()):Form(
-      key: _formKey,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          TextFormField(
-            key: Key('Claim_Amount_Text'),
-            validator: (v){
-             if(v!=null){
-               final amount = int.tryParse(v)??0;
-               if(!(amount<= widget.claimAmount|| amount==0)){
-                 return 'Enter Claim amount less ${widget.claimAmount}';
-               }else if(amount==0){
-                 return 'Enter Claim amount';
-               }
-             }
-              return null;
-            },
-            onChanged: (x){
-              _formKey.currentState!.validate();
-            },
-            controller: _claimAmountController,
-            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-              fontWeight: FontWeight.bold
-            ),
-            keyboardType: TextInputType.number,
-            decoration: InputDecoration(
-                labelText: 'Claim Amount',
-              prefixIcon: Icon(Icons.currency_rupee_rounded,size: 20,)
-            ),
-          ),
-          const SizedBox(height: 8.0,),
-          TextFormField(
-            key: Key('Remark_Text'),
-            validator: (v){
-              if(_selectedAction!.toLowerCase().contains('rejected')){
-                if(v == null || v.isEmpty){
-                  return 'Please enter remarks';
-                }
-              }
-              return null;
-            },
-            controller: _remarkController,
-            decoration: InputDecoration(
-                labelText: 'Remarks'
-            ),
-            maxLines: 3,
-          ),
-          const SizedBox(height: 16.0,),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(flex:1,child: ElevatedButton(onPressed: _onRejected, child: Text('Reject'),
-                style: Theme.of(context).elevatedButtonTheme.style!.copyWith(
-                    backgroundColor: WidgetStatePropertyAll(
-                        Colors.red
-                    )
-                ),
-              )),
-              SizedBox(width: 8.0,),
-              Expanded(flex:1,child: ElevatedButton(onPressed: _onApprove, child: Text('Approve'),
-                style: Theme.of(context).elevatedButtonTheme.style!.copyWith(
-                    backgroundColor: WidgetStatePropertyAll(
-                        Colors.green
-                    )
-                ),
-              ))
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _onApprove()async {
-    _selectedAction = 'Approved';
-    if(!_formKey.currentState!.validate()){
-      return;
-    }
-    setState(() {
-      _isLoading = true;
-    });
-    final response = await APIService.getInstance(context).invoiceClaim.claimRecall(claimID: widget.claimId, finalClaimAmount: int.tryParse(_claimAmountController.text)??0, status: 'confirmed');
-    if(response != null){
-      final status = response['isScuss'];
-      showSimpleSnackBar(context: context, message: response['messages'],status: status);
-      if(status){
-        widget.onSuccess?.call();
-      }
-    }
-    setState(() {
-      _isLoading = false;
-    });
-  }
-
-  void _onRejected()async {
-    _selectedAction = 'Rejected';
-    if(!_formKey.currentState!.validate()){
-      return;
-    }
-    setState(() {
-      _isLoading = true;
-    });
-    final resopnse = await APIService.getInstance(context).invoiceClaim.cancelClaim(claimID: widget.claimId, claimStatus: 'cancelled', remakrs: _remarkController.text);
-    if(resopnse != null){
-      final status = resopnse['isScuss'];
-      showSimpleSnackBar(context:context,message: resopnse['messages'],status: status);
-     if(status){
-       widget.onSuccess?.call();
-     }
-    }
-    setState(() {
-      _isLoading = false;
-    });
-  }
-  
-
-}

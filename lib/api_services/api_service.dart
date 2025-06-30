@@ -680,6 +680,27 @@ class _InvoiceClaim{
     return null;
   }
 
+  Future<Map<String,dynamic>?> getClaimReportingDetailsByID(String id)async{
+    final userToken = Pref.instance.getString(Consts.user_token);
+    try{
+      final url = Uri.https(Urls.base_url, '${Urls.invoice_claim_view}$id/reporting-message/');
+      final response = await get(url,headers: {
+        'Authorization': 'Bearer ${userToken}',
+        'content-type' : 'Application/json'
+      });
+      print('Response Code: ${response.statusCode} Body: ${response.body}');
+      if(response.statusCode == 200){
+        final body = json.decode(response.body) as Map<String,dynamic>;
+        return body;
+      }else{
+        handleHttpResponse(context, response);
+      }
+    }catch(exception,trace){
+      print('Exception: ${exception}, Trace: ${trace}');
+    }
+    return null;
+  }
+
 
 }
 
