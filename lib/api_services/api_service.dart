@@ -200,12 +200,14 @@ class _GroupDetails{
 
   Future<Map<String,dynamic>?> getGroupCategory()async{
     final userToken = Pref.instance.getString(Consts.user_token);
-    final url = Uri.https(Urls.base_url,Urls.get_group_details_by_number,);
+    final url = Uri.https(Urls.base_url,Urls.get_group_category,);
     final response = await get(url,headers: {
-      'Authorization' : 'Bearer ${userToken}'
+      'Authorization' : 'Bearer ${userToken}',
+      'content-type' : 'Application/json',
     });
+    print('Response code: ${response.statusCode},Body: ${response.body}');
     if(response.statusCode == 200){
-      final body = response.body as Map<String,dynamic>;
+      final body = json.decode(response.body) as Map<String,dynamic>;
       return body;
     }else{
       handleHttpResponse(context, response);
@@ -220,8 +222,9 @@ class _GroupDetails{
       'Authorization' : 'Bearer ${userToken}',
       'content-type':'Application/json'
     });
+    print('Response code: ${response.statusCode},Body: ${response.body}');
     if(response.statusCode == 200){
-      final body = response.body as Map<String,dynamic>;
+      final body = json.decode(response.body) as Map<String,dynamic>;
       return body;
     }else{
       handleHttpResponse(context, response);
@@ -499,6 +502,92 @@ class _OrderRelated{
 class _InvoiceClaim{
   final BuildContext context;
   _InvoiceClaim({required this.context});
+
+  Future<String?> checkClaimStatus(String claimId)async{
+    final userToken = Pref.instance.getString(Consts.user_token);
+    try{
+      final url = Uri.https(Urls.base_url,'/api/invoice/claim/${claimId}/check-status/');
+      final response = await get(url,headers: {
+        'Authorization' : 'Bearer $userToken',
+        'content-type' : 'Application/json'
+      });
+      print('Response Code${response.statusCode}, Body: ${response.body}');
+      if(response.statusCode == 200){
+        final body = json.decode(response.body) as Map<String,dynamic>;
+        final message = body['messages']??null;
+        return message;
+      }else{
+        handleHttpResponse(context, response);
+      }
+    }catch(exception,trace){
+      print('Exception: ${exception},Trace: ${trace}');
+    }
+    return null;
+  }
+
+  Future<String?> registerSource({required String claimId, required String group_type_id,required String group_name_id})async{
+    final userToken = Pref.instance.get(Consts.user_token);
+    try{
+      final url = Uri.https(Urls.base_url,'/api/invoice/claim/${claimId}/registeration/');
+      final response = await post(url,headers: {
+        'Authorization' :'Bearer ${userToken}',
+        'content-type' : 'Application/json'
+      },body: json.encode({
+        'group_type' : group_type_id,
+        'group_name' : group_name_id
+      }));
+      print('response code: ${response.statusCode} body: ${response.body}');
+      if(response.statusCode == 200){
+        final body = json.decode(response.body) as Map<String,dynamic>;
+        final message = body['messages'];
+        return message;
+      }else{
+        handleHttpResponse(context, response);
+      }
+    }catch(exception,trace){
+      print('Exception: ${exception},Trace: ${trace}');
+    }
+
+    return null;
+  }
+
+  Future<String?> tagClaimSource({required String claimId})async{
+    final userToken = Pref.instance.getString(Consts.user_token);
+    try{
+      final statusUrl = Uri.https(Urls.base_url,'/api/invoice/claim/${claimId}/check-status/');
+      final statusResponse = await get(statusUrl,headers: {
+        'Authorization' : 'Bearer $userToken',
+        'content-type' : 'Application/json'
+      });
+      print('Claim Status Response Code: ${statusResponse.statusCode} , Body: ${statusResponse.body}');
+      if(statusResponse.statusCode == 200){
+        final body = json.decode(statusResponse.body) as Map<String,dynamic>;
+        final isRegistered = body['is_registered']??null;
+        if(isRegistered != null && !isRegistered){
+          return body['messages'];
+        }
+      }else{
+        return 'Unable to check Claim Status,Please try-after sometime !!!';
+      }
+
+      final url = Uri.https(Urls.base_url,'/api/invoice/claim/${claimId}/tagging/');
+      final response = await post(url,headers: {
+        'Authorization' :'Bearer $userToken',
+        'content-type' : 'Application/json'
+      });
+      print('Response Code: ${response.statusCode},body:${response.body}');
+      if(response.statusCode == 200){
+        final body = json.decode(response.body) as Map<String,dynamic>;
+        final message = body['messages'];
+        return message;
+      }else{
+        handleHttpResponse(context, response);
+      }
+    }catch(exception,trace){
+      print('Exception: ${exception}, Trace:${trace}');
+    }
+    return null;
+  }
 
   Future<Map<String,dynamic>?> getClaimList()async{
     final userToken = Pref.instance.getString(Consts.user_token);
@@ -1350,7 +1439,8 @@ class  _ConsumersGroup{
     try{
       final url = Uri.https(Urls.base_url,Urls.consumers_group);
       final response = await get(url,headers: {
-        'Authorization' : 'Bearer $userToken'
+        'Authorization' : 'Bearer $userToken',
+        'content-type' : 'Application/json'
       });
       print('response code: ${response.statusCode}, body: ${response.body}');
       if(response.statusCode == 200){

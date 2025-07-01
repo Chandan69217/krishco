@@ -15,7 +15,7 @@ class ApprovalPermissions {
   }) {
     approvalStatus = [];
     // 'Conform','Approve','On Hold'
-    if (confirmed != null && confirmed!.allowToConfirm!) approvalStatus.add('Conform');
+    if (confirmed != null && confirmed!.allowToConfirm!) approvalStatus.add('Confirm');
     if (approval && dashboardType.contains(DashboardTypes.User)) approvalStatus.add('Approve');
     if (onHold) approvalStatus.add('On Hold');
   }

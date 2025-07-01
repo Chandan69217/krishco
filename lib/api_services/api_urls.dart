@@ -15,8 +15,8 @@ class Urls {
   static const String tagged_enterprise_of_given_number = '/api/tagged-enterprise/';
             // Group Details
   static const String get_group_details_by_number = '/api/customer-details/';
-  static const String get_group_category = '/api/customer-details/';
-  static const String get_group_by_category_id = '/api/customer-details/';
+  static const String get_group_category = '/api/customer-category/';
+  static const String get_group_by_category_id = '/api/customer-category/';
             // Order Related
   static const String order_entry_for_self = '/api/place-order/create/';
   static const String order_list = '/api/place-order/list/';

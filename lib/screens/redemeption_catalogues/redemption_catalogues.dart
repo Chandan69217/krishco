@@ -341,151 +341,153 @@ class _RedemptionCataloguesScreenState extends State<RedemptionCataloguesScreen>
       appBar: widget.title != null ? AppBar(
         title: Text(widget.title??''),
       ) : null,
-      body: Column(
-        children: [
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextField(
-                    onChanged: filterProducts,
-                    decoration: InputDecoration(
-                      hintText: 'Search product by name...',
-                      prefixIcon: const Icon(Icons.search),
-                      filled: true,
-                      fillColor: Colors.white,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide.none,
+      body: SafeArea(
+        child: Column(
+          children: [
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextField(
+                      onChanged: filterProducts,
+                      decoration: InputDecoration(
+                        hintText: 'Search product by name...',
+                        prefixIcon: const Icon(Icons.search),
+                        filled: true,
+                        fillColor: Colors.white,
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide.none,
+                        ),
                       ),
                     ),
-                  ),
-                  SizedBox(height: 12,),
-                  FutureBuilder<Map<String,dynamic>?>(future: _futureRedemptionCatalogues,
-                      builder: (context,snapshot){
-                    if(snapshot.connectionState == ConnectionState.waiting){
-                      return Center(
-                        child: SizedBox.square(
-                          dimension: 25.0,
-                          child: CircularProgressIndicator(
-                            color: CustColors.nile_blue,
+                    SizedBox(height: 12,),
+                    FutureBuilder<Map<String,dynamic>?>(future: _futureRedemptionCatalogues,
+                        builder: (context,snapshot){
+                      if(snapshot.connectionState == ConnectionState.waiting){
+                        return Center(
+                          child: SizedBox.square(
+                            dimension: 25.0,
+                            child: CircularProgressIndicator(
+                              color: CustColors.nile_blue,
+                            ),
                           ),
-                        ),
-                      );
-                    }
-
-                    if(snapshot.hasData){
-                     if(!_isInitialized){
-                       extractAllProducts(snapshot.data??{});
-                     }
-                     return Expanded(
-                       child: GridView.builder(
-                         itemCount: displayedProducts.length,
-                         shrinkWrap: true,
-                         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                           crossAxisCount: 2,
-                           crossAxisSpacing: 12,
-                           mainAxisSpacing: 12,
-                           childAspectRatio: 0.8,
-                         ),
-                         itemBuilder: (context, index) {
-                           final product = displayedProducts[index];
-                           final isSelected = selectedProducts.contains(product);
-                           final name = product['product_name'] ?? '';
-                           final image = product['product_image'] ?? '';
-                           final price = product['product_price'] ?? '';
-                           final points = product['points'] ?? '';
-
-                           return Container(
-                             decoration: BoxDecoration(
-                               color: isSelected ? Colors.green.shade50 : Colors.white,
-                               border: Border.all(
-                                 color: isSelected ? Colors.green : Colors.grey.shade300,
-                                 width: 2,
+                        );
+                      }
+        
+                      if(snapshot.hasData){
+                       if(!_isInitialized){
+                         extractAllProducts(snapshot.data??{});
+                       }
+                       return Expanded(
+                         child: GridView.builder(
+                           itemCount: displayedProducts.length,
+                           shrinkWrap: true,
+                           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                             crossAxisCount: 2,
+                             crossAxisSpacing: 12,
+                             mainAxisSpacing: 12,
+                             childAspectRatio: 0.8,
+                           ),
+                           itemBuilder: (context, index) {
+                             final product = displayedProducts[index];
+                             final isSelected = selectedProducts.contains(product);
+                             final name = product['product_name'] ?? '';
+                             final image = product['product_image'] ?? '';
+                             final price = product['product_price'] ?? '';
+                             final points = product['points'] ?? '';
+        
+                             return Container(
+                               decoration: BoxDecoration(
+                                 color: isSelected ? Colors.green.shade50 : Colors.white,
+                                 border: Border.all(
+                                   color: isSelected ? Colors.green : Colors.grey.shade300,
+                                   width: 2,
+                                 ),
+                                 borderRadius: BorderRadius.circular(12.0),
                                ),
-                               borderRadius: BorderRadius.circular(12.0),
-                             ),
-                             child: Column(
-                               crossAxisAlignment: CrossAxisAlignment.start,
-                               children: [
-                                 Expanded(
-                                     child: CustomNetworkImage(
-                                       width: double.infinity,
-                                       imageUrl: image,
-                                       fit: BoxFit.cover,
-                                       borderRadius: BorderRadius.only(topLeft: Radius.circular(12.0),topRight: Radius.circular(12.0)),
-                                     )
-                                 ),
-                                 Padding(
-                                   padding: const EdgeInsets.all(8.0),
-                                   child: Column(
-                                     crossAxisAlignment: CrossAxisAlignment.start,
-                                     children: [
-                                       Text(name, maxLines: 1, overflow: TextOverflow.ellipsis, style: Theme.of(context).textTheme.bodyMedium!.copyWith( fontWeight: FontWeight.w600)),
-                                       Text("Price: ₹$price pts", style: Theme.of(context).textTheme.bodySmall!.copyWith(color: Colors.grey, fontSize: 12)),
-                                       Text("Points: $points pts", style: Theme.of(context).textTheme.bodySmall!.copyWith(color: Colors.grey, fontSize: 12)),
-                                       const SizedBox(height: 8),
-                                       SizedBox(
+                               child: Column(
+                                 crossAxisAlignment: CrossAxisAlignment.start,
+                                 children: [
+                                   Expanded(
+                                       child: CustomNetworkImage(
                                          width: double.infinity,
-                                         child: OutlinedButton(
-                                           onPressed: () => toggleSelection(product),
-                                           style: OutlinedButton.styleFrom(
-                                             foregroundColor: isSelected ? Colors.red : Colors.green,
-                                             side: BorderSide(color: isSelected ? Colors.red : Colors.green),
-                                           ),
-                                           child: Text(isSelected ? 'Remove' : 'Add'),
-                                         ),
-                                       ),
-                                     ],
+                                         imageUrl: image,
+                                         fit: BoxFit.cover,
+                                         borderRadius: BorderRadius.only(topLeft: Radius.circular(12.0),topRight: Radius.circular(12.0)),
+                                       )
                                    ),
-                                 ),
-                               ],
-                             ),
-                           );
-                         },
-                       ),
-                     );
-                    }else{
-                      return Center(
-                        child: Text('Something Went Wrong !'),
-                      );
+                                   Padding(
+                                     padding: const EdgeInsets.all(8.0),
+                                     child: Column(
+                                       crossAxisAlignment: CrossAxisAlignment.start,
+                                       children: [
+                                         Text(name, maxLines: 1, overflow: TextOverflow.ellipsis, style: Theme.of(context).textTheme.bodyMedium!.copyWith( fontWeight: FontWeight.w600)),
+                                         Text("Price: ₹$price pts", style: Theme.of(context).textTheme.bodySmall!.copyWith(color: Colors.grey, fontSize: 12)),
+                                         Text("Points: $points pts", style: Theme.of(context).textTheme.bodySmall!.copyWith(color: Colors.grey, fontSize: 12)),
+                                         const SizedBox(height: 8),
+                                         SizedBox(
+                                           width: double.infinity,
+                                           child: OutlinedButton(
+                                             onPressed: () => toggleSelection(product),
+                                             style: OutlinedButton.styleFrom(
+                                               foregroundColor: isSelected ? Colors.red : Colors.green,
+                                               side: BorderSide(color: isSelected ? Colors.red : Colors.green),
+                                             ),
+                                             child: Text(isSelected ? 'Remove' : 'Add'),
+                                           ),
+                                         ),
+                                       ],
+                                     ),
+                                   ),
+                                 ],
+                               ),
+                             );
+                           },
+                         ),
+                       );
+                      }else{
+                        return Center(
+                          child: Text('Something Went Wrong !'),
+                        );
+                      }
                     }
-                  }
-                  )
-                ],
+                    )
+                  ],
+                ),
               ),
             ),
-          ),
-          if (selectedProducts.isNotEmpty)
-            Container(
-              padding: const EdgeInsets.all(12.0),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, -2))],
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text("Selected: ${selectedProducts.length} | Total Points: ${getTotalPoints()} pts"),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            if (selectedProducts.isNotEmpty)
+              Container(
+                padding: const EdgeInsets.all(12.0),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, -2))],
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text("Selected: ${selectedProducts.length} | Total Points: ${getTotalPoints()} pts"),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue,
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                      ),
+                      onPressed: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Buying ${selectedProducts.length} products')),
+                        );
+                      },
+                      child: const Text("Buy Now"),
                     ),
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Buying ${selectedProducts.length} products')),
-                      );
-                    },
-                    child: const Text("Buy Now"),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }

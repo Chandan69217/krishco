@@ -77,14 +77,10 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("User Registration",
-            style: TextStyle(fontSize: screenWidth * 0.05)),
-        backgroundColor: CustColors.nile_blue,
-        foregroundColor: CustColors.white,
-        titleSpacing: 0,
+        title: Text("User Registration",),
       ),
       body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
+        padding: EdgeInsets.all(12.0),
         child: FutureBuilder(
             future: GetAddress().getStateList(context),
             builder: (context,snapshot) {
@@ -95,7 +91,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        SizedBox(height: screenHeight * 0.03),
+                        // SizedBox(height: screenHeight * 0.03),
                         // Full Name Field (firstname)
                         CustomFormTextField(
                           controller: _nameController,
@@ -219,50 +215,45 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                                   }
                                 },
                               ),
-                              Visibility(
-                                visible: _selectedState != null && isLoadingDistricts,
-                                child: CustDropdown<String>(
-                                  hintText: 'Select District',
-                                  value: _selectedDistrict,
-                                  items: _districtList.distr,
-                                  excludeSelected: false,
-                                  onChanged: (value) {
-                                    if(value != null){
-                                      refresh((){
-                                        isLoadingCities = false;
-                                        _selectedDistrict = value;
-                                        _selectedCity = null;
-                                        _cityList = CityList.fromJson({});
-                                        if(_selectedDistrict != null)
-                                          _getCityList(_selectedDistrict!);
-                                      });
-                                    }
-                                  },
-                                ),
+                              if(_selectedState != null && isLoadingDistricts)
+                              CustDropdown<String>(
+                                hintText: 'Select District',
+                                value: _selectedDistrict,
+                                items: _districtList.distr,
+                                excludeSelected: false,
+                                onChanged: (value) {
+                                  if(value != null){
+                                    refresh((){
+                                      isLoadingCities = false;
+                                      _selectedDistrict = value;
+                                      _selectedCity = null;
+                                      _cityList = CityList.fromJson({});
+                                      if(_selectedDistrict != null)
+                                        _getCityList(_selectedDistrict!);
+                                    });
+                                  }
+                                },
                               ),
-                              Visibility(
-                                visible: _selectedDistrict != null && isLoadingCities,
-                                child: CustDropdown<String>(
-                                  hintText: 'Select City',
-                                  items: _cityList.city,
-                                  value: _selectedCity,
-                                  excludeSelected: false,
-                                  onChanged: (value) {
-                                    if(value != null){
-                                      refresh((){
-                                        _selectedCity = value;
-                                      });
-                                    }
-                                  },
-                                ),
+                              if(_selectedDistrict != null && isLoadingCities)
+                              CustDropdown<String>(
+                                hintText: 'Select City',
+                                items: _cityList.city,
+                                value: _selectedCity,
+                                excludeSelected: false,
+                                onChanged: (value) {
+                                  if(value != null){
+                                    refresh((){
+                                      _selectedCity = value;
+                                    });
+                                  }
+                                },
                               ),
-
                             ],
                           ),
                         ),
-                        SizedBox(
-                          height: screenWidth * 0.02,
-                        ),
+                        // SizedBox(
+                        //   height: screenWidth * 0.02,
+                        // ),
                         // Password Field
                         CustomFormTextField(
                           controller: _passwordController,

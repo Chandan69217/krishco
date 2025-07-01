@@ -45,6 +45,7 @@ class Claim {
     required this.invoiceDate,
     required this.claimedDate,
     required this.claimedBy,
+    required this.updateBY,
     required this.claimedFrom,
     required this.claimedFromOthers,
     required this.isTagged,
@@ -67,6 +68,7 @@ class Claim {
   final DateTime? invoiceDate;
   final DateTime? claimedDate;
   final Claimed? claimedBy;
+  final Claimed? updateBY;
   final Claimed? claimedFrom;
   final ClaimedFromOthers? claimedFromOthers;
   final bool? isTagged;
@@ -90,6 +92,7 @@ class Claim {
       invoiceDate: DateTime.tryParse(json["invoice_date"] ?? ""),
       claimedDate: DateTime.tryParse(json["claimed_date"] ?? ""),
       claimedBy: json["claimed_by"] == null ? null : Claimed.fromJson(json["claimed_by"]),
+      updateBY: json["update_by"] == null ? null : Claimed.fromJson(json["update_by"]),
       claimedFrom: json["claimed_from"] == null ? null : Claimed.fromJson(json["claimed_from"]),
       claimedFromOthers: json["claimed_from_others"] == null ? null: ClaimedFromOthers.fromJson( json["claimed_from_others"]),
       isTagged: json["is_tagged"],

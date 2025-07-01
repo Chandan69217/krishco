@@ -64,423 +64,421 @@ class UserHomeScreen extends StatelessWidget {
     return Scaffold(
 
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 16.0),
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Menu / Dashboard',
-                  style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                    fontSize: 14,
-                    color: Color(0xFF6B7A99),
-                  ),
-                ),
-                SizedBox(height: 12.0,),
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(horizontal: 8,vertical: 24),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFF0F2F66).withValues(alpha: 0.1),
-                        blurRadius: 15,
-                        offset: const Offset(0, 0),
-                      )
-                    ],
-                  ),
-                  child: Center(
-                    child: GridView.count(
-                      shrinkWrap: true,
-                      crossAxisCount: 4,
-                      mainAxisSpacing: 18.0,
-                      // crossAxisSpacing: 8.0,
-                      // mainAxisSpacing: 8.0,
-                      childAspectRatio: 1,
-                      // childAspectRatio: 2.6,
-                      physics: NeverScrollableScrollPhysics(),
-                      children: [
-                        DashboardMenuButton(
-                          icon: 'assets/icons/box-open-full.webp',
-                          label: 'Product Catalogues',
-                          onTap: () {
-                            Navigator.push(context, MaterialPageRoute(
-                              builder: (_) => ProductCatalogueScreen(
-                                  title: 'Product Catalogues'
-                              ),
-                            ));
-                          },
-                        ),
-                        DashboardMenuButton(
-                          icon: 'assets/icons/sparkles.webp',
-                          label: 'New Arrivals',
-                          onTap: () {
-                            Navigator.push(context, MaterialPageRoute(
-                              builder: (_) => ProductCatalogueScreen(
-                                selectedTabIndex: 1,
-                                showNewArrivalsOnly: true,
-                                title: 'New Arrivals',
-                              ),
-                            ));
-                          },
-                        ),
-                        DashboardMenuButton(
-                          icon: 'assets/icons/gift.webp',
-                          label: 'Redemption Catalogues',
-                          onTap: () {
-                            Navigator.push(context, MaterialPageRoute(
-                              builder: (_) => RedemptionCataloguesScreen(
-                                title: "Redemption Catalogues",
-                              ),
-                            ));
-                          },
-                        ),
-                        if(GroupRoles.roles.contains(DefineRoles.user.Who_can_claim_points_by_uploading_invoice))
-                        DashboardMenuButton(
-                          icon: 'assets/icons/features.webp',
-                          label: 'Submit Claim',
-                          onTap: () {
-                            Navigator.push(context, MaterialPageRoute(
-                              builder: (_) => CreateClaimScreen(
-                                onSuccess: onRefresh
-                              )
-                            ));
-                          },
-                        ),
-                        // DashboardMenuButton(
-                        //   icon: 'assets/icons/dolly-flatbed-alt.webp',
-                        //   label: 'Place Order',
-                        //   onTap: () {
-                        //     Navigator.push(context, MaterialPageRoute(
-                        //         builder: (_) => PlaceOrderScreen()
-                        //     ));
-                        //   },
-                        // ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 24.0),
-                // Top Summary Cards
-                GridView.count(
-                  crossAxisCount: 1,
+        child: ListView(
+          padding: const EdgeInsets.symmetric(horizontal: 12.0,),
+          shrinkWrap: true,
+          children: [
+            const SizedBox(height: 8.0,),
+            Text(
+              'Menu / Dashboard',
+              style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                fontSize: 14,
+                color: Color(0xFF6B7A99),
+              ),
+            ),
+            SizedBox(height: 12.0,),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 8,vertical: 24),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF0F2F66).withValues(alpha: 0.1),
+                    blurRadius: 15,
+                    offset: const Offset(0, 0),
+                  )
+                ],
+              ),
+              child: Center(
+                child: GridView.count(
                   shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  childAspectRatio: 2.6,
-                  crossAxisSpacing: 16,
-                  mainAxisSpacing: 16,
-                  children: const [
-                    SummaryCard(
-                      title: 'QR Scanned',
-                      subtitle: '| Today',
-                      value: '0',
-                      percentage: '0%',
-                      increase: true,
-                      icon: Icons.qr_code_2_outlined,
-                      bgColor: Color(0xFFE6E9FF),
+                  crossAxisCount: 4,
+                  mainAxisSpacing: 18.0,
+                  // crossAxisSpacing: 8.0,
+                  // mainAxisSpacing: 8.0,
+                  childAspectRatio: 1,
+                  // childAspectRatio: 2.6,
+                  physics: NeverScrollableScrollPhysics(),
+                  children: [
+                    DashboardMenuButton(
+                      icon: 'assets/icons/box-open-full.webp',
+                      label: 'Product Catalogues',
+                      onTap: () {
+                        Navigator.push(context, MaterialPageRoute(
+                          builder: (_) => ProductCatalogueScreen(
+                              title: 'Product Catalogues'
+                          ),
+                        ));
+                      },
                     ),
-                    SummaryCard(
-                      title: 'Redemption Points',
-                      subtitle: '| This Month',
-                      value: '0',
-                      percentage: '0%',
-                      increase: true,
-                      icon: Icons.currency_rupee,
-                      bgColor: Color(0xFFD9F0D9),
+                    DashboardMenuButton(
+                      icon: 'assets/icons/sparkles.webp',
+                      label: 'New Arrivals',
+                      onTap: () {
+                        Navigator.push(context, MaterialPageRoute(
+                          builder: (_) => ProductCatalogueScreen(
+                            selectedTabIndex: 1,
+                            showNewArrivalsOnly: true,
+                            title: 'New Arrivals',
+                          ),
+                        ));
+                      },
                     ),
-                    SummaryCard(
-                      title: 'Customers',
-                      subtitle: '| This Year',
-                      value: '5',
-                      percentage: '83.87%',
-                      increase: false,
-                      icon: Icons.groups_sharp,
-                      bgColor: Color(0xFFFFEDD8),
+                    DashboardMenuButton(
+                      icon: 'assets/icons/gift.webp',
+                      label: 'Redemption Catalogues',
+                      onTap: () {
+                        Navigator.push(context, MaterialPageRoute(
+                          builder: (_) => RedemptionCataloguesScreen(
+                            title: "Redemption Catalogues",
+                          ),
+                        ));
+                      },
                     ),
+                    if(GroupRoles.roles.contains(DefineRoles.user.Who_can_claim_points_by_uploading_invoice))
+                    DashboardMenuButton(
+                      icon: 'assets/icons/features.webp',
+                      label: 'Submit Claim',
+                      onTap: () {
+                        Navigator.push(context, MaterialPageRoute(
+                          builder: (_) => CreateClaimScreen(
+                            onSuccess: onRefresh
+                          )
+                        ));
+                      },
+                    ),
+                    // DashboardMenuButton(
+                    //   icon: 'assets/icons/dolly-flatbed-alt.webp',
+                    //   label: 'Place Order',
+                    //   onTap: () {
+                    //     Navigator.push(context, MaterialPageRoute(
+                    //         builder: (_) => PlaceOrderScreen()
+                    //     ));
+                    //   },
+                    // ),
                   ],
                 ),
-                const SizedBox(height: 24),
-
-                // Chart Placeholder
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.fromLTRB(16,8,0,16),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFF0F2F66).withOpacity(0.1),
-                        blurRadius: 15,
-                        offset: const Offset(0, 0),
-                      )
-                    ],
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Redemption Points | ',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
-                              color: Color(0xFF0F2F66),
-                            ),
-                          ),
-                          Text(
-                            '',
-                            style: TextStyle(
-                              fontSize: 18,
-                              color: Color(0xFF9AA7BF),
-                            ),
-                          ),
-                          Spacer(),
-                          _DateRangeMenu(
-                            onSelected: (option) {
-                              switch (option) {
-                                case _DateRangeOption.today:
-                                // handle today
-                                  break;
-                                case _DateRangeOption.thisMonth:
-                                // handle this month
-                                  break;
-                                case _DateRangeOption.thisYear:
-                                // handle this year
-                                  break;
-                                case _DateRangeOption.custom:
-                                // show custom date picker
-                                  break;
-                              }
-                            },
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 16),
-
-                      Padding(
-                        padding: EdgeInsets.only(right: 16.0),
-                        child: _LoyaltyRedeemLineChart(
-                          loyaltyPoints: loyaltyPoints,
-                          redeemPoints: redeemPoints,
-                        ),
-                      ),
-                    ],
-                  ),
+              ),
+            ),
+            const SizedBox(height: 24.0),
+            // Top Summary Cards
+            GridView.count(
+              crossAxisCount: 1,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              childAspectRatio: 2.6,
+              crossAxisSpacing: 16,
+              mainAxisSpacing: 16,
+              children: const [
+                SummaryCard(
+                  title: 'QR Scanned',
+                  subtitle: '| Today',
+                  value: '0',
+                  percentage: '0%',
+                  increase: true,
+                  icon: Icons.qr_code_2_outlined,
+                  bgColor: Color(0xFFE6E9FF),
                 ),
-                const SizedBox(height: 24),
-
-                // Top Selling Placeholder
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.fromLTRB(16,8,0,16),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFF0F2F66).withOpacity(0.1),
-                        blurRadius: 15,
-                        offset: const Offset(0, 0),
-                      )
-                    ],
-                  ),
-                  child:  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Text(
-                            'Top Selling | ',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
-                              color: Color(0xFF0F2F66),
-                            ),
-                          ),
-                          Text(
-                            '',
-                            style: TextStyle(
-                              fontSize: 18,
-                              color: Color(0xFF9AA7BF),
-                            ),
-                          ),
-                          Spacer(),
-                          _DateRangeMenu(
-                            onSelected: (option) {
-                              switch (option) {
-                                case _DateRangeOption.today:
-                                // handle today
-                                  break;
-                                case _DateRangeOption.thisMonth:
-                                // handle this month
-                                  break;
-                                case _DateRangeOption.thisYear:
-                                // handle this year
-                                  break;
-                                case _DateRangeOption.custom:
-                                // show custom date picker
-                                  break;
-                              }
-                            },
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 40),
-                      Center(
-                        child: Text(
-                          'No Data Available',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Color(0xFF0F2F66),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                SummaryCard(
+                  title: 'Redemption Points',
+                  subtitle: '| This Month',
+                  value: '0',
+                  percentage: '0%',
+                  increase: true,
+                  icon: Icons.currency_rupee,
+                  bgColor: Color(0xFFD9F0D9),
                 ),
-                const SizedBox(height: 24),
-
-                // Recent Activity
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.fromLTRB(16,8,0,16),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFF0F2F66).withOpacity(0.1),
-                        blurRadius: 15,
-                        offset: const Offset(0, 0),
-                      )
-                    ],
-                  ),
-                  child:  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Text(
-                            'Recent Activity | ',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
-                              color: Color(0xFF0F2F66),
-                            ),
-                          ),
-                          Text(
-                            '',
-                            style: TextStyle(
-                              fontSize: 18,
-                              color: Color(0xFF9AA7BF),
-                            ),
-                          ),
-                          Spacer(),
-                          _DateRangeMenu(
-                            onSelected: (option) {
-                              switch (option) {
-                                case _DateRangeOption.today:
-                                // handle today
-                                  break;
-                                case _DateRangeOption.thisMonth:
-                                // handle this month
-                                  break;
-                                case _DateRangeOption.thisYear:
-                                // handle this year
-                                  break;
-                                case _DateRangeOption.custom:
-                                // show custom date picker
-                                  break;
-                              }
-                            },
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 40),
-                      Center(
-                        child: Text(
-                          'No Activity Available',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Color(0xFF0F2F66),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 24),
-                // QR OverView
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.fromLTRB(16,8,0,16),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFF0F2F66).withOpacity(0.1),
-                        blurRadius: 15,
-                        offset: const Offset(0, 0),
-                      )
-                    ],
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Text(
-                            'QR Overview | ',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
-                              color: Color(0xFF0F2F66),
-                            ),
-                          ),
-                          Text(
-                            '2025',
-                            style: TextStyle(
-                              fontSize: 18,
-                              color: Color(0xFF9AA7BF),
-                            ),
-                          ),
-                          Spacer(),
-                          _DateRangeMenu(
-                            onSelected: (option) {
-                              switch (option) {
-                                case _DateRangeOption.today:
-                                // handle today
-                                  break;
-                                case _DateRangeOption.thisMonth:
-                                // handle this month
-                                  break;
-                                case _DateRangeOption.thisYear:
-                                // handle this year
-                                  break;
-                                case _DateRangeOption.custom:
-                                // show custom date picker
-                                  break;
-                              }
-                            },
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 16),
-                      Center(child: _StatusDonutChart()),
-                    ],
-                  ),
+                SummaryCard(
+                  title: 'Customers',
+                  subtitle: '| This Year',
+                  value: '5',
+                  percentage: '83.87%',
+                  increase: false,
+                  icon: Icons.groups_sharp,
+                  bgColor: Color(0xFFFFEDD8),
                 ),
               ],
             ),
-          ),
+            const SizedBox(height: 24),
+
+            // Chart Placeholder
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.fromLTRB(16,8,0,16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF0F2F66).withOpacity(0.1),
+                    blurRadius: 15,
+                    offset: const Offset(0, 0),
+                  )
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Redemption Points | ',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF0F2F66),
+                        ),
+                      ),
+                      Text(
+                        '',
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: Color(0xFF9AA7BF),
+                        ),
+                      ),
+                      Spacer(),
+                      _DateRangeMenu(
+                        onSelected: (option) {
+                          switch (option) {
+                            case _DateRangeOption.today:
+                            // handle today
+                              break;
+                            case _DateRangeOption.thisMonth:
+                            // handle this month
+                              break;
+                            case _DateRangeOption.thisYear:
+                            // handle this year
+                              break;
+                            case _DateRangeOption.custom:
+                            // show custom date picker
+                              break;
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 16),
+
+                  Padding(
+                    padding: EdgeInsets.only(right: 16.0),
+                    child: _LoyaltyRedeemLineChart(
+                      loyaltyPoints: loyaltyPoints,
+                      redeemPoints: redeemPoints,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            // Top Selling Placeholder
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.fromLTRB(16,8,0,16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF0F2F66).withOpacity(0.1),
+                    blurRadius: 15,
+                    offset: const Offset(0, 0),
+                  )
+                ],
+              ),
+              child:  Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        'Top Selling | ',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF0F2F66),
+                        ),
+                      ),
+                      Text(
+                        '',
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: Color(0xFF9AA7BF),
+                        ),
+                      ),
+                      Spacer(),
+                      _DateRangeMenu(
+                        onSelected: (option) {
+                          switch (option) {
+                            case _DateRangeOption.today:
+                            // handle today
+                              break;
+                            case _DateRangeOption.thisMonth:
+                            // handle this month
+                              break;
+                            case _DateRangeOption.thisYear:
+                            // handle this year
+                              break;
+                            case _DateRangeOption.custom:
+                            // show custom date picker
+                              break;
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 40),
+                  Center(
+                    child: Text(
+                      'No Data Available',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Color(0xFF0F2F66),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            // Recent Activity
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.fromLTRB(16,8,0,16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF0F2F66).withOpacity(0.1),
+                    blurRadius: 15,
+                    offset: const Offset(0, 0),
+                  )
+                ],
+              ),
+              child:  Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        'Recent Activity | ',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF0F2F66),
+                        ),
+                      ),
+                      Text(
+                        '',
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: Color(0xFF9AA7BF),
+                        ),
+                      ),
+                      Spacer(),
+                      _DateRangeMenu(
+                        onSelected: (option) {
+                          switch (option) {
+                            case _DateRangeOption.today:
+                            // handle today
+                              break;
+                            case _DateRangeOption.thisMonth:
+                            // handle this month
+                              break;
+                            case _DateRangeOption.thisYear:
+                            // handle this year
+                              break;
+                            case _DateRangeOption.custom:
+                            // show custom date picker
+                              break;
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 40),
+                  Center(
+                    child: Text(
+                      'No Activity Available',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Color(0xFF0F2F66),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+            // QR OverView
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.fromLTRB(16,8,0,16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF0F2F66).withOpacity(0.1),
+                    blurRadius: 15,
+                    offset: const Offset(0, 0),
+                  )
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Text(
+                        'QR Overview | ',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF0F2F66),
+                        ),
+                      ),
+                      Text(
+                        '2025',
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: Color(0xFF9AA7BF),
+                        ),
+                      ),
+                      Spacer(),
+                      _DateRangeMenu(
+                        onSelected: (option) {
+                          switch (option) {
+                            case _DateRangeOption.today:
+                            // handle today
+                              break;
+                            case _DateRangeOption.thisMonth:
+                            // handle this month
+                              break;
+                            case _DateRangeOption.thisYear:
+                            // handle this year
+                              break;
+                            case _DateRangeOption.custom:
+                            // show custom date picker
+                              break;
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 16),
+                  Center(child: _StatusDonutChart()),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16.0,),
+          ],
         ),
       ),
     );

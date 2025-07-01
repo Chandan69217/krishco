@@ -352,123 +352,230 @@ class _ClaimCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 2,
+      elevation: 3,
       color: Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: ExpansionTile(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        title: Text(
-          "Claim No: ${claim.claimNumber}",
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
-        subtitle: Column(
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if(claim.invoiceId != null && claim.invoiceId.toString().isNotEmpty)...[
-              const SizedBox(height: 2.0,),
-              Text('Invoice ID: ${claim.invoiceId}'),
-              const SizedBox(height: 2.0,),
-            ],
-            Text("Status: ${claim.claimStatus}"),
-          ],
-        ),
-        trailing: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-          decoration: BoxDecoration(
-            color: _getStatusColor(claim.claimStatus).withValues(alpha: 0.15),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Text(
-            claim.claimStatus ?? 'N/A',
-            style: TextStyle(fontSize: 12, color:_getStatusColor(claim.claimStatus)),
-          ),
-        ),
-        children: [
-          const Divider(),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            // Title row with status badge
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                // Claimed by
-                Row(
-                  children: [
-                    const Icon(Icons.person, size: 18, color: Colors.grey),
-                    const SizedBox(width: 6),
-                    Expanded(
-                      child: Text(
-                        "By: ${claim.claimedBy?.custName ?? 'N/A'} (${claim.claimNumber ?? 'N/A'})",
-                        style: const TextStyle(fontSize: 13),
-                      ),
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 12),
-
-                // Claim Info Row with Image
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("Invoice Date: ${claim.invoiceDate}",
-                        style: const TextStyle(fontSize: 12)),
-                    Text("Claimed On: ${claim.claimedDate}",
-                        style: const TextStyle(fontSize: 12)),
-                    Text("From: ${claim.claimedFrom != null ? claim.claimedFrom!.custName: 'N/A'}",
-                        style: const TextStyle(fontSize: 12)),
-                    Text("Amount: ₹${claim.claimAmount}",
-                        style: const TextStyle(fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 6),
-
-                    // View Copy Button
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        TextButton.icon(
-                          onPressed: () {
-                            if ((claim.claimCopy ?? '').isNotEmpty) {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => ImageViewerScreen(
-                                    imageUrl: claim.claimCopy!,
-                                  ),
-                                ),
-                              );
-                            }
-                          },
-                          icon: const Icon(Icons.visibility),
-                          label: const Text("View Copy"),
-                        ),
-                        TextButton(
-                          style: Theme.of(context).textButtonTheme.style!.copyWith(
-                              foregroundColor: WidgetStatePropertyAll(Colors.blue.shade600)
-                          ),
-                          onPressed:onTap,
-                          child: const Text("More Details"),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 12),
-
-                // Position or Remark
-                if ((claim.claimPosition ?? '').isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: Text(
-                      "Note: ${claim.claimPosition}",
-                      style: TextStyle(fontSize: 12, color:Colors.red.shade600),
-                    ),
+                Expanded(
+                  child: Text(
+                    "Claim No: ${claim.claimNumber}",
+                    style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: _getStatusColor(claim.claimStatus).withValues(alpha:0.15),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    claim.claimStatus ?? 'N/A',
+                    style: TextStyle(fontSize: 12, color: _getStatusColor(claim.claimStatus)),
+                  ),
+                ),
               ],
             ),
-          ),
-        ],
+
+            const SizedBox(height: 4),
+
+            if (claim.invoiceId != null && claim.invoiceId.toString().isNotEmpty) ...[
+              Text('Invoice ID: ${claim.invoiceId}', style: const TextStyle(fontSize: 12)),
+              const SizedBox(height: 2),
+            ],
+            Text("Status: ${claim.claimStatus}", style: const TextStyle(fontSize: 12)),
+
+            const Divider(height: 20),
+
+            // Claimed by
+            Row(
+              children: [
+                const Icon(Icons.person, size: 18, color: Colors.grey),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    "By: ${claim.claimedBy?.custName ?? 'N/A'} (${claim.claimNumber ?? 'N/A'})",
+                    style: const TextStyle(fontSize: 13),
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 12),
+
+            // Claim Info
+            Text("Invoice Date: ${claim.invoiceDate}", style: const TextStyle(fontSize: 12)),
+            Text("Claimed On: ${claim.claimedDate}", style: const TextStyle(fontSize: 12)),
+            Text("From: ${claim.claimedFrom?.custName ?? 'N/A'}", style: const TextStyle(fontSize: 12)),
+            Text("Amount: ₹${claim.claimAmount}", style: const TextStyle(fontWeight: FontWeight.bold)),
+
+            const SizedBox(height: 6),
+
+            // Actions
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                TextButton.icon(
+                  onPressed: () {
+                    if ((claim.claimCopy ?? '').isNotEmpty) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => ImageViewerScreen(imageUrl: claim.claimCopy!),
+                        ),
+                      );
+                    }
+                  },
+                  icon: const Icon(Icons.visibility),
+                  label: const Text("View Copy"),
+                ),
+                TextButton(
+                  onPressed: onTap,
+                  style: TextButton.styleFrom(foregroundColor: Colors.blue.shade600),
+                  child: const Text("More Details"),
+                ),
+              ],
+            ),
+
+            // Remark
+            if ((claim.claimPosition ?? '').isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 6),
+                child: Text(
+                  "Note: ${claim.claimPosition}",
+                  style: TextStyle(fontSize: 12, color: Colors.red.shade600),
+                ),
+              ),
+          ],
+        ),
       ),
     );
+    // return Card(
+    //   elevation: 3,
+    //   color: Colors.white,
+    //   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    //   child: ExpansionTile(
+    //     initiallyExpanded: true,
+    //     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    //     title: Text(
+    //       "Claim No: ${claim.claimNumber}",
+    //       style: const TextStyle(fontWeight: FontWeight.bold),
+    //     ),
+    //     subtitle: Column(
+    //       crossAxisAlignment: CrossAxisAlignment.start,
+    //       children: [
+    //         if(claim.invoiceId != null && claim.invoiceId.toString().isNotEmpty)...[
+    //           const SizedBox(height: 2.0,),
+    //           Text('Invoice ID: ${claim.invoiceId}'),
+    //           const SizedBox(height: 2.0,),
+    //         ],
+    //         Text("Status: ${claim.claimStatus}"),
+    //       ],
+    //     ),
+    //     trailing: Container(
+    //       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+    //       decoration: BoxDecoration(
+    //         color: _getStatusColor(claim.claimStatus).withValues(alpha: 0.15),
+    //         borderRadius: BorderRadius.circular(8),
+    //       ),
+    //       child: Text(
+    //         claim.claimStatus ?? 'N/A',
+    //         style: TextStyle(fontSize: 12, color:_getStatusColor(claim.claimStatus)),
+    //       ),
+    //     ),
+    //     children: [
+    //       const Divider(),
+    //       Padding(
+    //         padding: const EdgeInsets.symmetric(horizontal: 16),
+    //         child: Column(
+    //           crossAxisAlignment: CrossAxisAlignment.start,
+    //           children: [
+    //             // Claimed by
+    //             Row(
+    //               children: [
+    //                 const Icon(Icons.person, size: 18, color: Colors.grey),
+    //                 const SizedBox(width: 6),
+    //                 Expanded(
+    //                   child: Text(
+    //                     "By: ${claim.claimedBy?.custName ?? 'N/A'} (${claim.claimNumber ?? 'N/A'})",
+    //                     style: const TextStyle(fontSize: 13),
+    //                   ),
+    //                 ),
+    //               ],
+    //             ),
+    //
+    //             const SizedBox(height: 12),
+    //
+    //             // Claim Info Row with Image
+    //             Column(
+    //               crossAxisAlignment: CrossAxisAlignment.start,
+    //               children: [
+    //                 Text("Invoice Date: ${claim.invoiceDate}",
+    //                     style: const TextStyle(fontSize: 12)),
+    //                 Text("Claimed On: ${claim.claimedDate}",
+    //                     style: const TextStyle(fontSize: 12)),
+    //                 Text("From: ${claim.claimedFrom != null ? claim.claimedFrom!.custName: 'N/A'}",
+    //                     style: const TextStyle(fontSize: 12)),
+    //                 Text("Amount: ₹${claim.claimAmount}",
+    //                     style: const TextStyle(fontWeight: FontWeight.bold)),
+    //                 const SizedBox(height: 6),
+    //
+    //                 // View Copy Button
+    //                 Row(
+    //                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    //                   children: [
+    //                     TextButton.icon(
+    //                       onPressed: () {
+    //                         if ((claim.claimCopy ?? '').isNotEmpty) {
+    //                           Navigator.push(
+    //                             context,
+    //                             MaterialPageRoute(
+    //                               builder: (_) => ImageViewerScreen(
+    //                                 imageUrl: claim.claimCopy!,
+    //                               ),
+    //                             ),
+    //                           );
+    //                         }
+    //                       },
+    //                       icon: const Icon(Icons.visibility),
+    //                       label: const Text("View Copy"),
+    //                     ),
+    //                     TextButton(
+    //                       style: Theme.of(context).textButtonTheme.style!.copyWith(
+    //                           foregroundColor: WidgetStatePropertyAll(Colors.blue.shade600)
+    //                       ),
+    //                       onPressed:onTap,
+    //                       child: const Text("More Details"),
+    //                     ),
+    //                   ],
+    //                 ),
+    //               ],
+    //             ),
+    //
+    //             const SizedBox(height: 12),
+    //
+    //             // Position or Remark
+    //             if ((claim.claimPosition ?? '').isNotEmpty)
+    //               Padding(
+    //                 padding: const EdgeInsets.only(bottom: 12),
+    //                 child: Text(
+    //                   "Note: ${claim.claimPosition}",
+    //                   style: TextStyle(fontSize: 12, color:Colors.red.shade600),
+    //                 ),
+    //               ),
+    //           ],
+    //         ),
+    //       ),
+    //     ],
+    //   ),
+    // );
   }
 }
 
@@ -486,7 +593,6 @@ class _ClaimReportingCard extends StatelessWidget {
 
     return Card(
       color: Colors.white,
-      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       elevation: 3,
       child: InkWell(

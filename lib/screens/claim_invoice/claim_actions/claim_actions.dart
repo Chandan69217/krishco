@@ -55,7 +55,7 @@ class _ClaimActionsState extends State<ClaimActions> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if(widget.approvalPermissions != null && _approvalStatus == 'Conform')...[
+          if(widget.approvalPermissions != null && _approvalStatus == 'Confirm')...[
             TextFormField(
               key: Key('Claim_Amount_Text'),
               validator: (v){
@@ -65,7 +65,7 @@ class _ClaimActionsState extends State<ClaimActions> {
                   if(!(amount<= claimAmount|| amount==0)){
                     return 'Enter Claim amount less ${claimAmount}';
                   }else if(amount==0){
-                    return 'Enter Claim Conform amount';
+                    return 'Enter Claim Confirm amount';
                   }
                 }
                 return null;
@@ -79,7 +79,7 @@ class _ClaimActionsState extends State<ClaimActions> {
               ),
               keyboardType: TextInputType.number,
               decoration: InputDecoration(
-                  labelText: 'Claim Conform Amount',
+                  labelText: 'Claim Confirm Amount',
                   prefixIcon: Icon(Icons.currency_rupee_rounded,size: 20,)
               ),
             ),
@@ -192,12 +192,13 @@ class _ClaimActionsState extends State<ClaimActions> {
 
   String _getApprovalStatusOnSection(String selection){
     switch(selection){
-      case 'Conform': return 'Confirmed';
-      case 'On Hold': return 'On_hold';
-      case'Approve': return 'Approved';
+      case 'Confirm': return 'confirmed';
+      case 'On Hold': return 'on_hold';
+      case'Approve': return 'approved';
       default: return '';
     }
   }
+
   void _onApprove()async {
     _selectedAction = _getApprovalStatusOnSection(_approvalStatus);
     if(!_formKey.currentState!.validate()){

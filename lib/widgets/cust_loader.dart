@@ -10,7 +10,7 @@ class CustLoader extends StatelessWidget{
   @override
   Widget build(BuildContext context) {
     return SpinKitThreeInOut(
-      color: color??CustColors.primary,
+      color: color??CustColors.nile_blue,
       size: 25.0,
     );
   }
