@@ -721,94 +721,96 @@ class _QueryListScreenState extends State<QueryListScreen>
             bottom: MediaQuery.of(context).viewInsets.bottom + 20,
             top: 20,
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text(
-                'Update Response',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 16),
-
-              // Response TextField
-              TextField(
-                controller: responseController,
-                maxLines: 4,
-                decoration: InputDecoration(
-                  filled: false,
-                  labelText: 'Your Response',
-                  hintText: 'Enter your response...',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
+          child: SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'Update Response',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
-              ),
-              const SizedBox(height: 16),
-
-              // Query Status Dropdown
-              DropdownButtonFormField<String>(
-                value: queryStatus,
-                isExpanded: true,
-                decoration: InputDecoration(
-                  filled: false,
-                  labelText: 'Query Status',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                items:
-                    ['open', 'closed']
-                        .map(
-                          (status) => DropdownMenuItem(
-                            value: status,
-                            child: Text(status.toUpperCase()),
-                          ),
-                        )
-                        .toList(),
-                onChanged: (value) {
-                  if (value != null) {
-                    queryStatus = value;
-                  }
-                },
-              ),
-              const SizedBox(height: 20),
-
-              // Buttons
-              Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                      icon: const Icon(Icons.close,color: Colors.black,),
-                      label: const Text('Cancel'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.grey.shade200,
-                        foregroundColor: Colors.black,
-                      ),
+                const SizedBox(height: 16),
+            
+                // Response TextField
+                TextField(
+                  controller: responseController,
+                  maxLines: 4,
+                  decoration: InputDecoration(
+                    filled: false,
+                    labelText: 'Your Response',
+                    hintText: 'Enter your response...',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        final responseText = responseController.text.trim();
-                        if (responseText.isNotEmpty) {
+                ),
+                const SizedBox(height: 16),
+            
+                // Query Status Dropdown
+                DropdownButtonFormField<String>(
+                  value: queryStatus,
+                  isExpanded: true,
+                  decoration: InputDecoration(
+                    filled: false,
+                    labelText: 'Query Status',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  items:
+                      ['open', 'closed']
+                          .map(
+                            (status) => DropdownMenuItem(
+                              value: status,
+                              child: Text(status.toUpperCase()),
+                            ),
+                          )
+                          .toList(),
+                  onChanged: (value) {
+                    if (value != null) {
+                      queryStatus = value;
+                    }
+                  },
+                ),
+                const SizedBox(height: 20),
+            
+                // Buttons
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: () {
                           Navigator.of(context).pop();
-                          onSubmit(responseText, queryStatus);
-                        }
-                      },
-                      icon: const Icon(Icons.send),
-                      label: const Text('Submit'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: CustColors.nile_blue,
+                        },
+                        icon: const Icon(Icons.close,color: Colors.black,),
+                        label: const Text('Cancel'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.grey.shade200,
+                          foregroundColor: Colors.black,
+                        ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-            ],
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          final responseText = responseController.text.trim();
+                          if (responseText.isNotEmpty) {
+                            Navigator.of(context).pop();
+                            onSubmit(responseText, queryStatus);
+                          }
+                        },
+                        icon: const Icon(Icons.send),
+                        label: const Text('Submit'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: CustColors.nile_blue,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         );
       },

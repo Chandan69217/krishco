@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:krishco/api_services/api_service.dart';
 import 'package:krishco/dashboard_type/dashboard_types.dart';
@@ -196,10 +197,18 @@ class _CreateClaimScreenState extends State<CreateClaimScreen> {
                   TextFormField(
                     style:Theme.of(context).textTheme.bodySmall,
                     controller: _invoiceNumberController,
+                    inputFormatters: [
+                      TextInputFormatter.withFunction((oldValue,newValue){
+                        return newValue.copyWith(
+                          text: newValue.text.toUpperCase(),
+                          selection: newValue.selection,
+                        );
+                      })
+                    ],
                     decoration: InputDecoration(
                       labelText: 'Invoice Number (Optional)',
                       border: OutlineInputBorder(),
-                      hintText: 'INVOICE NUMBER',
+                      hintText: 'Enter invoice number',
                     ),
                   ),
 
@@ -246,11 +255,11 @@ class _CreateClaimScreenState extends State<CreateClaimScreen> {
                       focusNode: _consumerPhoneNumberFocusNode,
                       maxLength: 10,
                       decoration: InputDecoration(
-                        labelText: 'Consumer Number *',
+                        labelText: 'Mobile No *',
                         prefixIcon: Icon(Icons.call),
                         counterText: '',
                         border: OutlineInputBorder(),
-                        hintText: 'Consumer Number (*)',
+                        hintText: 'Enter Consumer Number (*)',
                       ),
                       validator: (value){
                         if(value == null || value.isEmpty){
@@ -323,6 +332,7 @@ class _CreateClaimScreenState extends State<CreateClaimScreen> {
                         prefixIcon: Icon(Icons.person),
                         counterText: '',
                         labelText: 'Enterprise Name *',
+                        hintText: 'Enter enterprise name',
                         border: OutlineInputBorder(),
                       ),
                       validator: (value) {
@@ -341,7 +351,8 @@ class _CreateClaimScreenState extends State<CreateClaimScreen> {
                       decoration: InputDecoration(
                         prefixIcon: Icon(Icons.phone),
                         counterText: '',
-                        labelText: 'Enterprise Number *',
+                        labelText: 'Mobile No *',
+                        hintText: 'Enter enterprise number',
                         border: OutlineInputBorder(),
                       ),
                       validator: (value) {
@@ -357,8 +368,8 @@ class _CreateClaimScreenState extends State<CreateClaimScreen> {
                       controller: _enterpriseAddressController,
                       maxLines: 3,
                       decoration: InputDecoration(
-                        prefixIcon: Icon(Icons.location_on),
-                        labelText: 'Enterprise Address (Optional)',
+                        labelText: 'Address (Optional)',
+                        hintText: 'Enter enterprises address',
                         border: OutlineInputBorder(),
                       ),
                     ),
@@ -389,13 +400,13 @@ class _CreateClaimScreenState extends State<CreateClaimScreen> {
                   TextFormField(
                     style:Theme.of(context).textTheme.bodySmall,
                     controller: _filePreviewController,
-                    maxLines: 2,
+                    maxLines: 1,
                     readOnly: true,
                     textAlignVertical: TextAlignVertical.center,
                     decoration: InputDecoration(
                       labelText: 'Uploaded File Preview',
                       border: const OutlineInputBorder(),
-
+                      contentPadding: EdgeInsets.symmetric(horizontal: 12.0,vertical: 20.0),
                       suffixIcon: _selectedFile == null
                           ? TextButton.icon(
                         icon: const Icon(Icons.attach_file),

@@ -7,11 +7,13 @@ class TTextSelectionThemeData{
 
   static final TextSelectionThemeData light = TextSelectionThemeData(
       // selectionHandleColor: CustColors.RED,
-      selectionColor: CustColors.primary
+      selectionColor: CustColors.primary,
+    cursorColor: CustColors.nile_blue
   );
 
   static final TextSelectionThemeData dark = TextSelectionThemeData(
       // selectionHandleColor: ColorTheme.RED,
       selectionColor: Colors.grey,
+      cursorColor: CustColors.nile_blue
   );
 }

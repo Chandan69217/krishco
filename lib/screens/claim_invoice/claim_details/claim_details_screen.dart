@@ -295,6 +295,9 @@ class _ClaimDetailsScreenState extends State<ClaimDetailsScreen> {
                             // ),
                             onSuccess: () {
                               setState(() {
+                                _futureClaimData = APIService.getInstance(
+                                  context,
+                                ).invoiceClaim.getClaimDetailsByID(widget.claimId);
                                 widget.onActionResponse?.call();
                               });
                             },

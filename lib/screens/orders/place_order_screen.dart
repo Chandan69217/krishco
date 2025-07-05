@@ -8,6 +8,8 @@ import 'package:krishco/models/product_related/product_details_data.dart';
 import 'package:krishco/screens/splash/splash_screen.dart';
 import 'package:krishco/utilities/full_screen_loading.dart';
 import 'package:krishco/widgets/choose_file.dart';
+import 'package:krishco/widgets/cust_snack_bar.dart';
+import 'package:krishco/widgets/custom_button.dart';
 
 
 
@@ -84,12 +86,12 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
                   _buildSection('Basic Details', _buildBasicDetailsSection()),
                   _buildSection('Order By Bill', _buildOrderByUploadBill()),
                   _buildSection('Order By Product Details', _buildOrderByProductDetails()),
+                  _buildBottomBar(),
                 ],
               ),
             ),
           ),
         ),
-        bottomNavigationBar: _buildBottomBar(),
       ),
       if(_isLoading)
         FullScreenLoading()
@@ -235,7 +237,9 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
             },
             controller: _orderForNumberController,
             decoration: const InputDecoration(
-              labelText: 'Consumer Number *',
+              labelText: 'Mobile No *',
+              hintText: 'Enter Consumer number',
+              prefixIcon: Icon(Icons.phone),
               border: OutlineInputBorder(),
               counterText: ''
             ),
@@ -251,7 +255,9 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
             },
             controller: _orderForNameController,
             decoration: const InputDecoration(
-              labelText: 'Consumer Name *',
+              labelText: 'Name *',
+              prefixIcon: Icon(Icons.person),
+              hintText: 'Enter consumer name',
               border: OutlineInputBorder(),
             ),
           ),
@@ -261,7 +267,8 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
             maxLines: 3,
             controller: _orderForAddressController,
             decoration: const InputDecoration(
-              labelText: 'Consumer Address (Optional)',
+              hintText: 'Enter consumer address..',
+              labelText: 'Address (Optional)',
               // floatingLabelBehavior: FloatingLabelBehavior.always,
               border: OutlineInputBorder(),
             ),
@@ -277,6 +284,7 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
             valueListenable: taggedEnterprise,
             builder: (context,value,child){
               return DropdownButtonFormField<String>(
+                isExpanded: true,
                 key: Key('enterprise_dropdown'),
                 validator:  !_isEnterpriseNotListed ? (value){
                   if(value == null || value.isEmpty){
@@ -290,7 +298,7 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
                 ),
                 value: _enterpriseDetails,
                 items: [
-                  DropdownMenuItem(child: Text("Select Enterprise Details"), value: null),
+                  DropdownMenuItem(child: Text("Select Enterprise Details"), value: null,),
                   if(value != null)...[
                     ...value.data.map((datum) {
                       final customer = datum?.customer;
@@ -336,7 +344,9 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
               maxLength: 10,
               controller: _consumerNumberController,
               decoration: const InputDecoration(
-                labelText: 'Consumer Number *',
+                labelText: 'Mobile No *',
+                hintText: 'Enter Consumer number',
+                prefixIcon: Icon(Icons.phone),
                 counterText: '',
                 border: OutlineInputBorder(),
               ),
@@ -352,7 +362,9 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
                 return null;
               },
               decoration: const InputDecoration(
-                labelText: 'Consumer Name *',
+                labelText: 'Name *',
+                hintText: 'Enter Consumer name',
+                prefixIcon: Icon(Icons.person),
                 border: OutlineInputBorder(),
               ),
             ),
@@ -362,7 +374,8 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
               maxLines: 3,
               controller: _consumerAddressController,
               decoration: const InputDecoration(
-                labelText: 'Consumer Address (Optional)',
+                labelText: 'Address (Optional)',
+                hintText: 'Enter Consumer address',
                 border: OutlineInputBorder(),
               ),
             ),
@@ -404,34 +417,23 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
   Widget _buildBottomBar() {
     return Container(
       color: Colors.grey[100],
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-      child: Row(
+      padding: const EdgeInsets.symmetric(vertical: 20),
+      child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Expanded(
-            child: ElevatedButton.icon(
-              onPressed: _onReset,
-              style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.red,
-                side: const BorderSide(color: Colors.red),
-                backgroundColor: Colors.white,
-              ),
-              icon: const Icon(Icons.sync,color: Colors.red,),
-              label: const Text('Reset'),
+          CustomElevatedButton(text: 'Submit', onPressed: _onSubmit),
+          const SizedBox(height: 16),
+          ElevatedButton.icon(
+            onPressed: _onReset,
+            style: ElevatedButton.styleFrom(
+              foregroundColor: Colors.red,
+              padding: EdgeInsets.symmetric(vertical: 0,horizontal: 8.0),
+              elevation: 1,
+              side: const BorderSide(color: Colors.red,),
+              backgroundColor: Colors.white,
             ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: ElevatedButton.icon(
-              onPressed: _onSubmit,
-              style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.green,
-                side: const BorderSide(color: Colors.green),
-                backgroundColor: Colors.white,
-              ),
-              icon: const Icon(Icons.check,color: Colors.green,),
-              label: const Text('Submit'),
-            ),
+            icon: const Icon(Icons.sync,color: Colors.red,),
+            label: const Text('Reset'),
           ),
         ],
       ),
@@ -590,24 +592,28 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
                   });
                 }
               }:null,
-              icon: const Icon(Icons.add_circle,color: Colors.green,),
+              icon: Icon(Icons.add_circle,color:  _pickedFile != null ? Colors.green : Colors.grey.shade400,),
               label: const Text('Add'),
               style: ElevatedButton.styleFrom(
                 foregroundColor: Colors.green,
                 backgroundColor: Colors.white,
-                side: const BorderSide(color: Colors.green),
+
+                side: BorderSide(
+                    color: _pickedFile != null ? Colors.green : Colors.grey.shade400,
+                ),
+                padding: EdgeInsets.symmetric(vertical: 18.0,horizontal: 22.0)
               ),
             ),
           ],
         ),
         if(_selectedFile.isNotEmpty)...[
-          const SizedBox(height: 10),
-          const Text(
+          const SizedBox(height: 18),
+          Text(
             'Added Bill List',
-            style: TextStyle(
+            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
               color: Color(0xFF1E40AF),
               fontWeight: FontWeight.w600,
-            ),
+            )
           ),
           const SizedBox(height: 10),
           _buildSelectedImagesGrid()
@@ -771,6 +777,7 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
                     enabled: value!=null,
                     decoration: const InputDecoration(
                       labelText: 'Quantity',
+                      hintText: 'Enter product quantity',
                       border: OutlineInputBorder(),
                     ),
                   );
@@ -836,12 +843,13 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
 
                       });
                     },
-                    icon: const Icon(Icons.add_circle,color: Colors.green),
+                    icon: Icon(Icons.add_circle,color: value != null ? Colors.green:Colors.grey.shade400),
                   label: const Text('Add'),
                   style: ElevatedButton.styleFrom(
                     foregroundColor: Colors.green,
                     backgroundColor: Colors.white,
-                    side: const BorderSide(color: Colors.green),
+                    padding: EdgeInsets.symmetric(vertical: 18.0,horizontal: 22.0),
+                    side: BorderSide(color: value != null ? Colors.green:Colors.grey.shade400),
                   ),
                 );
               },
@@ -849,13 +857,13 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
           ],
         ),
 
-        SizedBox(height: 10),
-        const Text(
+        SizedBox(height: 20),
+        Text(
           'Added Product List',
-          style: TextStyle(
+          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
             color: Color(0xFF1E40AF),
             fontWeight: FontWeight.w600,
-          ),
+          )
         ),
         SizedBox(height: 10),
         _buildSelectedItemTable()
@@ -1092,12 +1100,12 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
     if(response != null){
       final status = response['isScuss'];
       if(status){
-        _showSnackBar(message: response['messages'],status: status);
+        showSimpleSnackBar(message: response['messages'],status: status, context: context);
         widget.onSuccess?.call();
         _onReset();
       }else{
         final error = response['error'] as Map<String,dynamic>;
-        _showSnackBar(message: error.values.toString(),status: status);
+        showSimpleSnackBar(context: context,message: error.values.toString(),status: status);
       }
 
     }
@@ -1106,15 +1114,6 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
     });
   }
 
-  void _showSnackBar({required String message,bool? status = true}){
-    ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Center(child: Text(message),),
-          backgroundColor: status! ? Colors.green : Colors.red ,
-          behavior: SnackBarBehavior.floating,
-          duration: Duration(seconds: 3),
-        )
-    );
-  }
 }
 
 class _ProductItem {

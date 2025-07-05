@@ -420,27 +420,35 @@ class _RedemptionCataloguesScreenState extends State<RedemptionCataloguesScreen>
                                          borderRadius: BorderRadius.only(topLeft: Radius.circular(12.0),topRight: Radius.circular(12.0)),
                                        )
                                    ),
-                                   Padding(
-                                     padding: const EdgeInsets.all(8.0),
-                                     child: Column(
-                                       crossAxisAlignment: CrossAxisAlignment.start,
-                                       children: [
-                                         Text(name, maxLines: 1, overflow: TextOverflow.ellipsis, style: Theme.of(context).textTheme.bodyMedium!.copyWith( fontWeight: FontWeight.w600)),
-                                         Text("Price: ₹$price pts", style: Theme.of(context).textTheme.bodySmall!.copyWith(color: Colors.grey, fontSize: 12)),
-                                         Text("Points: $points pts", style: Theme.of(context).textTheme.bodySmall!.copyWith(color: Colors.grey, fontSize: 12)),
-                                         const SizedBox(height: 8),
-                                         SizedBox(
-                                           width: double.infinity,
-                                           child: OutlinedButton(
-                                             onPressed: () => toggleSelection(product),
-                                             style: OutlinedButton.styleFrom(
-                                               foregroundColor: isSelected ? Colors.red : Colors.green,
-                                               side: BorderSide(color: isSelected ? Colors.red : Colors.green),
+                                   Expanded(
+                                     child: Padding(
+                                       padding: const EdgeInsets.symmetric(horizontal: 8.0,vertical: 8.0),
+                                       child: Column(
+                                         crossAxisAlignment: CrossAxisAlignment.start,
+                                         mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                         children: [
+                                           Flexible( flex: 2,fit: FlexFit.loose,child: Text(name, maxLines: 1, overflow: TextOverflow.ellipsis, style: Theme.of(context).textTheme.bodyMedium!.copyWith( fontWeight: FontWeight.w600)),),
+                                           // SizedBox(height: 4,),
+                                           Flexible( fit: FlexFit.loose,child: Text("Price: ₹$price pts", style: Theme.of(context).textTheme.bodySmall!.copyWith(color: Colors.grey, fontSize: 12))),
+                                           Flexible( fit: FlexFit.loose,child: Text("Points: $points pts", style: Theme.of(context).textTheme.bodySmall!.copyWith(color: Colors.grey, fontSize: 12))),
+                                           const SizedBox(height: 4),
+                                           Flexible(
+                                             fit: FlexFit.loose,
+                                             child: SizedBox(
+                                               width: double.infinity,
+                                               child: OutlinedButton(
+                                                 onPressed: () => toggleSelection(product),
+                                                 style: OutlinedButton.styleFrom(
+                                                   foregroundColor: isSelected ? Colors.red : Colors.green,
+                                                   side: BorderSide(color: isSelected ? Colors.red : Colors.green),
+                                                 ),
+                                                 child: Text(isSelected ? 'Remove' : 'Add'),
+                                               ),
                                              ),
-                                             child: Text(isSelected ? 'Remove' : 'Add'),
+                                             flex: 3,
                                            ),
-                                         ),
-                                       ],
+                                         ],
+                                       ),
                                      ),
                                    ),
                                  ],

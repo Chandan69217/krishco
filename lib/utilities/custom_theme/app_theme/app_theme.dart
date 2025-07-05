@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:krishco/utilities/cust_colors.dart';
 import 'package:krishco/utilities/custom_theme/appbar_theme/appbar_theme.dart';
 import 'package:krishco/utilities/custom_theme/bottom_nav_bar_theme/bottom_navigation_bar_theme.dart';
+import 'package:krishco/utilities/custom_theme/dropdown_button_theme/dropdwon_button_theme.dart';
 import 'package:krishco/utilities/custom_theme/elevated_btn_theme/elevated_btn_theme.dart';
 import 'package:krishco/utilities/custom_theme/icon_btn_theme/icon_btn_theme.dart';
 import 'package:krishco/utilities/custom_theme/input_decoration_theme/TInputDecorationTheme.dart';
@@ -28,9 +29,22 @@ class AppTheme{
       textTheme: TTextTheme.lightTextTheme,
     listTileTheme: TListTileTheme.light,
     popupMenuTheme: TPopupMenuTheme.lightTheme,
+    checkboxTheme: CheckboxThemeData(
+        checkColor: WidgetStatePropertyAll(Colors.white),
+      fillColor: WidgetStateProperty.resolveWith<Color>((Set<WidgetState> states) {
+        if (states.contains(WidgetState.selected)) {
+          return CustColors.nile_blue;
+        }
+        return Colors.transparent;
+      }),
+    ),
     elevatedButtonTheme: ElevatedBtnTheme.light,
+    dropdownMenuTheme: TDropdownButtonTheme.light,
     textSelectionTheme: TTextSelectionThemeData.light,
     inputDecorationTheme: TInputDecorationTheme.light,
+    radioTheme: RadioThemeData(
+      fillColor: WidgetStatePropertyAll(CustColors.nile_blue)
+    ),
     iconButtonTheme: TIconBtnTheme.light,
       iconTheme: const IconThemeData(
           color: CustColors.white
@@ -44,9 +58,22 @@ class AppTheme{
     brightness: Brightness.dark,
     useMaterial3: true,
     navigationBarTheme: TNavigationBarTheme.dart,
-    bottomNavigationBarTheme: TBottomNavigationBarTheme.dark    ,
+    bottomNavigationBarTheme: TBottomNavigationBarTheme.dark,
+    dropdownMenuTheme: TDropdownButtonTheme.dark,
     scaffoldBackgroundColor: Colors.black,
+      checkboxTheme: CheckboxThemeData(
+          checkColor: WidgetStatePropertyAll(Colors.white),
+        fillColor: WidgetStateProperty.resolveWith<Color>((Set<WidgetState> states) {
+          if (states.contains(WidgetState.selected)) {
+            return CustColors.nile_blue;
+          }
+          return Colors.transparent;
+        }),
+      ),
     appBarTheme: TAppbarTheme.darkAppbarTheme,
+      radioTheme: RadioThemeData(
+          fillColor: WidgetStatePropertyAll(CustColors.nile_blue),
+      ),
     textTheme: TTextTheme.darkTextTheme,
      listTileTheme: TListTileTheme.dark,
     popupMenuTheme: TPopupMenuTheme.darkTheme,

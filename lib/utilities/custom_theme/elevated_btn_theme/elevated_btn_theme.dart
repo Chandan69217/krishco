@@ -11,7 +11,7 @@ class ElevatedBtnTheme {
         padding: const EdgeInsets.symmetric(vertical: 16,horizontal: 16),
         textStyle: TTextTheme.lightTextTheme.bodyMedium,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(10.0),
         ),
         elevation: 2,
         iconColor: CustColors.white,
@@ -23,7 +23,7 @@ class ElevatedBtnTheme {
     padding: const EdgeInsets.symmetric(vertical: 16,horizontal: 16),
     textStyle: TTextTheme.lightTextTheme.bodyMedium,
     shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(10),
     ),
     elevation: 2,
     iconColor: CustColors.white,

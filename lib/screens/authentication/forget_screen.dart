@@ -130,9 +130,7 @@ class ForgetPasswordScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         foregroundColor: CustColors.white,
-        titleSpacing: 0,
-        title: Text('Forget Password',style: TextStyle(fontSize: screenWidth * 0.05),),
-        backgroundColor: CustColors.nile_blue,
+        title: Text('Forget Password',),
       ),
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),

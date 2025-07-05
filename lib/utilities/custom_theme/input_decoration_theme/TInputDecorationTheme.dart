@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:krishco/utilities/cust_colors.dart';
 import 'package:krishco/utilities/custom_theme/text_theme/text_theme.dart';
 
 class TInputDecorationTheme{
@@ -11,7 +12,14 @@ class TInputDecorationTheme{
     filled: true,
     fillColor:  Colors.grey[100],
     border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+    hintStyle: TTextTheme.lightTextTheme.bodySmall!.copyWith(color: Colors.grey.shade600,overflow: TextOverflow.ellipsis),
     focusedBorder: OutlineInputBorder(
+      borderSide: BorderSide(
+        color:  Colors.grey[300]!,
+      ),
+      borderRadius: BorderRadius.circular(8),
+    ),
+    disabledBorder: OutlineInputBorder(
       borderSide: BorderSide(
         color:  Colors.grey[300]!,
       ),
@@ -33,6 +41,7 @@ class TInputDecorationTheme{
     filled: true,
     fillColor: Colors.grey[850],
     border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+    hintStyle: TTextTheme.lightTextTheme.bodySmall!.copyWith(color: Colors.grey.shade600,overflow: TextOverflow.ellipsis),
     focusedBorder: const OutlineInputBorder(
         borderSide: BorderSide(
             color: Colors.purple,
@@ -41,6 +50,12 @@ class TInputDecorationTheme{
     enabledBorder: OutlineInputBorder(
       borderSide: BorderSide(
         color: Colors.grey[700]!,
+      ),
+      borderRadius: BorderRadius.circular(8),
+    ),
+    disabledBorder: OutlineInputBorder(
+      borderSide: BorderSide(
+        color:  Colors.grey[300]!,
       ),
       borderRadius: BorderRadius.circular(8),
     ),

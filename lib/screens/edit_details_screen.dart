@@ -10,6 +10,7 @@ import 'package:krishco/utilities/cust_colors.dart';
 import 'package:krishco/widgets/cust_dialog_box/cust_dialog_box.dart';
 import 'package:krishco/widgets/choose_file.dart';
 import 'package:krishco/widgets/cust_snack_bar.dart';
+import 'package:krishco/widgets/custom_button.dart';
 import 'package:krishco/widgets/custom_network_image/custom_network_image.dart';
 
 
@@ -29,8 +30,7 @@ class _EditDetailsScreenState
       GlobalKey<_EmergencyContactFormState>();
   final GlobalKey<_TransportationDetailsState> _otherDetailsKey = GlobalKey<_TransportationDetailsState>();
   final TextEditingController _emailTextController = TextEditingController();
-  final TextEditingController _firstNameController = TextEditingController();
-  final TextEditingController _lastNameController = TextEditingController();
+  final TextEditingController _fullNameController = TextEditingController();
   final TextEditingController _contactNoController = TextEditingController();
   final TextEditingController _altContactNoController = TextEditingController();
   final TextEditingController _dobController = TextEditingController();
@@ -66,15 +66,14 @@ class _EditDetailsScreenState
   init(UserDetailsData data) async {
     memberId = data.tId.toString().replaceAll('[', '').replaceAll(']', '');
     gstNo = data.gstNo.toString();
-    _firstNameController.text = data.fname ?? '';
-    _lastNameController.text = data.lname ?? '';
+    _fullNameController.text = '${data.fname} ${data.lname}' ?? '';
     _contactNoController.text = data.contNo ?? '';
     _altContactNoController.text = data.altContNo ?? '';
     _emailTextController.text = data.email ?? '';
     _dobController.text = data.dob ?? '';
     gender = data.gender ?? '';
     maritalStatus = data.marStatus ?? '';
-    _countryController.text = data.country ?? '';
+    _countryController.text = data.country ?? 'India';
     _stateController.text = data.state ?? '';
     _districtController.text = data.dist ?? '';
     _cityController.text = data.city ?? '';
@@ -117,8 +116,8 @@ class _EditDetailsScreenState
               }
               return SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 24,
+                  horizontal: 12,
+                  vertical: 12,
                 ),
                 child: Form(
                   key: _formKey,
@@ -133,15 +132,13 @@ class _EditDetailsScreenState
                       //     gstNo: gstNo,
                       //   ),
                       // ),
-                      _buildGroupSection(
-                        title: 'Basic Details *',
-                        subTitle: 'Note: Fill all mandatory(*) fields!!',
-                        child: _buildBasicDetails(data),
-                      ),
-                      _buildGroupSection(
-                        title: 'Address Information *',
-                        child: _buildAddressDetails(),
-                      ),
+                      // _buildGroupSection(
+                      //   title: 'Basic Details *',
+                      //   subTitle: 'Note: Fill all mandatory(*) fields!!',
+                      //   child: _buildBasicDetails(data),
+                      // ),
+                      _buildGroupSection(title: 'Basic Details *',subTitle: 'Note: Fill all mandatory(*) fields', child: _buildBasicDetails(data)),
+                      _buildGroupSection(title: 'Address *', child:_buildAddressDetails()),
                       _buildGroupSection(
                         title: 'Emergency Contacts Details *',
                         child: EmergencyContactForm(
@@ -149,7 +146,6 @@ class _EditDetailsScreenState
                           initialContacts: _emergencyDetails,
                         ),
                       ),
-
                       _buildGroupSection(
                         title: 'Other Details (Optional)',
                         child: _TransportationDetails(
@@ -171,9 +167,9 @@ class _EditDetailsScreenState
                           )
                           : SizedBox(
                             width: MediaQuery.of(context).size.width,
-                            child: ElevatedButton(
+                            child: CustomElevatedButton(
                               onPressed: _onUpdate,
-                              child: Text('Update'),
+                              text: 'Update',
                             ),
                           ),
                     ],
@@ -267,91 +263,60 @@ class _EditDetailsScreenState
   Widget _buildBasicDetails(UserDetailsData value) {
     return Column(
       children: [
-        // Row(
-        //   children: [
-        //     Expanded(
-        //       flex: 2,
-        //       child: _profilePic != null ? CachedNetworkImage(
-        //         fit: BoxFit.contain,
-        //         imageUrl:'',
-        //         // width: 40,
-        //         // height: 40,
-        //         placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
-        //         errorWidget: (context, url, error) => Image.asset('assets/logo/dummy_profile.webp'),
-        //       ):CircleAvatar(
-        //         radius: 60.0,
-        //         backgroundImage: AssetImage('assets/logo/dummy_profile.webp'),
-        //       ),
-        //     ),
-        //
-        //     const SizedBox(width: 12.0,),
-        //     Expanded(
-        //       flex: 3,
-        //       child: Column(
-        //         children: [
-        //           _buildTextFormField(controller: _customerFirstNameController, label: 'First name *', iconData: Icons.contact_page),
-        //           const SizedBox(height: 12.0,),
-        //           _buildTextFormField(controller: _customerLastNameController, label: 'Last name (Optional)', iconData: Icons.contact_page),
-        //         ],
-        //       ),
-        //     )
-        //   ],
-        // ),
+
         ProfileUpdateSection(
           imageUrl: value.photo,
           onEditImage: _pickProfileImage,
-          firstNameController: _firstNameController,
-          lastNameController: _lastNameController,
+          fullNameController: _fullNameController,
           selectedImageFile: _selectedProfile,
         ),
-        const SizedBox(height: 16.0),
-        ListView(
-          // crossAxisCount: 2,
-          // crossAxisSpacing: 8,
-          // childAspectRatio: 2.6,
-          physics: NeverScrollableScrollPhysics(),
-          shrinkWrap: true,
-          children: [
-            // DropdownButtonFormField<String>(
-            //   decoration: InputDecoration(
-            //     labelText: 'Group Category *',
-            //     border: OutlineInputBorder(borderRadius: BorderRadius.circular(6), borderSide: BorderSide(color: borderGray)),
-            //     focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(6), borderSide: BorderSide(color: blue600, width: 2)),
-            //     contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-            //   ),
-            //   value: 'Channel Partner',
-            //   items: const [
-            //     DropdownMenuItem(value: 'Channel Partner', child: Text('Channel Partner')),
-            //   ],
-            //   onChanged: (_) {},
-            // ),
-            _buildTextFormField(
-              controller: _contactNoController,
-              label: 'Contact No. (not editable)',
-              iconData: Icons.phone,
-              maxLength: 10,
-              readOnly: true,
-              textInputType: TextInputType.phone,
-            ),
-            const SizedBox(height: 16,),
-            _buildTextFormField(
-              controller: _altContactNoController,
-              label: 'Alt. Contact No. (Optional)',
-              iconData: Icons.phone,
-              maxLength: 10,
-              textInputType: TextInputType.phone,
-            ),
-            const SizedBox(height: 16,),
-            _buildTextFormField(
-              controller: _dobController,
-              isRequired: true,
-              label: 'DOB (YYYY-MM-DD)*',
-              iconData: Icons.calendar_month,
-              textInputType: TextInputType.datetime,
-              isDateField: true,
-            ),
-          ],
+        // DropdownButtonFormField<String>(
+        //   decoration: InputDecoration(
+        //     labelText: 'Group Category *',
+        //     border: OutlineInputBorder(borderRadius: BorderRadius.circular(6), borderSide: BorderSide(color: borderGray)),
+        //     focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(6), borderSide: BorderSide(color: blue600, width: 2)),
+        //     contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+        //   ),
+        //   value: 'Channel Partner',
+        //   items: const [
+        //     DropdownMenuItem(value: 'Channel Partner', child: Text('Channel Partner')),
+        //   ],
+        //   onChanged: (_) {},
+        // ),
+
+        _buildTextFormField(
+          controller: _fullNameController,
+          label: 'Full Name *',
+          isRequired: true,
+          iconData: Icons.person,
         ),
+        const SizedBox(height: 16,),
+        // _buildTextFormField(
+        //   controller: _contactNoController,
+        //   label: 'Contact No. (not editable)',
+        //   iconData: Icons.phone,
+        //   maxLength: 10,
+        //   readOnly: true,
+        //   textInputType: TextInputType.phone,
+        // ),
+        // const SizedBox(height: 16,),
+        _buildTextFormField(
+          controller: _altContactNoController,
+          label: 'Alt. Contact No. (Optional)',
+          iconData: Icons.phone,
+          maxLength: 10,
+          textInputType: TextInputType.phone,
+        ),
+        const SizedBox(height: 16,),
+        _buildTextFormField(
+          controller: _dobController,
+          isRequired: true,
+          label: 'DOB (YYYY-MM-DD)*',
+          iconData: Icons.calendar_month,
+          textInputType: TextInputType.datetime,
+          isDateField: true,
+        ),
+
         const SizedBox(height: 16),
         _buildTextFormField(
           controller: _emailTextController,
@@ -607,7 +572,7 @@ class _EditDetailsScreenState
             const SizedBox(height: 4),
             Text(
               subTitle,
-              style: TextStyle(
+              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                 fontSize: 12,
                 fontWeight: FontWeight.w400,
                 color: Colors.red.shade600,
@@ -635,13 +600,19 @@ class _EditDetailsScreenState
     });
     if(_contactFormKey.currentState?.getContacts().isEmpty??true){
       showSimpleSnackBar(context: context, message: 'Enter at least one emergency contact no.');
+      setState(() {
+        _isLoading = false;
+      });
       return;
     }
-
+    final fullName = _fullNameController.text.trim().split(' ');
+    final firstName = fullName.isNotEmpty? fullName.first:'';
+    final lastName = fullName.length > 1 ? fullName.sublist(1).join(' '):'';
     final emergencyDetails = _contactFormKey.currentState?.getContacts();
     final otherDetails = _otherDetailsKey.currentState?.getValidatedData();
     final response = await APIService.getInstance(context).editDetails.updateDetails(
-      first_name: _firstNameController.text,
+      first_name: firstName,
+      last_name: lastName,
       t_id: otherDetails?['t_id']??null,
       gst_no: otherDetails?['gst_no']??null,
       gst_copy: otherDetails?['gst_copy']??null,
@@ -658,7 +629,7 @@ class _EditDetailsScreenState
       anni_date: _anniDataController.text.trim().isNotEmpty?_anniDataController.text.trim():null,
       alt_contact_no: _altContactNoController.text.trim().isNotEmpty? _altContactNoController.text.trim():null,
       email: _emailTextController.text.trim().isNotEmpty?_emailTextController.text.trim():null,
-      last_name: _lastNameController.text.trim().isNotEmpty?_lastNameController.text.trim():null,
+      // last_name: _lastNameController.text.trim().isNotEmpty?_lastNameController.text.trim():null,
       profile: _selectedProfile,
       emergency_details: emergencyDetails!,
     );
@@ -674,7 +645,7 @@ class _EditDetailsScreenState
         }
       }else{
         final errorMessage = response['error'] as Map<String,dynamic>;
-        CustDialog.show(context: context, message: errorMessage.entries.first.value);
+        CustDialog.show(context: context, message: '${errorMessage.keys} ${errorMessage.entries.first.value}');
       }
     } else {
       CustDialog.show(context: context, message: 'Failed to update');
@@ -1055,8 +1026,7 @@ class ProfileUpdateSection extends StatefulWidget {
   final String? imageUrl; // Network URL
   final File? selectedImageFile; // New selected image
   final VoidCallback onEditImage;
-  final TextEditingController firstNameController;
-  final TextEditingController lastNameController;
+  final TextEditingController fullNameController;
   // final Key? key;
 
   const ProfileUpdateSection({
@@ -1064,8 +1034,7 @@ class ProfileUpdateSection extends StatefulWidget {
     required this.imageUrl,
     required this.selectedImageFile,
     required this.onEditImage,
-    required this.firstNameController,
-    required this.lastNameController,
+    required this.fullNameController,
   });
 
   @override
@@ -1113,23 +1082,28 @@ class _ProfileUpdateSectionState extends State<ProfileUpdateSection> {
           ),
         ),
         SizedBox(height: 20.0,),
+        // Column(
+        //   children: [
+        //     Text('8969893457',style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: Colors.grey.shade600),)
+        //   ],
+        // )
         // First & Last Name Fields
-        Column(
-          children: [
-            _buildTextFormField(
-              controller: widget.firstNameController,
-              label: 'First name *',
-              isRequired: true,
-              iconData: Icons.person,
-            ),
-            const SizedBox(height: 16),
-            _buildTextFormField(
-              controller: widget.lastNameController,
-              label: 'Last name (Optional)',
-              iconData: Icons.person,
-            ),
-          ],
-        ),
+        // Column(
+        //   children: [
+        //     _buildTextFormField(
+        //       controller: widget.firstNameController,
+        //       label: 'Full Name *',
+        //       isRequired: true,
+        //       iconData: Icons.person,
+        //     ),
+        //     // const SizedBox(height: 16),
+        //     // _buildTextFormField(
+        //     //   controller: widget.lastNameController,
+        //     //   label: 'Last name (Optional)',
+        //     //   iconData: Icons.person,
+        //     // ),
+        //   ],
+        // ),
       ],
     );
   }
